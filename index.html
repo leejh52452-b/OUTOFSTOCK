@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUTOFSTOCK - 과거 사례 기반 주식 학습 플랫폼</title>
+    <link rel="icon" type="image/png" href="assets/logo-mark.png">
+    <style>
+        body[data-theme="brand-light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --accent-blue: #3730a3;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --input-bg: #ffffff;
+            --hover-bg: #e0e7ff;
+            --item-bg: #f8fafc;
+            --art-plate: transparent;
+            --login-bg: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%);
+            --badge-mid-bg: #fef08a; --badge-mid-text: #854d0e;
+            --badge-hard-bg: #fecdd3; --badge-hard-text: #9f1239;
+            --guide-bg: #dbeafe; --guide-text: #1e40af;
+        }
+        body[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #818cf8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --input-bg: #0f172a;
+            --hover-bg: #334155;
+            --item-bg: #0f172a;
+            --art-plate: #f1f5f9;
+            --login-bg: linear-gradient(180deg, rgba(99, 102, 241, 0.15) 0%, #1e293b 100%);
+            --badge-mid-bg: rgba(234, 179, 8, 0.2); --badge-mid-text: #facc15;
+            --badge-hard-bg: rgba(239, 68, 68, 0.2); --badge-hard-text: #f87171;
+            --guide-bg: rgba(99, 102, 241, 0.2); --guide-text: #c7d2fe;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 이미지 공통: 어두운 테마에서는 밝은 판 위에 올려 외곽선이 묻히지 않게 */
+        .art-plate { background-color: var(--art-plate); border-radius: 12px; }
+        img { display: block; max-width: 100%; }
+
+        .theme-switcher {
+            position: fixed; top: 14px; right: 28px; z-index: 1000;
+            display: flex; background-color: var(--card-bg);
+            border: 1px solid var(--card-border); padding: 3px;
+            border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); gap: 2px;
+        }
+        .theme-btn {
+            border: none; background: none; padding: 5px 12px;
+            border-radius: 14px; font-size: 11.5px; font-weight: 600;
+            color: var(--text-secondary); cursor: pointer;
+        }
+        .theme-btn.active { background-color: var(--accent-blue); color: #ffffff; }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 244px; background-color: var(--card-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+        }
+        .sidebar.collapsed { width: 72px; }
+        .sidebar-header {
+            height: 76px; display: flex; align-items: center;
+            padding: 0 16px; gap: 10px; border-bottom: 1px solid var(--card-border);
+        }
+        .sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        .toggle-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background-color: var(--hover-bg); }
+        .logo { display: flex; align-items: center; min-width: 0; }
+        .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
+        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .nav-menu { list-style: none; padding: 16px 10px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; white-space: nowrap;
+        }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px 0; }
+        .nav-link svg { width: 18px; height: 18px; stroke: var(--text-secondary); flex-shrink: 0; }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 600;
+        }
+        .nav-link:hover svg, .nav-link.active svg { stroke: var(--accent-blue); }
+
+        /* 메인 */
+        .main-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        header {
+            position: relative; height: 76px; padding: 0 28px; display: flex; align-items: center;
+            border-bottom: 1px solid var(--card-border); background-color: var(--card-bg);
+        }
+        .header-logo {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center;
+        }
+        .header-logo img { height: 56px; width: auto; padding: 3px 12px; box-sizing: content-box; }
+        .search-box { position: relative; width: 320px; max-width: 100%; }
+        .search-box input {
+            width: 100%; padding: 8px 16px 8px 36px; background-color: var(--item-bg);
+            border: 1px solid var(--card-border); border-radius: 8px;
+            color: var(--text-primary); outline: none; font-size: 13px;
+        }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex;
+        }
+        .search-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+        .content-container {
+            padding: 20px 28px; display: flex; flex-direction: column; gap: 20px;
+            width: 100%; max-width: 1440px; margin: 0 auto;
+        }
+
+        /* 지수 바 */
+        .indices-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .index-card {
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 8px; padding: 12px 16px;
+        }
+        .index-name { font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
+        .index-value { font-size: 18px; font-weight: 700; }
+        .index-change { font-size: 12px; font-weight: 600; margin-top: 1px; }
+        .up { color: var(--accent-red); }
+        .down { color: #2563eb; }
+        body[data-theme="dark"] .down { color: #60a5fa; }
+
+        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; }
+        .recommend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card {
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 8px; padding: 16px 18px;
+        }
+        .card-header { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
+
+        /* 추천 종목 */
+        .top-stocks-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .top-stock-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 10px; background-color: var(--item-bg);
+            border-radius: 6px; border: 1px solid var(--card-border);
+        }
+        .rank-num { font-weight: 800; font-size: 13px; width: 18px; color: var(--accent-blue); }
+        .stock-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .stock-name { font-weight: 600; font-size: 13px; }
+        .stock-tag { font-size: 11px; color: var(--text-secondary); }
+
+        /* 한 달 전 추천 종목 시뮬레이션 (양봉이 웃음/울음) */
+        .simulation-card {
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            gap: 8px; padding: 14px; height: calc(100% - 30px); justify-content: center;
+            background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px;
+        }
+        .yangbong-img-box {
+            width: 132px; height: 132px; display: flex; align-items: center; justify-content: center; padding: 6px;
+        }
+        .yangbong-img-box img { width: 100%; height: 100%; object-fit: contain; }
+        .sim-result-rate { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .sim-message { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .sim-btn-group { display: flex; gap: 6px; margin-top: 4px; }
+        .sim-btn {
+            border: 1px solid var(--card-border); background-color: var(--card-bg);
+            padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+            cursor: pointer; color: var(--text-secondary);
+        }
+        .sim-btn:hover, .sim-btn.active { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        /* 로그인 */
+        .login-card { border: 1px solid var(--card-border); background: var(--login-bg); padding: 14px 16px; }
+        .login-header-row { display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .login-logo { height: 52px; width: auto; max-width: 100%; }
+        body[data-theme="dark"] .login-logo { background: #f1f5f9; border-radius: 8px; padding: 4px 10px; height: 60px; box-sizing: content-box; max-width: 100%; }
+        .login-form { display: flex; flex-direction: column; gap: 8px; }
+        .input-group input {
+            width: 100%; padding: 8px 10px; background-color: var(--input-bg);
+            border: 1px solid var(--card-border); border-radius: 4px; color: var(--text-primary); font-size: 12.5px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent-blue); }
+        .login-options { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+        .btn-login {
+            width: 100%; padding: 9px; background-color: var(--accent-blue);
+            border: none; border-radius: 4px; color: white; font-weight: 700; font-size: 13.5px; cursor: pointer; margin-top: 4px;
+        }
+        body[data-theme="dark"] .btn-login { color: #0f172a; }
+        .btn-login:hover { filter: brightness(1.1); }
+        .login-links { display: flex; justify-content: center; gap: 10px; margin-top: 8px; font-size: 11.5px; color: var(--text-secondary); }
+        .login-links a { color: var(--text-secondary); text-decoration: none; }
+        .login-links a:hover { text-decoration: underline; }
+
+        /* 양봉이의 1분 용어 학습 */
+        .word-card {
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            border-left: 4px solid var(--accent-blue); border-radius: 6px;
+            padding: 10px 14px 10px 10px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
+        .word-card:hover { border-color: var(--accent-blue); }
+        .word-art { width: 96px; height: 78px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 4px; }
+        .word-art img { width: 100%; height: 100%; object-fit: contain; }
+        .word-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .word-title { font-size: 11.5px; color: var(--accent-blue); font-weight: 700; }
+        .word-desc { font-size: 12.5px; font-weight: 600; }
+        .word-link { font-size: 11px; color: var(--accent-blue); font-weight: 700; margin-top: 2px; }
+
+        .profile-guide-card {
+            background-color: var(--item-bg); border: 1px dashed var(--card-border);
+            border-radius: 6px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+        }
+        .guide-badge {
+            background-color: var(--guide-bg); color: var(--guide-text);
+            font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 4px; white-space: nowrap;
+        }
+
+        /* 순위 */
+        .tab-group { display: flex; gap: 6px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-bottom: 8px; }
+        .tab-btn {
+            background: none; border: none; color: var(--text-secondary);
+            font-size: 12px; font-weight: 600; padding: 4px 8px; cursor: pointer; border-radius: 4px;
+        }
+        .tab-btn.active { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .ranking-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .ranking-table th, .ranking-table td { padding: 7px 4px; text-align: right; }
+        .ranking-table th:first-child, .ranking-table td:first-child { text-align: left; }
+        .ranking-table th { color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--card-border); }
+
+        /* 실습 / 뉴스 */
+        .practice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .practice-card {
+            background-color: var(--item-bg); border: 1px solid var(--card-border);
+            border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; width: fit-content; }
+        .badge-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .badge-hard { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        .news-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .news-item a {
+            color: var(--text-primary); text-decoration: none; font-size: 13px; display: block;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .news-item a:hover { color: var(--accent-blue); }
+        .news-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+
+        /* 반응형 */
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .header-logo { display: none; }
+        }
+        @media (max-width: 760px) {
+            .indices-bar { grid-template-columns: repeat(2, 1fr); }
+            .recommend-grid, .practice-grid { grid-template-columns: 1fr; }
+            .content-container { padding: 16px; }
+            .theme-switcher { top: 10px; right: 10px; }
+        }
+    </style>
+</head>
+<body data-theme="brand-light">
+    <div class="theme-switcher">
+        <button class="theme-btn active" onclick="changeTheme('brand-light', this)">브랜드 라이트</button>
+        <button class="theme-btn" onclick="changeTheme('dark', this)">슬레이트 다크</button>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="toggle-btn" id="toggleBtn" title="메뉴 접기/열기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="logo">
+                <img class="logo-img art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span class="nav-text">홈</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span class="nav-text">학습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span class="nav-text">실습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="nav-text">실시간 종목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path><path d="M21 7h-4v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2V7z"></path><line x1="7" y1="8" x2="13" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line><line x1="7" y1="16" x2="11" y2="16"></line></svg>
+                    <span class="nav-text">뉴스</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <a href="#" class="header-logo" title="OUTOFSTOCK 홈">
+                <img class="art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </a>
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="text" placeholder="종목명 또는 종목코드 검색">
+            </div>
+        </header>
+
+        <div class="content-container">
+            <section class="indices-bar">
+                <div class="index-card">
+                    <div class="index-name">KOSPI</div>
+                    <div class="index-value">2,614.30</div>
+                    <div class="index-change up">▲ 10.94 (+0.42%)</div>
+                </div>
+                <div class="index-card">
+                    <div class="index-name">KOSDAQ</div>
+                    <div class="index-value">764.11</div>
+                    <div class="index-change down">▼ 1.38 (-0.18%)</div>
+                </div>
+                <div class="index-card">
+                    <div class="index-name">원/달러 환율</div>
+                    <div class="index-value">1,384.50</div>
+                    <div class="index-change up">▲ 3.20 (+0.23%)</div>
+                </div>
+                <div class="index-card">
+                    <div class="index-name">S&amp;P 500 (미국)</div>
+                    <div class="index-value">5,702.55</div>
+                    <div class="index-change up">▲ 22.10 (+0.39%)</div>
+                </div>
+            </section>
+
+            <div class="dashboard-grid">
+                <div class="left-column">
+                    <div class="recommend-grid">
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">오늘의 추천 종목 Top 5</div></div>
+                            <ul class="top-stocks-list">
+                                <li class="top-stock-item">
+                                    <span class="rank-num">1</span>
+                                    <div class="stock-info">
+                                        <span class="stock-name">SK하이닉스</span>
+                                        <span class="stock-tag">골든크로스 유력</span>
+                                    </div>
+                                    <span class="index-change up">+2.04%</span>
+                                </li>
+                                <li class="top-stock-item">
+                                    <span class="rank-num">2</span>
+                                    <div class="stock-info">
+                                        <span class="stock-name">LG에너지솔루션</span>
+                                        <span class="stock-tag">RSI 과매도 반등</span>
+                                    </div>
+                                    <span class="index-change up">+0.40%</span>
+                                </li>
+                                <li class="top-stock-item">
+                                    <span class="rank-num">3</span>
+                                    <div class="stock-info">
+                                        <span class="stock-name">NAVER</span>
+                                        <span class="stock-tag">박스권 하단 지지</span>
+                                    </div>
+                                    <span class="index-change down">-0.76%</span>
+                                </li>
+                                <li class="top-stock-item">
+                                    <span class="rank-num">4</span>
+                                    <div class="stock-info">
+                                        <span class="stock-name">HD현대일렉트릭</span>
+                                        <span class="stock-tag">거래량 돌파 신호</span>
+                                    </div>
+                                    <span class="index-change up">+3.10%</span>
+                                </li>
+                                <li class="top-stock-item">
+                                    <span class="rank-num">5</span>
+                                    <div class="stock-info">
+                                        <span class="stock-name">한미반도체</span>
+                                        <span class="stock-tag">주요 이평선 지지</span>
+                                    </div>
+                                    <span class="index-change down">-0.90%</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">한 달 전 추천 종목 투자 결과는?</div></div>
+                            <div class="simulation-card">
+                                <div class="yangbong-img-box art-plate">
+                                    <img id="yangbongImg" src="assets/happy.png" alt="웃고 있는 양봉이">
+                                </div>
+                                <div class="sim-result-rate up" id="simResultRate">+14.2%</div>
+                                <div class="sim-message" id="simMessage">"도움이 될 수 있어 기뻐요!!"</div>
+                                <div class="sim-btn-group">
+                                    <button class="sim-btn active" id="btnProfit" onclick="toggleSimResult(true)">수익 보기</button>
+                                    <button class="sim-btn" id="btnLoss" onclick="toggleSimResult(false)">손실 보기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">과거 사례 기반 추천 실습</div></div>
+                        <div class="practice-grid">
+                            <div class="practice-card">
+                                <span class="badge badge-mid">중급</span>
+                                <h3 style="font-size: 13.5px;">종목 A · 골든크로스 구간</h3>
+                                <p style="font-size: 11px; color: var(--text-secondary);">SMA 5가 SMA 20을 위로 통과하는 매수 시점 판단 연습</p>
+                            </div>
+                            <div class="practice-card">
+                                <span class="badge badge-hard">고급</span>
+                                <h3 style="font-size: 13.5px;">NAVER · RSI 과매도 반등 구간</h3>
+                                <p style="font-size: 11px; color: var(--text-secondary);">RSI 30 이하 탈출 시 반등 매매 판단 연습</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">주요 실시간 뉴스</div></div>
+                        <ul class="news-list">
+                            <li class="news-item">
+                                <a href="#">외국인 5거래일 연속 순매수... 반도체 업종 중심 상승세</a>
+                                <div class="news-meta">한국경제 · 10분 전</div>
+                            </li>
+                            <li class="news-item">
+                                <a href="#">한국은행 기준금리 동결, 채권시장 영향 제한적 전망</a>
+                                <div class="news-meta">연합뉴스 · 30분 전</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="card login-card">
+                        <div class="login-header-row">
+                            <img class="login-logo" src="assets/logo.png" alt="OUTOFSTOCK">
+                        </div>
+                        <form class="login-form" onsubmit="event.preventDefault();">
+                            <div class="input-group"><input type="text" placeholder="아이디 또는 이메일"></div>
+                            <div class="input-group"><input type="password" placeholder="비밀번호"></div>
+                            <div class="login-options">
+                                <label style="cursor: pointer;"><input type="checkbox"> 로그인 유지</label>
+                                <label style="cursor: pointer;"><input type="checkbox"> IP 보안</label>
+                            </div>
+                            <button class="btn-login">로그인</button>
+                        </form>
+                        <div class="login-links"><a href="#">회원가입</a><span>|</span><a href="#">비밀번호 찾기</a></div>
+                    </div>
+
+                    <div class="word-card">
+                        <div class="word-art art-plate">
+                            <img src="assets/study.png" alt="공부하는 양봉이">
+                        </div>
+                        <div class="word-body">
+                            <div class="word-title">양봉이의 1분 용어 학습</div>
+                            <div class="word-desc">"골든크로스(Golden Cross)란?"</div>
+                            <div class="word-link">학습하기 →</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-guide-card">
+                        <span class="guide-badge">투자 성향</span>
+                        <div style="font-size: 11.5px; color: var(--text-primary);">
+                            설문 완료 후 <strong>맞춤 실습</strong> 받기!
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="margin-bottom: 6px;"><div class="card-title">실시간 종목 순위</div></div>
+                        <div class="tab-group">
+                            <button class="tab-btn active" onclick="switchTab(this)">거래대금</button>
+                            <button class="tab-btn" onclick="switchTab(this)">상승</button>
+                            <button class="tab-btn" onclick="switchTab(this)">하락</button>
+                        </div>
+                        <table class="ranking-table">
+                            <thead>
+                                <tr><th>종목명</th><th>현재가</th><th>등락률</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>SK하이닉스</td><td>178,400</td><td class="up">+2.04%</td></tr>
+                                <tr><td>삼성전자</td><td>71,900</td><td class="up">+1.12%</td></tr>
+                                <tr><td>HD현대일렉트릭</td><td>312,500</td><td class="up">+3.10%</td></tr>
+                                <tr><td>한미반도체</td><td>97,400</td><td class="down">-0.90%</td></tr>
+                                <tr><td>카카오</td><td>41,150</td><td class="down">-1.21%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changeTheme(themeName, element) {
+            document.body.setAttribute('data-theme', themeName);
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('toggleBtn').addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        function switchTab(element) {
+            element.parentElement.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // 한 달 전 추천 종목 시뮬레이션: 수익이면 웃는 양봉이, 손실이면 우는 양봉이
+        function toggleSimResult(isProfit) {
+            const img = document.getElementById('yangbongImg');
+            const rate = document.getElementById('simResultRate');
+            const msg = document.getElementById('simMessage');
+            document.getElementById('btnProfit').classList.toggle('active', isProfit);
+            document.getElementById('btnLoss').classList.toggle('active', !isProfit);
+            if (isProfit) {
+                img.src = 'assets/happy.png';
+                img.alt = '웃고 있는 양봉이';
+                rate.textContent = '+14.2%';
+                rate.className = 'sim-result-rate up';
+                msg.textContent = '"도움이 될 수 있어 기뻐요!!"';
+            } else {
+                img.src = 'assets/sad.png';
+                img.alt = '울고 있는 양봉이';
+                rate.textContent = '-8.5%';
+                rate.className = 'sim-result-rate down';
+                msg.textContent = '"죄송합니다.."';
+            }
+        }
+    </script>
+</body>
+</html>
