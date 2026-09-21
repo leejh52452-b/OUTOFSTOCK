@@ -25,25 +25,6 @@
             --badge-hard-bg: #fecdd3; --badge-hard-text: #9f1239;
             --guide-bg: #dbeafe; --guide-text: #1e40af;
         }
-        body[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --card-border: #334155;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --accent-blue: #818cf8;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --input-bg: #0f172a;
-            --hover-bg: #334155;
-            --item-bg: #0f172a;
-            --art-plate: #f1f5f9;
-            --login-bg: linear-gradient(180deg, rgba(99, 102, 241, 0.15) 0%, #1e293b 100%);
-            --badge-mid-bg: rgba(234, 179, 8, 0.2); --badge-mid-text: #facc15;
-            --badge-hard-bg: rgba(239, 68, 68, 0.2); --badge-hard-text: #f87171;
-            --guide-bg: rgba(99, 102, 241, 0.2); --guide-text: #c7d2fe;
-        }
         * {
             box-sizing: border-box;
             margin: 0; padding: 0;
@@ -61,19 +42,6 @@
         /* 이미지 공통: 어두운 테마에서는 밝은 판 위에 올려 외곽선이 묻히지 않게 */
         .art-plate { background-color: var(--art-plate); border-radius: 12px; }
         img { display: block; max-width: 100%; }
-
-        .theme-switcher {
-            position: fixed; top: 14px; right: 28px; z-index: 1000;
-            display: flex; background-color: var(--card-bg);
-            border: 1px solid var(--card-border); padding: 3px;
-            border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); gap: 2px;
-        }
-        .theme-btn {
-            border: none; background: none; padding: 5px 12px;
-            border-radius: 14px; font-size: 11.5px; font-weight: 600;
-            color: var(--text-secondary); cursor: pointer;
-        }
-        .theme-btn.active { background-color: var(--accent-blue); color: #ffffff; }
 
         /* 사이드바 */
         .sidebar {
@@ -148,7 +116,6 @@
         .index-change { font-size: 12px; font-weight: 600; margin-top: 1px; }
         .up { color: var(--accent-red); }
         .down { color: #2563eb; }
-        body[data-theme="dark"] .down { color: #60a5fa; }
 
         .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
         .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; }
@@ -201,7 +168,6 @@
         .login-card { border: 1px solid var(--card-border); background: var(--login-bg); padding: 14px 16px; }
         .login-header-row { display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
         .login-logo { height: 52px; width: auto; max-width: 100%; }
-        body[data-theme="dark"] .login-logo { background: #f1f5f9; border-radius: 8px; padding: 4px 10px; height: 60px; box-sizing: content-box; max-width: 100%; }
         .login-form { display: flex; flex-direction: column; gap: 8px; }
         .input-group input {
             width: 100%; padding: 8px 10px; background-color: var(--input-bg);
@@ -213,7 +179,6 @@
             width: 100%; padding: 9px; background-color: var(--accent-blue);
             border: none; border-radius: 4px; color: white; font-weight: 700; font-size: 13.5px; cursor: pointer; margin-top: 4px;
         }
-        body[data-theme="dark"] .btn-login { color: #0f172a; }
         .btn-login:hover { filter: brightness(1.1); }
         .login-links { display: flex; justify-content: center; gap: 10px; margin-top: 8px; font-size: 11.5px; color: var(--text-secondary); }
         .login-links a { color: var(--text-secondary); text-decoration: none; }
@@ -280,16 +245,10 @@
             .indices-bar { grid-template-columns: repeat(2, 1fr); }
             .recommend-grid, .practice-grid { grid-template-columns: 1fr; }
             .content-container { padding: 16px; }
-            .theme-switcher { top: 10px; right: 10px; }
         }
     </style>
 </head>
 <body data-theme="brand-light">
-    <div class="theme-switcher">
-        <button class="theme-btn active" onclick="changeTheme('brand-light', this)">브랜드 라이트</button>
-        <button class="theme-btn" onclick="changeTheme('dark', this)">슬레이트 다크</button>
-    </div>
-
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <button class="toggle-btn" id="toggleBtn" title="메뉴 접기/열기">
@@ -532,12 +491,6 @@
     </div>
 
     <script>
-        function changeTheme(themeName, element) {
-            document.body.setAttribute('data-theme', themeName);
-            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-        }
-
         const sidebar = document.getElementById('sidebar');
         document.getElementById('toggleBtn').addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
