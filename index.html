@@ -179,9 +179,14 @@
             background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px;
         }
         .yangbong-img-box {
-            width: 132px; height: 132px; display: flex; align-items: center; justify-content: center; padding: 6px;
+            width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; padding: 6px;
         }
         .yangbong-img-box img { width: 100%; height: 100%; object-fit: contain; }
+        .sim-date { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+        .sim-pick { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+        .sim-pick strong { color: var(--accent-blue); font-weight: 800; }
+        .sim-result-row { display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .sim-result-label { font-size: 14px; font-weight: 800; color: var(--text-primary); }
         .sim-result-rate { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
         .sim-message { font-size: 13px; font-weight: 700; color: var(--text-primary); }
         .sim-btn-group { display: flex; gap: 6px; margin-top: 4px; }
@@ -417,10 +422,15 @@
                         <div class="card">
                             <div class="card-header"><div class="card-title">한 달 전 추천 종목 투자 결과는?</div></div>
                             <div class="simulation-card">
+                                <div class="sim-date" id="simDate"></div>
+                                <div class="sim-pick" id="simPick"></div>
                                 <div class="yangbong-img-box art-plate">
                                     <img id="yangbongImg" src="assets/happy.png" alt="웃고 있는 양봉이">
                                 </div>
-                                <div class="sim-result-rate up" id="simResultRate">+14.2%</div>
+                                <div class="sim-result-row">
+                                    <span class="sim-result-label" id="simResultLabel">결과는!!</span>
+                                    <span class="sim-result-rate up" id="simResultRate">+14.2%</span>
+                                </div>
                                 <div class="sim-message" id="simMessage">"도움이 될 수 있어 기뻐요!!"</div>
                                 <div class="sim-btn-group">
                                     <button class="sim-btn active" id="btnProfit" onclick="toggleSimResult(true)">수익 보기</button>
@@ -539,26 +549,38 @@
         }
 
         // 한 달 전 추천 종목 시뮬레이션: 수익이면 웃는 양봉이, 손실이면 우는 양봉이
+        // (백엔드 연동 시 stock / rate 값만 API 응답으로 교체)
+        const SIM = {
+            profit: { stock: 'SK하이닉스', rate: '+14.2%', label: '결과는!!', msg: '"도움이 될 수 있어 기뻐요!!"', img: 'assets/happy.png', alt: '웃고 있는 양봉이', cls: 'up' },
+            loss:   { stock: '한미반도체', rate: '-8.5%',  label: '결과는..', msg: '"죄송합니다.."',            img: 'assets/sad.png',   alt: '울고 있는 양봉이', cls: 'down' }
+        };
+
+        // 오늘 기준 30일 전 날짜 (예: 2026.08.22)
+        function daysAgoText(n) {
+            const d = new Date();
+            d.setDate(d.getDate() - n);
+            const p = v => String(v).padStart(2, '0');
+            return d.getFullYear() + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate());
+        }
+
         function toggleSimResult(isProfit) {
-            const img = document.getElementById('yangbongImg');
-            const rate = document.getElementById('simResultRate');
-            const msg = document.getElementById('simMessage');
+            const r = isProfit ? SIM.profit : SIM.loss;
             document.getElementById('btnProfit').classList.toggle('active', isProfit);
             document.getElementById('btnLoss').classList.toggle('active', !isProfit);
-            if (isProfit) {
-                img.src = 'assets/happy.png';
-                img.alt = '웃고 있는 양봉이';
-                rate.textContent = '+14.2%';
-                rate.className = 'sim-result-rate up';
-                msg.textContent = '"도움이 될 수 있어 기뻐요!!"';
-            } else {
-                img.src = 'assets/sad.png';
-                img.alt = '울고 있는 양봉이';
-                rate.textContent = '-8.5%';
-                rate.className = 'sim-result-rate down';
-                msg.textContent = '"죄송합니다.."';
-            }
+            document.getElementById('simDate').textContent = daysAgoText(30) + ' (30일 전)';
+            document.getElementById('simPick').innerHTML = '30일 전 양봉이는 <strong></strong> 종목을 골랐어요!';
+            document.querySelector('#simPick strong').textContent = r.stock;
+            const img = document.getElementById('yangbongImg');
+            img.src = r.img;
+            img.alt = r.alt;
+            document.getElementById('simResultLabel').textContent = r.label;
+            const rate = document.getElementById('simResultRate');
+            rate.textContent = r.rate;
+            rate.className = 'sim-result-rate ' + r.cls;
+            document.getElementById('simMessage').textContent = r.msg;
         }
+
+        toggleSimResult(true);
     </script>
 </body>
 </html>
