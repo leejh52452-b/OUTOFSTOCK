@@ -236,6 +236,69 @@
         .news-item a:hover { color: var(--accent-blue); }
         .news-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
 
+        /* 투자 성향 분석 설문 모달 */
+        .survey-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .survey-overlay[hidden] { display: none; }
+        .survey-modal {
+            position: relative; width: 100%; min-width: 0; max-width: 460px; max-height: 88vh; overflow-y: auto;
+            background-color: var(--card-bg); border-radius: 16px; padding: 26px 24px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+        }
+        .survey-close {
+            position: absolute; top: 14px; right: 14px; width: 30px; height: 30px;
+            border: none; background: none; color: var(--text-secondary); cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        }
+        .survey-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .survey-close svg { width: 18px; height: 18px; }
+        .survey-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; padding-right: 26px; }
+        .survey-header-icon { width: 34px; height: 34px; flex-shrink: 0; border-radius: 8px; }
+        .survey-header > div { min-width: 0; }
+        .survey-title { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+        .survey-subtitle { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
+        .survey-progress-label { font-size: 11.5px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; }
+        .survey-progress-track { height: 6px; background-color: var(--item-bg); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
+        .survey-progress-fill { height: 100%; background-color: var(--accent-blue); border-radius: 3px; transition: width 0.25s ease; }
+        .survey-question { font-size: 15px; font-weight: 700; line-height: 1.45; margin-bottom: 14px; }
+        .survey-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+        .survey-option {
+            width: 100%; text-align: left; border: 1px solid var(--card-border); border-radius: 8px;
+            padding: 12px 14px; font-size: 13.5px; font-weight: 500; color: var(--text-primary);
+            background-color: var(--item-bg); cursor: pointer;
+        }
+        .survey-option:hover { border-color: var(--accent-blue); }
+        .survey-option.selected { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 700; }
+        .survey-nav-row { display: flex; justify-content: space-between; gap: 10px; }
+        .survey-btn {
+            padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;
+            border: 1px solid var(--card-border); background-color: var(--card-bg); color: var(--text-secondary);
+        }
+        .survey-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .survey-btn.primary { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
+        .survey-btn.primary:hover { filter: brightness(1.1); color: #ffffff; }
+        .survey-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+        .survey-result { text-align: center; }
+        .survey-result-img { width: 168px; height: auto; margin: 0 auto 14px; display: block; }
+        .survey-result-type { font-size: 21px; font-weight: 800; margin-bottom: 8px; }
+        .survey-result-type.stable { color: var(--accent-blue); }
+        .survey-result-type.neutral { color: var(--badge-mid-text); }
+        .survey-result-type.aggressive { color: var(--accent-red); }
+        .survey-result-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 18px; }
+        .survey-result-subtitle { font-size: 12.5px; font-weight: 700; text-align: left; margin-bottom: 8px; }
+        .survey-result-products { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .reco-product { background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; text-align: left; }
+        .reco-product-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .reco-product-name { font-size: 13px; font-weight: 700; min-width: 0; overflow-wrap: break-word; }
+        .reco-product-head .badge { flex-shrink: 0; }
+        .risk-low { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .risk-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .risk-high { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        .reco-product-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
+        .profile-guide-card { cursor: pointer; }
+
         /* 반응형 */
         @media (max-width: 1100px) {
             .dashboard-grid { grid-template-columns: 1fr; }
@@ -245,6 +308,7 @@
             .indices-bar { grid-template-columns: repeat(2, 1fr); }
             .recommend-grid, .practice-grid { grid-template-columns: 1fr; }
             .content-container { padding: 16px; }
+            .survey-modal { padding: 22px 18px; max-height: 92vh; }
         }
     </style>
 </head>
@@ -263,6 +327,12 @@
                 <a href="#" class="nav-link active">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                     <span class="nav-text">홈</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="openSurvey(event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg>
+                    <span class="nav-text">투자 성향 분석</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -458,7 +528,7 @@
                         </div>
                     </div>
 
-                    <div class="profile-guide-card">
+                    <div class="profile-guide-card" id="profileGuideCard" onclick="openSurvey(event)">
                         <span class="guide-badge">투자 성향</span>
                         <div style="font-size: 11.5px; color: var(--text-primary);">
                             설문 완료 후 <strong>맞춤 실습</strong> 받기!
@@ -487,6 +557,24 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 투자 성향 분석 설문 모달 -->
+    <div class="survey-overlay" id="surveyOverlay" hidden onclick="if (event.target === this) closeSurvey();">
+        <div class="survey-modal" role="dialog" aria-modal="true" aria-label="투자 성향 분석">
+            <button class="survey-close" onclick="closeSurvey()" aria-label="닫기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="survey-header">
+                <img class="survey-header-icon art-plate" src="assets/logo-mark.png" alt="">
+                <div>
+                    <div class="survey-title">투자 성향 분석</div>
+                    <div class="survey-subtitle">6가지 질문에 답하고 나에게 맞는 투자 스타일을 확인해요</div>
+                </div>
+            </div>
+            <div id="surveyQuestionView"></div>
+            <div id="surveyResultView" hidden></div>
         </div>
     </div>
 
@@ -534,6 +622,207 @@
         }
 
         toggleSimResult(true);
+
+        // ===== 투자 성향 분석 설문 =====
+        // (백엔드 연동 시 질문/추천 상품은 API 응답으로 교체 가능한 구조)
+        const SURVEY_QUESTIONS = [
+            { q: '투자 경험이 얼마나 되시나요?', options: [
+                { text: '처음이에요', score: 1 },
+                { text: '예금·적금 정도는 해봤어요', score: 2 },
+                { text: '주식이나 펀드 경험이 있어요', score: 3 }
+            ]},
+            { q: '원금 손실에 대해 어떻게 생각하시나요?', options: [
+                { text: '손실은 절대 원하지 않아요', score: 1 },
+                { text: '약간의 손실은 감수할 수 있어요', score: 2 },
+                { text: '큰 수익을 위해서라면 손실도 감수해요', score: 3 }
+            ]},
+            { q: '투자 기간을 얼마나 생각하고 계신가요?', options: [
+                { text: '6개월 이내로 짧게 보고 있어요', score: 1 },
+                { text: '1~3년 정도 생각해요', score: 2 },
+                { text: '3년 이상 길게 봐요', score: 3 }
+            ]},
+            { q: '보유 종목이 갑자기 -20% 하락하면?', options: [
+                { text: '바로 손절하고 팔아요', score: 1 },
+                { text: '일단 상황을 지켜봐요', score: 2 },
+                { text: '오히려 더 사고 싶어요', score: 3 }
+            ]},
+            { q: '선호하는 수익 스타일은?', options: [
+                { text: '적더라도 꾸준한 수익이 좋아요', score: 1 },
+                { text: '적당한 위험에 적당한 수익이 좋아요', score: 2 },
+                { text: '높은 위험이라도 높은 수익을 노려요', score: 3 }
+            ]},
+            { q: '투자에 쓸 수 있는 여윳돈 비중은?', options: [
+                { text: '전체 자산의 10% 이하예요', score: 1 },
+                { text: '전체 자산의 10~30% 정도예요', score: 2 },
+                { text: '전체 자산의 30% 이상이에요', score: 3 }
+            ]}
+        ];
+
+        // 등급 구분은 OUTOFSTOCK_추천상품_선정.docx의 성향별 조합 규칙을 그대로 반영
+        const RISK_PROFILES = {
+            stable: {
+                name: '안정형', img: 'assets/risk-stable.png',
+                desc: '큰 변동보다는 원금을 지키는 걸 가장 중요하게 생각하는 성향이에요. 저위험 자산 위주로 천천히 배워가요.',
+                products: [
+                    { name: 'PLUS KOFR금리', risk: '저위험', desc: '나라 채권을 담보로 하루짜리 이자를 받는 상품이에요. 거의 움직이지 않아요.' },
+                    { name: 'KODEX TRF3070', risk: '저위험', desc: '세계 주식 30%와 채권 70%를 섞었어요. 주식이 들어 있어도 채권이 많으면 덜 흔들려요.' },
+                    { name: 'PLUS 금채권혼합', risk: '중위험', desc: '금과 나라 채권을 반씩 담아요. 주식이 아닌 자산도 오르내린다는 걸 배워요.' }
+                ]
+            },
+            neutral: {
+                name: '중립형', img: 'assets/risk-neutral.png',
+                desc: '안정과 수익 사이에서 균형을 잡고 싶은 성향이에요. 중위험 자산을 중심으로 조금씩 경험을 넓혀가요.',
+                products: [
+                    { name: 'KODEX 200미국채혼합50', risk: '중위험', desc: '우리나라 대표 200개 회사 주식과 미국 국채를 섞어 담아요.' },
+                    { name: 'PLUS 은채권혼합', risk: '중위험', desc: '은과 나라 채권을 반씩 담아요.' },
+                    { name: 'KODEX 종합채권(AA-이상)액티브', risk: '저위험', desc: '나라와 튼튼한 회사의 채권을 골고루 담아요.' }
+                ]
+            },
+            aggressive: {
+                name: '공격형', img: 'assets/risk-aggressive.png',
+                desc: '변동이 크더라도 높은 수익 기회를 적극적으로 노리는 성향이에요. 고위험 자산 비중을 높여 실전 감각을 키워요.',
+                products: [
+                    { name: 'KODEX 삼성전자채권혼합', risk: '중위험', desc: '삼성전자와 나라 채권을 섞었어요. 같은 회사라도 채권과 섞으면 덜 흔들려요.' },
+                    { name: 'TIGER 미국테크TOP10 INDXX', risk: '고위험', desc: '애플·엔비디아 같은 미국 기술 회사 10곳에 집중해요. 환율에 따라서도 움직여요.' },
+                    { name: 'SK하이닉스', risk: '고위험', desc: '반도체 회사 한 곳의 주식이에요. 오르내림이 커요.' }
+                ]
+            }
+        };
+        const RISK_BADGE_CLASS = { '저위험': 'risk-low', '중위험': 'risk-mid', '고위험': 'risk-high' };
+
+        function classifyRiskScore(score) {
+            if (score <= 9) return 'stable';
+            if (score <= 14) return 'neutral';
+            return 'aggressive';
+        }
+
+        let surveyIndex = 0;
+        let surveyAnswers = new Array(SURVEY_QUESTIONS.length).fill(null);
+        const surveyOverlay = document.getElementById('surveyOverlay');
+
+        function openSurvey(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            surveyIndex = 0;
+            surveyAnswers = new Array(SURVEY_QUESTIONS.length).fill(null);
+            document.getElementById('surveyResultView').hidden = true;
+            document.getElementById('surveyQuestionView').hidden = false;
+            renderSurveyQuestion();
+            surveyOverlay.hidden = false;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSurvey() {
+            surveyOverlay.hidden = true;
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !surveyOverlay.hidden) closeSurvey();
+        });
+
+        function renderSurveyQuestion() {
+            const total = SURVEY_QUESTIONS.length;
+            const q = SURVEY_QUESTIONS[surveyIndex];
+            const isLast = surveyIndex === total - 1;
+            const answered = surveyAnswers[surveyIndex] !== null;
+            document.getElementById('surveyQuestionView').innerHTML = `
+                <div class="survey-progress-label">${surveyIndex + 1} / ${total}</div>
+                <div class="survey-progress-track"><div class="survey-progress-fill" style="width:${((surveyIndex + 1) / total) * 100}%"></div></div>
+                <div class="survey-question">${q.q}</div>
+                <div class="survey-options">
+                    ${q.options.map((opt, i) => `<button type="button" class="survey-option${surveyAnswers[surveyIndex] === i ? ' selected' : ''}" onclick="selectSurveyOption(${i})">${opt.text}</button>`).join('')}
+                </div>
+                <div class="survey-nav-row">
+                    <button type="button" class="survey-btn" onclick="prevSurveyQuestion()" ${surveyIndex === 0 ? 'style="visibility:hidden"' : ''}>이전</button>
+                    <button type="button" class="survey-btn primary" ${answered ? '' : 'disabled'} onclick="nextSurveyQuestion()">${isLast ? '결과 보기' : '다음'}</button>
+                </div>
+            `;
+        }
+
+        function selectSurveyOption(i) {
+            surveyAnswers[surveyIndex] = i;
+            renderSurveyQuestion();
+        }
+
+        function prevSurveyQuestion() {
+            if (surveyIndex === 0) return;
+            surveyIndex--;
+            renderSurveyQuestion();
+        }
+
+        function nextSurveyQuestion() {
+            if (surveyAnswers[surveyIndex] === null) return;
+            if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
+                surveyIndex++;
+                renderSurveyQuestion();
+            } else {
+                finishSurvey();
+            }
+        }
+
+        function finishSurvey() {
+            const score = surveyAnswers.reduce((sum, ansIdx, qi) => sum + SURVEY_QUESTIONS[qi].options[ansIdx].score, 0);
+            const type = classifyRiskScore(score);
+            try {
+                localStorage.setItem('outofstock_risk_profile', JSON.stringify({ type, score, date: new Date().toISOString() }));
+            } catch (e) { /* 개인정보 저장 실패해도 결과 화면은 그대로 보여줌 */ }
+            renderSurveyResult(type);
+            updateProfileGuideCard();
+            document.getElementById('surveyQuestionView').hidden = true;
+            document.getElementById('surveyResultView').hidden = false;
+        }
+
+        function renderSurveyResult(type) {
+            const p = RISK_PROFILES[type];
+            document.getElementById('surveyResultView').innerHTML = `
+                <div class="survey-result">
+                    <img class="survey-result-img" src="${p.img}" alt="${p.name} 양봉이">
+                    <div class="survey-result-type ${type}">${p.name}</div>
+                    <div class="survey-result-desc">${p.desc}</div>
+                    <div class="survey-result-subtitle">${p.name}에게 추천하는 상품</div>
+                    <div class="survey-result-products">
+                        ${p.products.map(pr => `
+                            <div class="reco-product">
+                                <div class="reco-product-head">
+                                    <span class="reco-product-name">${pr.name}</span>
+                                    <span class="badge ${RISK_BADGE_CLASS[pr.risk]}">${pr.risk}</span>
+                                </div>
+                                <div class="reco-product-desc">${pr.desc}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="survey-nav-row">
+                        <button type="button" class="survey-btn" onclick="openSurvey()">다시 하기</button>
+                        <button type="button" class="survey-btn primary" onclick="closeSurvey()">닫기</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 홈 화면 우측 "투자 성향" 카드: 진단 결과가 있으면 성향을 보여주고, 없으면 설문 유도 문구를 보여줌
+        function updateProfileGuideCard() {
+            const el = document.getElementById('profileGuideCard');
+            let saved = null;
+            try { saved = JSON.parse(localStorage.getItem('outofstock_risk_profile')); } catch (e) { saved = null; }
+            if (saved && RISK_PROFILES[saved.type]) {
+                const p = RISK_PROFILES[saved.type];
+                el.innerHTML = `
+                    <span class="guide-badge">투자 성향</span>
+                    <div style="font-size: 11.5px; color: var(--text-primary);">
+                        회원님은 <strong style="color: var(--accent-blue);">[${p.name}]</strong> 성향이에요. 다시 진단하기 →
+                    </div>
+                `;
+            } else {
+                el.innerHTML = `
+                    <span class="guide-badge">투자 성향</span>
+                    <div style="font-size: 11.5px; color: var(--text-primary);">
+                        설문 완료 후 <strong>맞춤 실습</strong> 받기!
+                    </div>
+                `;
+            }
+        }
+
+        updateProfileGuideCard();
     </script>
 </body>
 </html>
