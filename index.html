@@ -260,6 +260,7 @@
         .survey-title { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
         .survey-subtitle { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
         .survey-progress-label { font-size: 11.5px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; }
+        .survey-domain-tag { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
         .survey-progress-track { height: 6px; background-color: var(--item-bg); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
         .survey-progress-fill { height: 100%; background-color: var(--accent-blue); border-radius: 3px; transition: width 0.25s ease; }
         .survey-question { font-size: 15px; font-weight: 700; line-height: 1.45; margin-bottom: 14px; }
@@ -570,7 +571,7 @@
                 <img class="survey-header-icon art-plate" src="assets/logo-mark.png" alt="">
                 <div>
                     <div class="survey-title">투자 성향 분석</div>
-                    <div class="survey-subtitle">6가지 질문에 답하고 나에게 맞는 투자 스타일을 확인해요</div>
+                    <div class="survey-subtitle">10가지 질문에 답하고 나에게 맞는 투자 스타일을 확인해요</div>
                 </div>
             </div>
             <div id="surveyQuestionView"></div>
@@ -624,45 +625,146 @@
         toggleSimResult(true);
 
         // ===== 투자 성향 분석 설문 =====
-        // (백엔드 연동 시 질문/추천 상품은 API 응답으로 교체 가능한 구조)
-        const SURVEY_QUESTIONS = [
-            { q: '투자 경험이 얼마나 되시나요?', options: [
-                { text: '처음이에요', score: 1 },
-                { text: '예금·적금 정도는 해봤어요', score: 2 },
-                { text: '주식이나 펀드 경험이 있어요', score: 3 }
+        // OUTOFSTOCK_투자성향설문.docx 기준: 5개 영역 × 4문항 = 20문항 은행에서
+        // 영역별 2문항씩 무작위 추출 → 총 10문항, 보기는 0~3점, 총점 0~30점
+        const SURVEY_DOMAINS = [
+            { id: 'A', name: '투자 목적과 기대 수익' },
+            { id: 'B', name: '손실 감내도' },
+            { id: 'C', name: '투자 자금 성격과 투자 기간' },
+            { id: 'D', name: '투자 경험과 지식' },
+            { id: 'E', name: '종목 선택' }
+        ];
+
+        // 보기는 항상 문서 순서 그대로 0·1·2·3점 (안정 지향 → 공격 지향)
+        const SURVEY_BANK = [
+            { domain: 'A', q: '투자를 하는 가장 큰 이유는 무엇인가요?', options: [
+                '넣은 돈을 지키면서 은행 이자보다 조금이라도 더 벌고 싶어요',
+                '물가가 오르는 만큼은 내 돈도 따라가면 좋겠어요',
+                '은행 이자의 몇 배는 벌고 싶어요',
+                '크게 오르내려도 괜찮으니 높은 수익을 노리고 싶어요'
             ]},
-            { q: '원금 손실에 대해 어떻게 생각하시나요?', options: [
-                { text: '손실은 절대 원하지 않아요', score: 1 },
-                { text: '약간의 손실은 감수할 수 있어요', score: 2 },
-                { text: '큰 수익을 위해서라면 손실도 감수해요', score: 3 }
+            { domain: 'A', q: '100만 원을 넣었을 때, 1년 뒤에 얼마쯤 벌고 싶나요?', options: [
+                '은행 이자만큼(3만 원 정도)이면 충분해요',
+                '5만~10만 원 정도',
+                '10만~20만 원 정도',
+                '20만 원 이상, 두 배가 되는 것도 기대해요'
             ]},
-            { q: '투자 기간을 얼마나 생각하고 계신가요?', options: [
-                { text: '6개월 이내로 짧게 보고 있어요', score: 1 },
-                { text: '1~3년 정도 생각해요', score: 2 },
-                { text: '3년 이상 길게 봐요', score: 3 }
+            { domain: 'A', q: '100만 원을 넣었을 때, 가장 마음에 드는 결과는?', options: [
+                '매년 3만 원씩 꾸준히 벌고, 손해는 거의 없음',
+                '보통 5만~8만 원 벌고, 가끔 조금 손해',
+                '잘되면 20만 원 벌고, 안되면 10만 원 손해',
+                '잘되면 50만 원 벌고, 안되면 30만 원 손해'
             ]},
-            { q: '보유 종목이 갑자기 -20% 하락하면?', options: [
-                { text: '바로 손절하고 팔아요', score: 1 },
-                { text: '일단 상황을 지켜봐요', score: 2 },
-                { text: '오히려 더 사고 싶어요', score: 3 }
+            { domain: 'A', q: '다음 중 내 생각과 가장 가까운 문장은?', options: [
+                '잃지 않는 것이 버는 것이다',
+                '천천히, 꾸준히 가는 게 최고다',
+                '위험 없이는 수익도 없다',
+                '크게 벌려면 크게 걸어야 한다'
             ]},
-            { q: '선호하는 수익 스타일은?', options: [
-                { text: '적더라도 꾸준한 수익이 좋아요', score: 1 },
-                { text: '적당한 위험에 적당한 수익이 좋아요', score: 2 },
-                { text: '높은 위험이라도 높은 수익을 노려요', score: 3 }
+            { domain: 'B', q: '100만 원을 넣었다면, 얼마까지 줄어도 견딜 수 있나요?', options: [
+                '조금이라도 줄면 안 돼요',
+                '90만 원까지는 괜찮아요',
+                '70만 원까지는 견딜 수 있어요',
+                '50만 원 아래로 내려가도 기다릴 수 있어요'
             ]},
-            { q: '투자에 쓸 수 있는 여윳돈 비중은?', options: [
-                { text: '전체 자산의 10% 이하예요', score: 1 },
-                { text: '전체 자산의 10~30% 정도예요', score: 2 },
-                { text: '전체 자산의 30% 이상이에요', score: 3 }
+            { domain: 'B', q: '100만 원을 넣었는데 한 달 만에 80만 원이 됐어요. 어떻게 하시겠어요?', options: [
+                '더 잃기 전에 전부 팔아요',
+                '일부를 팔아서 손해를 줄여요',
+                '그대로 두고 다시 오르길 기다려요',
+                '싸졌으니 오히려 더 사요'
+            ]},
+            { domain: 'B', q: '손해가 났을 때 나의 마음 상태는?', options: [
+                '잠이 안 올 만큼 스트레스를 받아요',
+                '신경은 쓰이지만 일상에 지장은 없어요',
+                '투자하면 있을 수 있는 일이라 담담해요',
+                '오히려 다음 투자 기회로 느껴져요'
+            ]},
+            { domain: 'B', q: '둘 중 하나를 고를 수 있다면 무엇을 고르겠어요?', options: [
+                '확실하게 10만 원 받기',
+                '70% 확률로 20만 원, 30% 확률로 0원',
+                '50% 확률로 40만 원, 50% 확률로 0원',
+                '20% 확률로 80만 원, 80% 확률로 0원'
+            ]},
+            { domain: 'C', q: '투자한 돈을 언제쯤 쓸 계획인가요?', options: [
+                '3개월 안에 써야 해요',
+                '6개월~1년 뒤에 쓸 것 같아요',
+                '1~2년 뒤에 쓸 것 같아요',
+                '2년 이상 쓸 계획이 없어요'
+            ]},
+            { domain: 'C', q: '투자에 쓰는 돈은 어떤 돈인가요?', options: [
+                '없어지면 생활이 어려워지는 돈이에요',
+                '급할 때 쓸 돈(비상금)은 따로 두고, 남은 돈의 일부예요',
+                '당장 쓸 데 없는 돈의 대부분이에요',
+                '없어도 생활에 전혀 지장 없는 돈이에요'
+            ]},
+            { domain: 'C', q: '매달 들어오는 돈(용돈·알바비·월급) 중 투자에 넣을 수 있는 비율은?', options: [
+                '거의 없어요',
+                '10% 이하',
+                '10~30%',
+                '30% 이상'
+            ]},
+            { domain: 'C', q: '앞으로 매달 들어오는 돈은 어떻게 될 것 같나요?', options: [
+                '줄어들거나 불안정할 것 같아요',
+                '지금과 비슷할 것 같아요',
+                '조금씩 늘어날 것 같아요',
+                '크게 늘어날 것 같아요'
+            ]},
+            { domain: 'D', q: '지금까지 해 본 것 중 가장 위험한 투자는?', options: [
+                '예금·적금뿐이에요',
+                '여러 회사를 묶은 상품(펀드·ETF)이나 채권',
+                '주식을 직접 사고팔기',
+                '해외 주식, 코인, 선물·옵션 같은 고위험 상품'
+            ]},
+            { domain: 'D', q: '투자 경험은 얼마나 되나요?', options: [
+                '아직 없어요',
+                '3개월 미만',
+                '3개월 ~ 1년',
+                '1년 이상'
+            ]},
+            { domain: 'D', q: '"PER", "배당수익률" 같은 주식 용어를 보면?', options: [
+                '처음 들어봐요',
+                '들어는 봤지만 설명은 못 해요',
+                '대략 무슨 뜻인지 알아요',
+                '직접 계산해서 회사끼리 비교해 봐요'
+            ]},
+            { domain: 'D', q: '주식 시세나 경제 뉴스를 얼마나 자주 보나요?', options: [
+                '거의 안 봐요',
+                '큰 뉴스가 있을 때만 봐요',
+                '일주일에 몇 번은 챙겨봐요',
+                '매일 확인해요'
+            ]},
+            { domain: 'E', q: '방학 동안 알바해서 200만 원을 모았어요. 등록금은 장학금으로 해결됐고, 당장 쓸 데는 없어요. 이 돈을 어디에 넣으시겠어요?', options: [
+                '예금·적금에 넣어요',
+                '반은 예금에, 반은 큰 회사 여러 개를 묶은 상품(ETF)에 넣어요',
+                '대부분 회사 주식에 넣어요, 이름을 아는 큰 회사 위주로',
+                '전부 크게 오를 것 같은 회사 주식에 넣어요'
+            ]},
+            { domain: 'E', q: '두 회사 중 하나만 살 수 있어요. A회사는 매년 번 돈의 일부를 주주에게 나눠 주고(배당) 주식 값은 거의 안 움직여요. B회사는 나눠 주는 돈은 없지만 매출이 매년 빠르게 늘고, 주식 값도 크게 오르내려요. 어느 쪽을 고르시겠어요?', options: [
+                'A회사, 배당을 이자처럼 받는 게 좋아요',
+                'A회사를 더 많이, B회사는 조금만',
+                'B회사를 더 많이, A회사는 조금만',
+                'B회사, 크게 오를 가능성이 중요해요'
+            ]},
+            { domain: 'E', q: "요즘 '우주항공' 관련 주식이 며칠째 크게 오르고 있어요. 그런데 관련 회사 중에는 아직 매출이 거의 없는 작은 회사도 많아요. 주식을 산다면 무엇을 고르시겠어요?", options: [
+                '유행하는 주식은 안 사요',
+                '관련 회사를 묶은 ETF로 조금만 사요',
+                '그중 실제로 돈을 버는 큰 회사를 사요',
+                '크게 오를 수 있는 작은 회사를 사요'
+            ]},
+            { domain: 'E', q: '300만 원으로 주식을 처음 시작해요. 사고 싶은 회사를 적어 보니 10개나 돼요. 어떻게 투자하시겠어요?', options: [
+                '여러 회사를 묶은 상품(ETF) 하나로 한 번에 나눠 담아요',
+                '5~10개 회사에 골고루 나눠요',
+                '그중 확신 있는 2~3개에 집중해요',
+                '가장 좋아 보이는 한 회사에 전부 넣어요'
             ]}
         ];
 
-        // 등급 구분은 OUTOFSTOCK_추천상품_선정.docx의 성향별 조합 규칙을 그대로 반영
+        // 등급 구분(0~10 안정형 / 11~20 중립형 / 21~30 공격형)과 추천 상품은
+        // OUTOFSTOCK_투자성향설문.docx · OUTOFSTOCK_추천상품_선정.docx 기준 그대로 반영
         const RISK_PROFILES = {
             stable: {
                 name: '안정형', img: 'assets/risk-stable.png',
-                desc: '큰 변동보다는 원금을 지키는 걸 가장 중요하게 생각하는 성향이에요. 저위험 자산 위주로 천천히 배워가요.',
+                desc: '원금 변동을 줄이는 쪽이에요. 저위험 자산 위주로 천천히 배워가요.',
                 products: [
                     { name: 'PLUS KOFR금리', risk: '저위험', desc: '나라 채권을 담보로 하루짜리 이자를 받는 상품이에요. 거의 움직이지 않아요.' },
                     { name: 'KODEX TRF3070', risk: '저위험', desc: '세계 주식 30%와 채권 70%를 섞었어요. 주식이 들어 있어도 채권이 많으면 덜 흔들려요.' },
@@ -671,7 +773,7 @@
             },
             neutral: {
                 name: '중립형', img: 'assets/risk-neutral.png',
-                desc: '안정과 수익 사이에서 균형을 잡고 싶은 성향이에요. 중위험 자산을 중심으로 조금씩 경험을 넓혀가요.',
+                desc: '수익과 안정 사이에서 균형을 잡는 쪽이에요. 중위험 자산을 중심으로 조금씩 경험을 넓혀가요.',
                 products: [
                     { name: 'KODEX 200미국채혼합50', risk: '중위험', desc: '우리나라 대표 200개 회사 주식과 미국 국채를 섞어 담아요.' },
                     { name: 'PLUS 은채권혼합', risk: '중위험', desc: '은과 나라 채권을 반씩 담아요.' },
@@ -680,7 +782,7 @@
             },
             aggressive: {
                 name: '공격형', img: 'assets/risk-aggressive.png',
-                desc: '변동이 크더라도 높은 수익 기회를 적극적으로 노리는 성향이에요. 고위험 자산 비중을 높여 실전 감각을 키워요.',
+                desc: '변동을 감수하고 수익을 노리는 쪽이에요. 고위험 자산 비중을 높여 실전 감각을 키워요.',
                 products: [
                     { name: 'KODEX 삼성전자채권혼합', risk: '중위험', desc: '삼성전자와 나라 채권을 섞었어요. 같은 회사라도 채권과 섞으면 덜 흔들려요.' },
                     { name: 'TIGER 미국테크TOP10 INDXX', risk: '고위험', desc: '애플·엔비디아 같은 미국 기술 회사 10곳에 집중해요. 환율에 따라서도 움직여요.' },
@@ -690,20 +792,37 @@
         };
         const RISK_BADGE_CLASS = { '저위험': 'risk-low', '중위험': 'risk-mid', '고위험': 'risk-high' };
 
+        // 총점 0~30점: 0~10 안정형 / 11~20 중립형 / 21~30 공격형
         function classifyRiskScore(score) {
-            if (score <= 9) return 'stable';
-            if (score <= 14) return 'neutral';
+            if (score <= 10) return 'stable';
+            if (score <= 20) return 'neutral';
             return 'aggressive';
         }
 
+        // 영역(A~E)별로 4문항 중 2문항을 무작위로 뽑아 총 10문항 구성
+        function pickSurveyQuestions() {
+            const picked = [];
+            SURVEY_DOMAINS.forEach(domain => {
+                const pool = SURVEY_BANK.filter(item => item.domain === domain.id);
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                picked.push(...pool.slice(0, 2));
+            });
+            return picked;
+        }
+
+        let surveyActiveQuestions = [];
         let surveyIndex = 0;
-        let surveyAnswers = new Array(SURVEY_QUESTIONS.length).fill(null);
+        let surveyAnswers = [];
         const surveyOverlay = document.getElementById('surveyOverlay');
 
         function openSurvey(e) {
             if (e && e.preventDefault) e.preventDefault();
+            surveyActiveQuestions = pickSurveyQuestions();
             surveyIndex = 0;
-            surveyAnswers = new Array(SURVEY_QUESTIONS.length).fill(null);
+            surveyAnswers = new Array(surveyActiveQuestions.length).fill(null);
             document.getElementById('surveyResultView').hidden = true;
             document.getElementById('surveyQuestionView').hidden = false;
             renderSurveyQuestion();
@@ -721,16 +840,18 @@
         });
 
         function renderSurveyQuestion() {
-            const total = SURVEY_QUESTIONS.length;
-            const q = SURVEY_QUESTIONS[surveyIndex];
+            const total = surveyActiveQuestions.length;
+            const q = surveyActiveQuestions[surveyIndex];
+            const domainName = SURVEY_DOMAINS.find(d => d.id === q.domain).name;
             const isLast = surveyIndex === total - 1;
             const answered = surveyAnswers[surveyIndex] !== null;
             document.getElementById('surveyQuestionView').innerHTML = `
                 <div class="survey-progress-label">${surveyIndex + 1} / ${total}</div>
                 <div class="survey-progress-track"><div class="survey-progress-fill" style="width:${((surveyIndex + 1) / total) * 100}%"></div></div>
+                <div class="survey-domain-tag">영역 ${q.domain} · ${domainName}</div>
                 <div class="survey-question">${q.q}</div>
                 <div class="survey-options">
-                    ${q.options.map((opt, i) => `<button type="button" class="survey-option${surveyAnswers[surveyIndex] === i ? ' selected' : ''}" onclick="selectSurveyOption(${i})">${opt.text}</button>`).join('')}
+                    ${q.options.map((opt, i) => `<button type="button" class="survey-option${surveyAnswers[surveyIndex] === i ? ' selected' : ''}" onclick="selectSurveyOption(${i})">${opt}</button>`).join('')}
                 </div>
                 <div class="survey-nav-row">
                     <button type="button" class="survey-btn" onclick="prevSurveyQuestion()" ${surveyIndex === 0 ? 'style="visibility:hidden"' : ''}>이전</button>
@@ -752,7 +873,7 @@
 
         function nextSurveyQuestion() {
             if (surveyAnswers[surveyIndex] === null) return;
-            if (surveyIndex < SURVEY_QUESTIONS.length - 1) {
+            if (surveyIndex < surveyActiveQuestions.length - 1) {
                 surveyIndex++;
                 renderSurveyQuestion();
             } else {
@@ -761,7 +882,8 @@
         }
 
         function finishSurvey() {
-            const score = surveyAnswers.reduce((sum, ansIdx, qi) => sum + SURVEY_QUESTIONS[qi].options[ansIdx].score, 0);
+            // 보기 순서(index)가 곧 0~3점이므로 선택한 인덱스를 그대로 합산
+            const score = surveyAnswers.reduce((sum, ansIdx) => sum + ansIdx, 0);
             const type = classifyRiskScore(score);
             try {
                 localStorage.setItem('outofstock_risk_profile', JSON.stringify({ type, score, date: new Date().toISOString() }));
