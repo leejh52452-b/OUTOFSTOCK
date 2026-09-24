@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴스 - OUTOFSTOCK</title>
+    <link rel="icon" type="image/png" href="assets/logo-mark.png">
+    <style>
+        body[data-theme="brand-light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --accent-blue: #3730a3;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --input-bg: #ffffff;
+            --hover-bg: #e0e7ff;
+            --item-bg: #f8fafc;
+            --art-plate: transparent;
+            --login-bg: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%);
+            --badge-mid-bg: #fef08a; --badge-mid-text: #854d0e;
+            --badge-hard-bg: #fecdd3; --badge-hard-text: #9f1239;
+            --guide-bg: #dbeafe; --guide-text: #1e40af;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 이미지 공통: 어두운 테마에서는 밝은 판 위에 올려 외곽선이 묻히지 않게 */
+        .art-plate { background-color: var(--art-plate); border-radius: 12px; }
+        img { display: block; max-width: 100%; }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 244px; background-color: var(--card-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+        }
+        .sidebar.collapsed { width: 72px; }
+        .sidebar-header {
+            height: 76px; display: flex; align-items: center;
+            padding: 0 16px; gap: 10px; border-bottom: 1px solid var(--card-border);
+        }
+        .sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        .toggle-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background-color: var(--hover-bg); }
+        .logo { display: flex; align-items: center; min-width: 0; }
+        .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
+        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .nav-menu { list-style: none; padding: 16px 10px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; white-space: nowrap;
+        }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px 0; }
+        .nav-link svg { width: 18px; height: 18px; stroke: var(--text-secondary); flex-shrink: 0; }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 600;
+        }
+        .nav-link:hover svg, .nav-link.active svg { stroke: var(--accent-blue); }
+
+        /* 메인 */
+        .main-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        header {
+            position: relative; height: 76px; padding: 0 28px; display: flex; align-items: center;
+            border-bottom: 1px solid var(--card-border); background-color: var(--card-bg);
+        }
+        .header-logo {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center;
+        }
+        .header-logo img { height: 56px; width: auto; padding: 3px 12px; box-sizing: content-box; }
+        .search-box { position: relative; width: 320px; max-width: 100%; }
+        .search-box input {
+            width: 100%; padding: 8px 16px 8px 36px; background-color: var(--item-bg);
+            border: 1px solid var(--card-border); border-radius: 8px;
+            color: var(--text-primary); outline: none; font-size: 13px;
+        }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex;
+        }
+        .search-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+        .content-container {
+            padding: 20px 28px; display: flex; flex-direction: column; gap: 20px;
+            width: 100%; max-width: 1440px; margin: 0 auto;
+        }
+
+
+        [hidden] { display: none !important; }
+        .main-wrapper { overflow-y: visible; }
+        .content-container { word-break: keep-all; overflow-wrap: break-word; }
+        svg.ico { width: 16px; height: 16px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .num { font-variant-numeric: tabular-nums; }
+        .up { color: var(--accent-red); }
+        .down { color: #2563eb; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+            padding: 8px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+            border: 1px solid var(--card-border); background-color: var(--card-bg); color: var(--text-secondary);
+            transition: background-color .15s, border-color .15s, color .15s, filter .15s;
+        }
+        .btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn.primary { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+        .btn.primary:hover { filter: brightness(1.1); color: #fff; }
+        .btn.outline { background-color: #fff; border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn.outline:hover { background-color: var(--hover-bg); }
+        .btn.sm { padding: 6px 11px; font-size: 12px; }
+        .btn svg.ico { width: 14px; height: 14px; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px;
+            border-radius: 999px; background: var(--item-bg); border: 1px solid var(--card-border); color: var(--text-secondary); white-space: nowrap;
+        }
+        .seg-group { display: inline-flex; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; background: var(--card-bg); }
+        .seg { background: none; border: none; padding: 7px 14px; font-size: 12.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
+        .seg + .seg { border-left: 1px solid var(--card-border); }
+        .seg:hover { color: var(--accent-blue); }
+        .seg.active { background: var(--hover-bg); color: var(--accent-blue); }
+
+        .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .page-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+        .page-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+        .upd { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .upd b { color: var(--text-secondary); font-weight: 700; }
+        .sample-badge { background: var(--badge-mid-bg); color: var(--badge-mid-text); font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 4px; }
+
+        /* ===== 전체 배치: 왼쪽(이슈·테마·실시간) + 오른쪽(랭킹) ===== */
+        .news-grid {
+            display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start;
+            grid-template-areas: "hero rank" "themes rank" "feed rank";
+        }
+        .news-grid.err { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero"; }
+        .s-hero { grid-area: hero; } .s-themes { grid-area: themes; } .s-feed { grid-area: feed; }
+        .s-rank { grid-area: rank; position: sticky; top: 12px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px 20px; min-width: 0; }
+        .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+        .sec-title { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+        .sec-title .si { width: 28px; height: 28px; border-radius: 8px; background: var(--hover-bg); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; }
+        .sec-title .si svg.ico { width: 16px; height: 16px; }
+        .sec-sub { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+
+        /* 순위 숫자 */
+        .rk { width: 26px; height: 26px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--text-muted); flex-shrink: 0; }
+        .rk.r1 { background: var(--accent-blue); color: #fff; }
+        .rk.r2 { background: #6366f1; color: #fff; }
+        .rk.r3 { background: #a5b4fc; color: #312e81; }
+        .views { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .views svg.ico { width: 13px; height: 13px; }
+
+        /* ===== 오늘의 이슈 TOP ===== */
+        .hero-body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; }
+        .hero-feat {
+            position: relative; display: flex; flex-direction: column; gap: 10px; padding: 20px 22px; border-radius: 12px; overflow: hidden;
+            border: 1px solid #c7d2fe; background: linear-gradient(140deg, #eef2ff 0%, #ffffff 68%); text-decoration: none; color: inherit;
+            transition: box-shadow .15s, border-color .15s;
+        }
+        .hero-feat:hover { border-color: var(--accent-blue); box-shadow: 0 8px 22px rgba(55, 48, 163, 0.12); }
+        .feat-badge { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; background: var(--accent-blue); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+        .feat-badge svg.ico { width: 12px; height: 12px; }
+        .feat-meta { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .feat-meta b { color: var(--text-secondary); font-weight: 800; }
+        .feat-title { font-size: 21px; font-weight: 800; line-height: 1.45; letter-spacing: -0.5px; padding-right: 60px; }
+        .feat-sum { font-size: 13px; color: var(--text-secondary); line-height: 1.75; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; padding-right: 40px; }
+        .feat-foot { margin-top: auto; padding-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .feat-mascot { position: absolute; right: 14px; top: 44px; width: 70px; height: auto; pointer-events: none; }
+        .hero-list { display: flex; flex-direction: column; }
+        .hero-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 4px; border-top: 1px solid var(--card-border); text-decoration: none; color: inherit; }
+        .hero-row:first-child { border-top: none; padding-top: 2px; }
+        .hero-row:hover .hr-title { color: var(--accent-blue); }
+        .hr-title { font-size: 13.5px; font-weight: 700; line-height: 1.5; letter-spacing: -0.2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hr-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; font-size: 11.5px; color: var(--text-muted); font-weight: 600; flex-wrap: wrap; }
+        .hr-meta .src { color: var(--text-secondary); font-weight: 800; }
+
+        /* ===== 오늘의 핵심 테마 TOP 5 ===== */
+        .theme-list { display: flex; flex-direction: column; }
+        .theme-row {
+            display: grid; grid-template-columns: 34px minmax(0, 1.5fr) minmax(0, 1fr) 88px 74px; gap: 14px; align-items: center;
+            padding: 12px 10px; border-top: 1px solid var(--card-border); border-radius: 8px; transition: background-color .12s;
+        }
+        .theme-row:first-child { border-top: none; }
+        .theme-row:hover { background: var(--item-bg); }
+        .theme-row.top { background: linear-gradient(90deg, #eef2ff 0%, #ffffff 85%); border-top-color: transparent; }
+        .theme-row.top + .theme-row { border-top-color: transparent; }
+        .th-name { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+        .th-sum { font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+        .th-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+        .th-tags .chip { background: #fff; }
+        .th-spark svg { width: 88px; height: 30px; display: block; }
+        .th-stat { text-align: right; }
+        .th-stat .rate { font-size: 14px; font-weight: 800; }
+        .th-stat .cnt { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+        /* ===== 실시간 금융 뉴스 ===== */
+        .feed-list { display: flex; flex-direction: column; }
+        .feed-item {
+            display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 13px 8px;
+            border-top: 1px solid var(--card-border); text-decoration: none; color: inherit; border-radius: 8px; transition: background-color .12s;
+        }
+        .feed-item:first-child { border-top: none; }
+        .feed-item:hover { background: var(--item-bg); }
+        .feed-item:hover .fi-title { color: var(--accent-blue); }
+        .fi-time { font-size: 12px; color: var(--text-muted); font-weight: 700; padding-top: 2px; }
+        .fi-title { font-size: 14.5px; font-weight: 700; line-height: 1.5; letter-spacing: -0.3px; }
+        .fi-sum { font-size: 12.5px; color: var(--text-secondary); line-height: 1.65; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .fi-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 11.5px; color: var(--text-muted); font-weight: 600; padding-top: 2px; }
+        .fi-meta .src { color: var(--text-secondary); font-weight: 800; }
+        .more-wrap { display: flex; justify-content: center; padding: 12px 0 2px; }
+
+        /* ===== 인기 기사 랭킹 ===== */
+        .rank-period { font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin: -4px 0 8px; }
+        .rank-list { display: flex; flex-direction: column; }
+        .rank-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 40px; gap: 10px; align-items: start; padding: 11px 4px; border-top: 1px solid var(--card-border); text-decoration: none; color: inherit; }
+        .rank-row:first-child { border-top: none; }
+        .rank-row:hover .rr-title { color: var(--accent-blue); }
+        .rr-title { font-size: 13px; font-weight: 700; line-height: 1.5; letter-spacing: -0.2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .rr-meta { display: flex; gap: 8px; align-items: center; margin-top: 3px; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .rr-meta .src { color: var(--text-secondary); font-weight: 700; }
+        .rr-chg { text-align: right; font-size: 11px; font-weight: 800; padding-top: 3px; white-space: nowrap; }
+        .rr-chg.flat { color: var(--text-muted); font-weight: 600; }
+        .rr-new { display: inline-block; background: var(--accent-blue); color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 5px; border-radius: 4px; }
+
+        /* ===== 상태 화면 ===== */
+        .sk { background: linear-gradient(90deg, #eef1f6 25%, #f7f9fc 37%, #eef1f6 63%); background-size: 400% 100%; animation: shimmer 1.3s ease infinite; border-radius: 6px; }
+        @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+        .sk-block { display: flex; flex-direction: column; gap: 10px; }
+        .empty { text-align: center; padding: 34px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .empty img { width: 120px; height: auto; }
+        .empty .e-title { font-size: 15px; font-weight: 800; }
+        .empty .e-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.7; }
+
+        @media (max-width: 1100px) {
+            .header-logo { display: none; }
+            .news-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "themes" "rank" "feed"; }
+            .s-rank { position: static; }
+        }
+        @media (max-width: 760px) {
+            .content-container { padding: 16px; }
+            .card { padding: 16px 14px; }
+            .hero-body { grid-template-columns: minmax(0, 1fr); }
+            .feat-title { font-size: 18px; padding-right: 48px; }
+            .theme-row { grid-template-columns: 30px minmax(0, 1fr) 64px; gap: 10px; }
+            .th-tags, .th-spark { display: none; }
+            .feed-item { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+            .fi-time { order: 2; padding-top: 0; }
+            .fi-meta { flex-direction: row; align-items: center; order: 3; gap: 10px; }
+        }
+    </style>
+</head>
+<body data-theme="brand-light">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="toggle-btn" id="toggleBtn" title="메뉴 접기/열기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="logo">
+                <img class="logo-img art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span class="nav-text">홈</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html#survey" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg>
+                    <span class="nav-text">투자 성향 분석</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="learn.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span class="nav-text">학습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="practice.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span class="nav-text">실습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="nav-text">실시간 종목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="news.html" class="nav-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path><path d="M21 7h-4v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2V7z"></path><line x1="7" y1="8" x2="13" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line><line x1="7" y1="16" x2="11" y2="16"></line></svg>
+                    <span class="nav-text">뉴스</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <a href="index.html" class="header-logo" title="OUTOFSTOCK 홈">
+                <img class="art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </a>
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="text" placeholder="종목명 또는 종목코드 검색">
+            </div>
+        </header>
+
+        <div class="content-container">
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">뉴스</h1>
+                    <p class="page-sub">오늘 가장 많이 읽힌 금융 뉴스와 핵심 테마를 한눈에 확인해요.</p>
+                </div>
+                <div class="upd"><span class="sample-badge" id="sampleBadge" hidden>샘플 데이터</span><span id="updText"></span></div>
+            </div>
+
+            <div class="news-grid">
+                <section class="card s-hero" id="secHero"></section>
+                <section class="card s-themes" id="secThemes"></section>
+                <aside class="card s-rank" id="secRank"></aside>
+                <section class="card s-feed" id="secFeed"></section>
+            </div>
+        </div>
+    </div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+            <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></symbol>
+            <symbol id="i-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+            <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+            <symbol id="i-external" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></symbol>
+            <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+        </defs>
+    </svg>
+
+    <script src="assets/news-mock.js"></script>
+    <script src="assets/news-api.js"></script>
+    <script>
+
+// ============================================================
+//  뉴스 화면 (인터페이스 전용)
+//  - 데이터: assets/news-api.js 의 loadNewsHome()  (지금은 assets/news-mock.js 샘플, 백엔드 연결 후에는 API 응답)
+//  - 구성: 오늘의 이슈 TOP(조회수순) · 오늘의 핵심 테마 TOP 5 · 인기 기사 랭킹(주간/월간) · 실시간 금융 뉴스
+// ============================================================
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const ico = (n) => `<svg class="ico"><use href="#i-${n}"/></svg>`;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const PAGE = 10;
+const state = { period: 'week', shown: PAGE };
+let DATA = null;
+
+const rk = (n) => `<span class="rk${n <= 3 ? ' r' + n : ''}">${n}</span>`;
+const link = (a) => `href="${esc(a.url || '#')}" target="_blank" rel="noopener noreferrer"`;
+const head = (icon, title, sub, right) => `
+    <div class="sec-head">
+        <div class="sec-title"><span class="si">${ico(icon)}</span>${title}${sub ? `<span class="sec-sub">${sub}</span>` : ''}</div>
+        ${right || ''}
+    </div>`;
+const emptyMsg = (t) => `<div class="empty" style="padding:22px 10px"><div class="e-desc">${esc(t)}</div></div>`;
+
+// ---- 오늘의 이슈 TOP ----
+function renderHero() {
+    const list = DATA.todayTop || [], f = list[0];
+    if (!f) { $('#secHero').innerHTML = head('flame', '오늘의 이슈 TOP', '조회수 높은 순') + emptyMsg('오늘의 이슈가 아직 없어요'); return; }
+    $('#secHero').innerHTML = head('flame', '오늘의 이슈 TOP', '조회수 높은 순', `<span class="sec-sub">오늘 기준</span>`) + `
+    <div class="hero-body">
+        <a class="hero-feat" ${link(f)}>
+            <span class="feat-badge">${ico('flame')}오늘 가장 많이 읽힌 뉴스</span>
+            <div class="feat-meta"><b>${esc(f.source)}</b> · ${timeAgo(f.publishedAt)}</div>
+            <h3 class="feat-title">${esc(f.title)}</h3>
+            ${f.summary ? `<p class="feat-sum">${esc(f.summary)}</p>` : ''}
+            <div class="feat-foot"><span class="views">${ico('eye')}조회 <b class="num" style="font-weight:800;color:var(--text-secondary)">${Number(f.views).toLocaleString('ko-KR')}</b></span><span class="btn outline sm">기사 보기${ico('external')}</span></div>
+            <img class="feat-mascot" src="assets/happy.png" alt="">
+        </a>
+        <div class="hero-list">
+            ${list.slice(1, 5).map((a, i) => `
+            <a class="hero-row" ${link(a)}>
+                ${rk(i + 2)}
+                <div style="min-width:0"><div class="hr-title">${esc(a.title)}</div>
+                <div class="hr-meta"><span class="src">${esc(a.source)}</span><span>${timeAgo(a.publishedAt)}</span><span class="views">${ico('eye')}${fmtViews(a.views)}</span></div></div>
+            </a>`).join('')}
+        </div>
+    </div>`;
+}
+
+// ---- 오늘의 핵심 테마 TOP 5 ----
+function spark(arr, rate) {
+    if (!arr || arr.length < 2) return '';
+    const w = 88, h = 30, p = 3, max = Math.max(...arr), min = Math.min(...arr), col = rate >= 0 ? '#dc2626' : '#2563eb';
+    const pts = arr.map((v, i) => [(p + i * (w - 2 * p) / (arr.length - 1)).toFixed(1), (h - p - ((v - min) / ((max - min) || 1)) * (h - 2 * p)).toFixed(1)]);
+    const line = pts.map((x) => x.join(',')).join(' ');
+    return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true"><polygon points="${p},${h - p} ${line} ${w - p},${h - p}" fill="${col}" opacity=".1"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function renderThemes() {
+    const list = (DATA.themes || []).slice(0, 5);
+    $('#secThemes').innerHTML = head('zap', '오늘의 핵심 테마 TOP 5', '관련 기사가 가장 많이 몰린 테마') + (list.length ? `
+    <div class="theme-list">
+        ${list.map((t) => {
+            const r = Number(t.changeRate) || 0;
+            return `<div class="theme-row${t.rank === 1 ? ' top' : ''}">
+                ${rk(t.rank)}
+                <div style="min-width:0"><div class="th-name">${esc(t.name)}</div><div class="th-sum">${esc(t.summary || '')}</div></div>
+                <div class="th-tags">${(t.keywords || []).slice(0, 3).map((k) => `<span class="chip">${esc(k)}</span>`).join('')}</div>
+                <div class="th-spark">${spark(t.trend, r)}</div>
+                <div class="th-stat"><div class="rate num ${r >= 0 ? 'up' : 'down'}">${r > 0 ? '+' : ''}${r.toFixed(1)}%</div><div class="cnt num">기사 ${t.articleCount}건</div></div>
+            </div>`;
+        }).join('')}
+    </div>` : emptyMsg('오늘의 테마가 아직 없어요'));
+}
+
+// ---- 인기 기사 랭킹 (주간 / 월간) ----
+function renderRank() {
+    const R = DATA.rankings || {}, list = (R[state.period] || []).slice(0, 10);
+    const label = state.period === 'week' ? (R.weekLabel || '') : (R.monthLabel || '');
+    $('#secRank').innerHTML = head('award', '인기 기사 랭킹', '', `
+        <div class="seg-group" role="tablist" aria-label="기간">
+            <button class="seg${state.period === 'week' ? ' active' : ''}" type="button" data-act="period" data-period="week">주간</button>
+            <button class="seg${state.period === 'month' ? ' active' : ''}" type="button" data-act="period" data-period="month">월간</button>
+        </div>`) + `
+    ${label ? `<div class="rank-period">${state.period === 'week' ? '최근 7일' : '이번 달'} · ${esc(label)} · 조회수 기준 TOP 10</div>` : ''}
+    <div class="rank-list">
+        ${list.length ? list.map((a) => {
+            const c = Number(a.rankChange) || 0;
+            const chg = a.isNew ? `<span class="rr-new">NEW</span>` : c > 0 ? `<span class="rr-chg up">▲${c}</span>` : c < 0 ? `<span class="rr-chg down">▼${Math.abs(c)}</span>` : `<span class="rr-chg flat">–</span>`;
+            return `<a class="rank-row" ${link(a)}>${rk(a.rank)}
+                <div style="min-width:0"><div class="rr-title">${esc(a.title)}</div><div class="rr-meta"><span class="src">${esc(a.source)}</span><span class="views">${ico('eye')}${fmtViews(a.views)}</span></div></div>
+                <div style="text-align:right">${chg}</div></a>`;
+        }).join('') : emptyMsg('랭킹 데이터가 아직 없어요')}
+    </div>`;
+}
+
+// ---- 실시간 금융 뉴스 ----
+function renderFeed() {
+    const list = DATA.latest || [], remain = list.length - state.shown;
+    $('#secFeed').innerHTML = head('clock', '실시간 금융 뉴스', '최신순') + (list.length ? `
+    <div class="feed-list">
+        ${list.slice(0, state.shown).map((a) => `
+        <a class="feed-item" ${link(a)}>
+            <div class="fi-time">${timeAgo(a.publishedAt)}</div>
+            <div style="min-width:0"><div class="fi-title">${esc(a.title)}</div>${a.summary ? `<div class="fi-sum">${esc(a.summary)}</div>` : ''}</div>
+            <div class="fi-meta"><span class="src">${esc(a.source)}</span><span class="views">${ico('eye')}${fmtViews(a.views)}</span></div>
+        </a>`).join('')}
+    </div>
+    ${remain > 0 ? `<div class="more-wrap"><button class="btn outline" type="button" data-act="more">더 보기 (남은 ${remain}건)</button></div>` : ''}` : emptyMsg('표시할 뉴스가 없어요'));
+}
+
+function renderUpd() {
+    const d = DATA.updatedAt ? new Date(DATA.updatedAt) : null, p2 = (v) => String(v).padStart(2, '0');
+    $('#updText').innerHTML = d && !isNaN(d) ? `<b>${p2(d.getHours())}:${p2(d.getMinutes())}</b> 기준` : '';
+    $('#sampleBadge').hidden = !DATA._sample;
+}
+function render() { renderUpd(); renderHero(); renderThemes(); renderRank(); renderFeed(); }
+
+// ---- 상태 화면 ----
+const skLine = (w, h) => `<div class="sk" style="height:${h || 14}px;width:${w || '100%'}"></div>`;
+function showSkeleton() {
+    $('.news-grid').classList.remove('err');
+    ['secThemes', 'secRank', 'secFeed'].forEach((id) => { $('#' + id).hidden = false; });
+    $('#secHero').innerHTML = `<div class="sk-block">${skLine('34%', 20)}<div class="hero-body"><div class="sk" style="height:190px;border-radius:12px"></div><div class="sk-block">${skLine('100%', 40)}${skLine('100%', 40)}${skLine('100%', 40)}${skLine('100%', 40)}</div></div></div>`;
+    $('#secThemes').innerHTML = `<div class="sk-block">${skLine('40%', 20)}${skLine('100%', 44)}${skLine('100%', 44)}${skLine('100%', 44)}</div>`;
+    $('#secRank').innerHTML = `<div class="sk-block">${skLine('45%', 20)}${Array.from({ length: 6 }, () => skLine('100%', 36)).join('')}</div>`;
+    $('#secFeed').innerHTML = `<div class="sk-block">${skLine('40%', 20)}${Array.from({ length: 5 }, () => skLine('100%', 48)).join('')}</div>`;
+}
+function showError(err) {
+    $('.news-grid').classList.add('err');
+    ['secThemes', 'secRank', 'secFeed'].forEach((id) => { $('#' + id).hidden = true; });
+    $('#sampleBadge').hidden = true; $('#updText').textContent = '';
+    $('#secHero').innerHTML = `<div class="empty"><img src="assets/sad.png" alt="슬퍼하는 양봉이"><div class="e-title">뉴스를 불러오지 못했어요</div><div class="e-desc">잠시 후 다시 시도해 주세요.<br><span style="color:var(--text-muted);font-size:11.5px">${esc(err && err.message ? err.message : '')}</span></div><button class="btn primary" type="button" data-act="retry">${ico('refresh')}다시 시도</button></div>`;
+}
+async function load() {
+    showSkeleton();
+    try { DATA = await loadNewsHome(); state.shown = PAGE; render(); }
+    catch (e) { showError(e); }
+}
+
+// ---- 이벤트 ----
+document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault();          // 샘플 기사(링크 없음)는 이동하지 않음
+    const el = e.target.closest('[data-act]'); if (!el) return;
+    const act = el.dataset.act;
+    if (act === 'period') { state.period = el.dataset.period; renderRank(); }
+    else if (act === 'more') { state.shown += PAGE; renderFeed(); }
+    else if (act === 'retry') load();
+});
+const sidebar = $('#sidebar');
+$('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
+
+load();
+window.__N = { state, load, data: () => DATA, render };
+
+    </script>
+</body>
+</html>
