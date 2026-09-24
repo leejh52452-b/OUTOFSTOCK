@@ -225,6 +225,8 @@
             background-color: var(--item-bg); border: 1px solid var(--card-border);
             border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 6px;
         }
+        a.practice-card { text-decoration: none; color: inherit; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; }
+        a.practice-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(55, 48, 163, 0.09); }
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; width: fit-content; }
         .badge-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
         .badge-hard { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
@@ -343,7 +345,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="practice.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     <span class="nav-text">실습하기</span>
                 </a>
@@ -473,16 +475,16 @@
                     <div class="card">
                         <div class="card-header"><div class="card-title">과거 사례 기반 추천 실습</div></div>
                         <div class="practice-grid">
-                            <div class="practice-card">
+                            <a class="practice-card" href="practice.html?t=golden">
                                 <span class="badge badge-mid">중급</span>
                                 <h3 style="font-size: 13.5px;">종목 A · 골든크로스 구간</h3>
                                 <p style="font-size: 11px; color: var(--text-secondary);">SMA 5가 SMA 20을 위로 통과하는 매수 시점 판단 연습</p>
-                            </div>
-                            <div class="practice-card">
+                            </a>
+                            <a class="practice-card" href="practice.html?t=rsi">
                                 <span class="badge badge-hard">고급</span>
                                 <h3 style="font-size: 13.5px;">NAVER · RSI 과매도 반등 구간</h3>
                                 <p style="font-size: 11px; color: var(--text-secondary);">RSI 30 이하 탈출 시 반등 매매 판단 연습</p>
-                            </div>
+                            </a>
                         </div>
                     </div>
 
@@ -945,6 +947,9 @@
         }
 
         updateProfileGuideCard();
+
+        // 다른 페이지(실습하기 등)의 사이드바에서 '투자 성향 분석'을 눌러 넘어온 경우 설문을 바로 연다
+        if (location.hash === '#survey') openSurvey();
     </script>
 </body>
 </html>
