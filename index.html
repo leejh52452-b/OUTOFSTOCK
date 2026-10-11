@@ -305,7 +305,83 @@
         .reco-product-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
         .profile-guide-card { cursor: pointer; }
 
+        /* 회원가입 모달 (디자인 전용) */
+        .auth-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            z-index: 2100; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-overlay[hidden] { display: none; }
+        .auth-modal {
+            position: relative; width: 100%; min-width: 0; max-width: 400px; max-height: 88vh; overflow-y: auto;
+            background-color: var(--card-bg); border-radius: 16px; padding: 26px 24px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+        }
+        .auth-close {
+            position: absolute; top: 14px; right: 14px; width: 30px; height: 30px;
+            border: none; background: none; color: var(--text-secondary); cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .auth-close svg { width: 18px; height: 18px; }
+        .auth-header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; margin-bottom: 20px; }
+        .auth-logo { height: 30px; width: auto; }
+        .auth-title { font-size: 17px; font-weight: 800; }
+        .auth-subtitle { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .auth-field { margin-bottom: 12px; }
+        .auth-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; }
+        .auth-input-wrap { position: relative; }
+        .auth-input-wrap input {
+            width: 100%; padding: 10px 38px 10px 12px; background-color: var(--item-bg); border: 1px solid var(--card-border);
+            border-radius: 6px; color: var(--text-primary); font-size: 13px; outline: none; font-family: inherit;
+        }
+        .auth-input-wrap input:focus { border-color: var(--accent-blue); background: #fff; }
+        .auth-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; }
+        .auth-toggle:hover { color: var(--accent-blue); }
+        .auth-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .auth-hint.err { color: #b91c1c; }
+        .auth-hint.ok { color: #16a34a; }
+        .auth-submit { width: 100%; padding: 11px; background-color: var(--accent-blue); border: none; border-radius: 6px; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 6px; }
+        .auth-submit:hover { filter: brightness(1.1); }
+        .auth-notice { display: none; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 6px; background: var(--hover-bg); color: var(--accent-blue); font-size: 11.5px; line-height: 1.55; }
+        .auth-notice.show { display: flex; }
+        .auth-notice svg { width: 14px; height: 14px; margin-top: 1px; flex-shrink: 0; }
+        .auth-switch { text-align: center; margin-top: 14px; font-size: 11.5px; color: var(--text-secondary); }
+        .auth-switch a { color: var(--accent-blue); font-weight: 700; text-decoration: none; cursor: pointer; }
+        .auth-switch a:hover { text-decoration: underline; }
+
         /* 반응형 */
+        /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
+        .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
+        .header-profile-btn {
+            display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit; color: var(--text-primary);
+        }
+        .header-profile-btn:hover, .header-profile-btn.active { border-color: var(--accent-blue); background-color: var(--hover-bg); }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; padding: 4px; flex-shrink: 0; overflow: hidden; }
+        .header-avatar img { width: 100%; height: 100%; object-fit: contain; }
+        .header-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+        .header-chevron { width: 14px; height: 14px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; }
+        .header-profile.open .header-chevron { transform: rotate(180deg); }
+        .header-dropdown {
+            position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; background-color: var(--card-bg);
+            border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+            padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 500;
+        }
+        .header-profile.open .header-dropdown { display: flex; }
+        .header-dropdown a, .header-dropdown button {
+            display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px;
+            background: none; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600;
+            font-family: inherit; cursor: pointer; text-align: left;
+        }
+        .header-dropdown a:hover, .header-dropdown button:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-dropdown svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
+        .header-dropdown button.danger:hover { background-color: #fee2e2; color: #b91c1c; }
+        .header-dropdown hr { border: none; border-top: 1px solid var(--card-border); margin: 4px 2px; }
+        @media (max-width: 480px) {
+            .header-name { display: none; }
+            .header-profile-btn { padding: 6px; }
+        }
+
         @media (max-width: 1100px) {
             .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
             .header-logo { display: none; }
@@ -344,13 +420,13 @@
             <li class="nav-item">
                 <a href="learn.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                    <span class="nav-text">학습하기</span>
+                    <span class="nav-text">용어사전</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="practice.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                    <span class="nav-text">실습하기</span>
+                    <span class="nav-text">학습 및 실습하기</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -378,6 +454,25 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
                 <input type="text" placeholder="종목명 또는 종목코드 검색">
+            </div>
+
+            <div class="header-profile" id="headerProfile">
+                <button class="header-profile-btn" type="button" id="headerProfileBtn" aria-haspopup="true" aria-expanded="false">
+                    <span class="header-avatar"><img src="assets/logo-mark.png" alt=""></span>
+                    <span class="header-name">김입문</span>
+                    <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="header-dropdown" role="menu">
+                    <a href="mypage.html" role="menuitem">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                        마이페이지
+                    </a>
+                    <hr>
+                    <button type="button" class="danger" role="menuitem" onclick="headerLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        로그아웃
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -516,11 +611,10 @@
                             <div class="input-group"><input type="password" placeholder="비밀번호"></div>
                             <div class="login-options">
                                 <label style="cursor: pointer;"><input type="checkbox"> 로그인 유지</label>
-                                <label style="cursor: pointer;"><input type="checkbox"> IP 보안</label>
                             </div>
                             <button class="btn-login">로그인</button>
                         </form>
-                        <div class="login-links"><a href="#">회원가입</a><span>|</span><a href="#">비밀번호 찾기</a></div>
+                        <div class="login-links"><a href="#" onclick="openSignup(event)">회원가입</a><span>|</span><a href="#">비밀번호 찾기</a></div>
                     </div>
 
                     <a class="word-card" href="learn.html?term=골든크로스">
@@ -581,6 +675,48 @@
             </div>
             <div id="surveyQuestionView"></div>
             <div id="surveyResultView" hidden></div>
+        </div>
+    </div>
+
+    <div class="auth-overlay" id="signupOverlay" hidden onclick="if (event.target === this) closeSignup();">
+        <div class="auth-modal" role="dialog" aria-modal="true" aria-label="회원가입">
+            <button class="auth-close" onclick="closeSignup()" aria-label="닫기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="auth-header">
+                <img class="auth-logo" src="assets/logo.png" alt="OUTOFSTOCK">
+                <div class="auth-title">회원가입</div>
+                <div class="auth-subtitle">아이디와 비밀번호를 설정해주세요</div>
+            </div>
+            <form id="signupForm" onsubmit="event.preventDefault(); submitSignup();" novalidate>
+                <div class="auth-field">
+                    <label for="suId">아이디</label>
+                    <div class="auth-input-wrap"><input type="text" id="suId" placeholder="아이디" autocomplete="username"></div>
+                    <div class="auth-hint" id="suIdHint">영문·숫자로 4자 이상 입력해주세요.</div>
+                </div>
+                <div class="auth-field">
+                    <label for="suPw">비밀번호 설정</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" id="suPw" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password">
+                        <button class="auth-toggle" type="button" onclick="toggleAuthPw('suPw', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                    <div class="auth-hint" id="suPwHint">영문, 숫자를 포함해 8자 이상 입력해주세요.</div>
+                </div>
+                <div class="auth-field">
+                    <label for="suPw2">비밀번호 확인</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" id="suPw2" placeholder="비밀번호 다시 입력" autocomplete="new-password">
+                        <button class="auth-toggle" type="button" onclick="toggleAuthPw('suPw2', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                    <div class="auth-hint" id="suPw2Hint"></div>
+                </div>
+                <button class="auth-submit" type="submit">저장</button>
+                <div class="auth-notice" id="signupNotice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span></span>
+                </div>
+            </form>
+            <div class="auth-switch">이미 계정이 있으신가요? <a onclick="closeSignup()">로그인하기</a></div>
         </div>
     </div>
 
@@ -842,8 +978,69 @@
             document.body.style.overflow = '';
         }
 
+        // ===== 회원가입 모달 (디자인 전용 — 실제 계정은 만들어지지 않아요) =====
+        const signupOverlay = document.getElementById('signupOverlay');
+        const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+        function openSignup(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            closeSurvey();
+            document.getElementById('signupForm').reset();
+            document.getElementById('suIdHint').textContent = '영문·숫자로 4자 이상 입력해주세요.';
+            document.getElementById('suIdHint').className = 'auth-hint';
+            document.getElementById('suPwHint').textContent = '영문, 숫자를 포함해 8자 이상 입력해주세요.';
+            document.getElementById('suPwHint').className = 'auth-hint';
+            document.getElementById('suPw2Hint').textContent = '';
+            document.getElementById('suPw2Hint').className = 'auth-hint';
+            document.getElementById('signupNotice').classList.remove('show');
+            signupOverlay.hidden = false;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSignup() {
+            signupOverlay.hidden = true;
+            document.body.style.overflow = '';
+        }
+
+        function toggleAuthPw(id, btn) {
+            const input = document.getElementById(id);
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.innerHTML = show ? EYE_OFF_ICON : EYE_ICON;
+        }
+
+        function submitSignup() {
+            const id = document.getElementById('suId').value.trim();
+            const pw = document.getElementById('suPw').value;
+            const pw2 = document.getElementById('suPw2').value;
+            const idOk = id.length >= 4;
+            const pwOk = pw.length >= 8 && /[A-Za-z]/.test(pw) && /[0-9]/.test(pw);
+            const matchOk = !!pw2 && pw === pw2;
+
+            const idHint = document.getElementById('suIdHint');
+            idHint.textContent = id ? (idOk ? '사용할 수 있는 아이디예요.' : '아이디는 4자 이상 입력해주세요.') : '영문·숫자로 4자 이상 입력해주세요.';
+            idHint.className = 'auth-hint' + (id ? (idOk ? ' ok' : ' err') : '');
+
+            const pwHint = document.getElementById('suPwHint');
+            pwHint.textContent = pw ? (pwOk ? '사용할 수 있는 비밀번호예요.' : '영문, 숫자를 포함해 8자 이상 입력해주세요.') : '영문, 숫자를 포함해 8자 이상 입력해주세요.';
+            pwHint.className = 'auth-hint' + (pw ? (pwOk ? ' ok' : ' err') : '');
+
+            const pw2Hint = document.getElementById('suPw2Hint');
+            pw2Hint.textContent = pw2 ? (matchOk ? '비밀번호가 일치해요.' : '비밀번호가 서로 달라요.') : '';
+            pw2Hint.className = 'auth-hint' + (pw2 ? (matchOk ? ' ok' : ' err') : '');
+
+            const notice = document.getElementById('signupNotice');
+            notice.classList.add('show');
+            notice.querySelector('span').textContent = (idOk && pwOk && matchOk)
+                ? '입력하신 값은 정상이에요. 디자인 시안이라 실제 계정은 만들어지지 않아요. 백엔드 연동 후 저장되도록 연결할 예정이에요.'
+                : '입력값을 다시 확인해주세요. (디자인 시안이라 실제로 저장되지는 않아요)';
+        }
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !surveyOverlay.hidden) closeSurvey();
+            if (e.key !== 'Escape') return;
+            if (!surveyOverlay.hidden) closeSurvey();
+            if (!signupOverlay.hidden) closeSignup();
         });
 
         function renderSurveyQuestion() {
@@ -967,6 +1164,26 @@
                     `<li class="news-item"><a href="${esc(n.url || 'news.html')}" title="${esc(n.title)}">${esc(n.title)}</a><div class="news-meta">${esc(n.source)} · ${timeAgo(n.publishedAt)}</div></li>`).join('');
             } catch (e) { /* 실패해도 기본 문구 유지 */ }
         })();
+        // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
+        (function () {
+            const wrap = document.getElementById('headerProfile');
+            if (!wrap) return;
+            const btn = document.getElementById('headerProfileBtn');
+            function closeProfileMenu() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+            function toggleProfileMenu() {
+                const willOpen = !wrap.classList.contains('open');
+                wrap.classList.toggle('open', willOpen);
+                btn.setAttribute('aria-expanded', String(willOpen));
+            }
+            btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProfileMenu(); });
+            document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeProfileMenu(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProfileMenu(); });
+            window.headerLogout = function () {
+                closeProfileMenu();
+                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
+            };
+        })();
+
     </script>
 </body>
 </html>

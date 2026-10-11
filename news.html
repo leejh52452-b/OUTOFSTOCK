@@ -248,6 +248,38 @@
         .empty .e-title { font-size: 15px; font-weight: 800; }
         .empty .e-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.7; }
 
+        /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
+        .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
+        .header-profile-btn {
+            display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit; color: var(--text-primary);
+        }
+        .header-profile-btn:hover, .header-profile-btn.active { border-color: var(--accent-blue); background-color: var(--hover-bg); }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; padding: 4px; flex-shrink: 0; overflow: hidden; }
+        .header-avatar img { width: 100%; height: 100%; object-fit: contain; }
+        .header-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+        .header-chevron { width: 14px; height: 14px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; }
+        .header-profile.open .header-chevron { transform: rotate(180deg); }
+        .header-dropdown {
+            position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; background-color: var(--card-bg);
+            border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+            padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 500;
+        }
+        .header-profile.open .header-dropdown { display: flex; }
+        .header-dropdown a, .header-dropdown button {
+            display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px;
+            background: none; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600;
+            font-family: inherit; cursor: pointer; text-align: left;
+        }
+        .header-dropdown a:hover, .header-dropdown button:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-dropdown svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
+        .header-dropdown button.danger:hover { background-color: #fee2e2; color: #b91c1c; }
+        .header-dropdown hr { border: none; border-top: 1px solid var(--card-border); margin: 4px 2px; }
+        @media (max-width: 480px) {
+            .header-name { display: none; }
+            .header-profile-btn { padding: 6px; }
+        }
+
         @media (max-width: 1100px) {
             .header-logo { display: none; }
             .news-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "themes" "rank" "feed"; }
@@ -292,13 +324,13 @@
             <li class="nav-item">
                 <a href="learn.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                    <span class="nav-text">학습하기</span>
+                    <span class="nav-text">용어사전</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="practice.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                    <span class="nav-text">실습하기</span>
+                    <span class="nav-text">학습 및 실습하기</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -326,6 +358,25 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
                 <input type="text" placeholder="종목명 또는 종목코드 검색">
+            </div>
+
+            <div class="header-profile" id="headerProfile">
+                <button class="header-profile-btn" type="button" id="headerProfileBtn" aria-haspopup="true" aria-expanded="false">
+                    <span class="header-avatar"><img src="assets/logo-mark.png" alt=""></span>
+                    <span class="header-name">김입문</span>
+                    <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="header-dropdown" role="menu">
+                    <a href="mypage.html" role="menuitem">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                        마이페이지
+                    </a>
+                    <hr>
+                    <button type="button" class="danger" role="menuitem" onclick="headerLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        로그아웃
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -515,6 +566,26 @@ if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
 
 load();
 window.__N = { state, load, data: () => DATA, render };
+
+        // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
+        (function () {
+            const wrap = document.getElementById('headerProfile');
+            if (!wrap) return;
+            const btn = document.getElementById('headerProfileBtn');
+            function closeProfileMenu() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+            function toggleProfileMenu() {
+                const willOpen = !wrap.classList.contains('open');
+                wrap.classList.toggle('open', willOpen);
+                btn.setAttribute('aria-expanded', String(willOpen));
+            }
+            btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProfileMenu(); });
+            document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeProfileMenu(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProfileMenu(); });
+            window.headerLogout = function () {
+                closeProfileMenu();
+                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
+            };
+        })();
 
     </script>
 </body>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - OUTOFSTOCK</title>
+    <link rel="icon" type="image/png" href="assets/logo-mark.png">
+    <style>
+        body[data-theme="brand-light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --accent-blue: #3730a3;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --input-bg: #ffffff;
+            --hover-bg: #e0e7ff;
+            --item-bg: #f8fafc;
+            --art-plate: transparent;
+            --login-bg: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%);
+            --badge-mid-bg: #fef08a; --badge-mid-text: #854d0e;
+            --badge-hard-bg: #fecdd3; --badge-hard-text: #9f1239;
+            --guide-bg: #dbeafe; --guide-text: #1e40af;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 이미지 공통: 어두운 테마에서는 밝은 판 위에 올려 외곽선이 묻히지 않게 */
+        .art-plate { background-color: var(--art-plate); border-radius: 12px; }
+        img { display: block; max-width: 100%; }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 244px; background-color: var(--card-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+        }
+        .sidebar.collapsed { width: 72px; }
+        .sidebar-header {
+            height: 76px; display: flex; align-items: center;
+            padding: 0 16px; gap: 10px; border-bottom: 1px solid var(--card-border);
+        }
+        .sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        .toggle-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background-color: var(--hover-bg); }
+        .logo { display: flex; align-items: center; min-width: 0; }
+        .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
+        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .nav-menu { list-style: none; padding: 16px 10px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; white-space: nowrap;
+        }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px 0; }
+        .nav-link svg { width: 18px; height: 18px; stroke: var(--text-secondary); flex-shrink: 0; }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 600;
+        }
+        .nav-link:hover svg, .nav-link.active svg { stroke: var(--accent-blue); }
+
+        /* 메인 */
+        .main-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        header {
+            position: relative; height: 76px; padding: 0 28px; display: flex; align-items: center;
+            border-bottom: 1px solid var(--card-border); background-color: var(--card-bg);
+        }
+        .header-logo {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center;
+        }
+        .header-logo img { height: 56px; width: auto; padding: 3px 12px; box-sizing: content-box; }
+        .search-box { position: relative; width: 320px; max-width: 100%; }
+        .search-box input {
+            width: 100%; padding: 8px 16px 8px 36px; background-color: var(--item-bg);
+            border: 1px solid var(--card-border); border-radius: 8px;
+            color: var(--text-primary); outline: none; font-size: 13px;
+        }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex;
+        }
+        .search-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+        .content-container {
+            padding: 20px 28px; display: flex; flex-direction: column; gap: 20px;
+            width: 100%; max-width: 1440px; margin: 0 auto;
+        }
+
+
+        [hidden] { display: none !important; }
+        .main-wrapper { overflow-y: visible; }
+        .content-container { word-break: keep-all; overflow-wrap: break-word; }
+        .card-header { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+        .card-title svg { width: 17px; height: 17px; stroke: var(--accent-blue); flex-shrink: 0; }
+        .card-sub { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .badge { padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; width: fit-content; white-space: nowrap; }
+        .badge-basic { background-color: #dcfce7; color: #166534; }
+        .badge-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .badge-hard { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        svg.ico { width: 16px; height: 16px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .num { font-variant-numeric: tabular-nums; }
+        .up { color: var(--accent-red); } .down { color: #2563eb; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+            padding: 9px 15px; border-radius: 6px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit;
+            border: 1px solid var(--card-border); background-color: var(--card-bg); color: var(--text-secondary);
+            transition: background-color .15s, border-color .15s, color .15s, filter .15s;
+        }
+        .btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn.primary { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+        .btn.primary:hover { filter: brightness(1.1); color: #fff; }
+        .btn.outline { background-color: #fff; border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn.outline:hover { background-color: var(--hover-bg); }
+        .btn.danger { color: #b91c1c; }
+        .btn.danger:hover { border-color: #b91c1c; color: #b91c1c; background: #fef2f2; }
+        .btn.sm { padding: 6px 11px; font-size: 12px; }
+        .btn.block { width: 100%; }
+        .btn:disabled { opacity: .5; cursor: not-allowed; }
+        .btn svg.ico { width: 14px; height: 14px; }
+        .link-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 4px; }
+        .link-btn:hover { color: var(--accent-blue); }
+        .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--item-bg); border: 1px solid var(--card-border); color: var(--text-secondary); white-space: nowrap; }
+
+        .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .page-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+        .page-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px 20px; min-width: 0; }
+
+        /* 디자인 시안 안내 배너 */
+        .draft-banner {
+            display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 8px;
+            background: #fffbeb; border: 1px solid #fde68a; color: #854d0e; font-size: 12.5px; font-weight: 600; line-height: 1.5;
+        }
+        .draft-banner svg.ico { color: #b45309; flex-shrink: 0; }
+        .draft-banner b { font-weight: 800; }
+
+        /* 프로필 헤더 */
+        .profile-hero { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+        .profile-avatar { width: 68px; height: 68px; border-radius: 50%; background: var(--hover-bg); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--card-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 10px; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: contain; }
+        .profile-main { flex: 1; min-width: 180px; }
+        .profile-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+        .profile-email { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; }
+        .profile-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .profile-meta b { color: var(--text-secondary); font-weight: 700; }
+        .profile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* 투자 성향 */
+        .persona-body { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+        .persona-body img { width: 84px; height: auto; flex-shrink: 0; }
+        .persona-type { font-size: 19px; font-weight: 800; letter-spacing: -0.4px; }
+        .persona-type.stable { color: var(--accent-blue); }
+        .persona-type.neutral { color: var(--badge-mid-text); }
+        .persona-type.aggressive { color: var(--accent-red); }
+        .persona-date { font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin: 2px 0 6px; }
+        .persona-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+        .sample-tag { background: var(--badge-mid-bg); color: var(--badge-mid-text); font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; }
+
+        /* 학습 로그 */
+        .log-list { display: flex; flex-direction: column; }
+        .log-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--card-border); text-decoration: none; color: inherit; }
+        .log-row:first-child { border-top: none; }
+        .log-row:hover .lr-name { color: var(--accent-blue); }
+        .lr-ico { width: 30px; height: 30px; border-radius: 8px; background: var(--hover-bg); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .lr-ico svg.ico { width: 16px; height: 16px; }
+        .lr-name { font-size: 13.5px; font-weight: 700; }
+        .lr-date { margin-left: auto; font-size: 11.5px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+        .log-summary { display: flex; gap: 8px; margin-top: 2px; }
+
+        /* 실습 이력 */
+        .practice-stat-grid { display: flex; flex-direction: column; gap: 12px; }
+        .practice-stat {
+            display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+            padding: 12px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--item-bg);
+        }
+        .ps-ico { width: 40px; height: 40px; border-radius: 10px; background: var(--hover-bg); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; }
+        .ps-name { font-size: 13.5px; font-weight: 800; }
+        .ps-bar-track { height: 6px; background: var(--card-border); border-radius: 999px; overflow: hidden; margin-top: 7px; }
+        .ps-bar-fill { height: 100%; background: var(--accent-blue); border-radius: 999px; }
+        .ps-meta { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 5px; }
+        .ps-right { text-align: right; }
+        .ps-best { font-size: 15px; font-weight: 800; }
+        .ps-best-label { font-size: 10.5px; color: var(--text-muted); font-weight: 700; margin-top: 1px; }
+
+        /* 관심 종목 */
+        .watch-list { display: flex; flex-direction: column; gap: 8px; }
+        .watch-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; transition: opacity .2s, transform .2s; }
+        .watch-item.removing { opacity: 0; transform: translateX(8px); }
+        .wi-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .wi-name { font-size: 13px; font-weight: 700; }
+        .wi-code { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .wi-price { text-align: right; font-size: 13px; font-weight: 700; }
+        .wi-rate { text-align: right; font-size: 11.5px; font-weight: 700; margin-top: 1px; }
+        .wi-remove { width: 26px; height: 26px; border-radius: 6px; border: none; background: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .wi-remove:hover { background: #fee2e2; color: #b91c1c; }
+        .wi-remove svg.ico { width: 14px; height: 14px; }
+        .watch-add { display: flex; gap: 8px; margin-top: 2px; }
+        .watch-add input {
+            flex: 1; min-width: 0; padding: 9px 12px; background: var(--item-bg); border: 1px dashed var(--card-border);
+            border-radius: 8px; color: var(--text-muted); font-size: 12.5px; font-family: inherit; outline: none;
+        }
+        .watch-empty { text-align: center; padding: 18px 10px; font-size: 12.5px; color: var(--text-muted); }
+
+        /* 접속 로그 */
+        .access-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .access-table th, .access-table td { padding: 8px 4px; text-align: left; white-space: nowrap; }
+        .access-table th { color: var(--text-muted); font-weight: 700; border-bottom: 1px solid var(--card-border); font-size: 11px; }
+        .access-table td { border-bottom: 1px solid var(--card-border); color: var(--text-secondary); }
+        .access-table tr:last-child td { border-bottom: none; }
+        .access-type { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; }
+        .access-type.in { color: var(--accent-blue); } .access-type.out { color: var(--text-muted); }
+        .access-type svg.ico { width: 13px; height: 13px; }
+        .access-dev { color: var(--text-muted); font-size: 11px; }
+
+        /* 비밀번호 변경 */
+        .pw-form { display: flex; flex-direction: column; gap: 10px; }
+        .pw-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; }
+        .pw-input-wrap { position: relative; }
+        .pw-input-wrap input {
+            width: 100%; padding: 9px 38px 9px 11px; background: var(--item-bg); border: 1px solid var(--card-border);
+            border-radius: 6px; color: var(--text-primary); font-size: 13px; font-family: inherit; outline: none;
+        }
+        .pw-input-wrap input:focus { border-color: var(--accent-blue); background: #fff; }
+        .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; }
+        .pw-toggle:hover { color: var(--accent-blue); }
+        .pw-hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+        .pw-hint.err { color: #b91c1c; }
+        .pw-hint.ok { color: #16a34a; }
+        .pw-notice { display: none; align-items: flex-start; gap: 8px; margin-top: 2px; padding: 10px 12px; border-radius: 6px; background: var(--hover-bg); color: var(--accent-blue); font-size: 11.5px; line-height: 1.5; }
+        .pw-notice.show { display: flex; }
+        .pw-notice svg.ico { width: 14px; height: 14px; margin-top: 1px; flex-shrink: 0; }
+
+        /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
+        .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
+        .header-profile-btn {
+            display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit; color: var(--text-primary);
+        }
+        .header-profile-btn:hover, .header-profile-btn.active { border-color: var(--accent-blue); background-color: var(--hover-bg); }
+        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; padding: 4px; flex-shrink: 0; overflow: hidden; }
+        .header-avatar img { width: 100%; height: 100%; object-fit: contain; }
+        .header-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+        .header-chevron { width: 14px; height: 14px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; }
+        .header-profile.open .header-chevron { transform: rotate(180deg); }
+        .header-dropdown {
+            position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; background-color: var(--card-bg);
+            border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+            padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 500;
+        }
+        .header-profile.open .header-dropdown { display: flex; }
+        .header-dropdown a, .header-dropdown button {
+            display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px;
+            background: none; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600;
+            font-family: inherit; cursor: pointer; text-align: left;
+        }
+        .header-dropdown a:hover, .header-dropdown button:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-dropdown svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
+        .header-dropdown button.danger:hover { background-color: #fee2e2; color: #b91c1c; }
+        .header-dropdown hr { border: none; border-top: 1px solid var(--card-border); margin: 4px 2px; }
+        @media (max-width: 480px) {
+            .header-name { display: none; }
+            .header-profile-btn { padding: 6px; }
+        }
+
+        @media (max-width: 1100px) {
+            .header-logo { display: none; }
+            .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        @media (max-width: 760px) {
+            .content-container { padding: 16px; }
+            .card { padding: 15px 14px; }
+            .profile-hero { text-align: center; justify-content: center; }
+            .profile-meta { justify-content: center; }
+            .profile-actions { width: 100%; justify-content: center; }
+            .persona-body { justify-content: center; text-align: center; }
+        }
+    </style>
+</head>
+<body data-theme="brand-light">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="toggle-btn" id="toggleBtn" title="메뉴 접기/열기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="logo">
+                <img class="logo-img art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span class="nav-text">홈</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html#survey" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg>
+                    <span class="nav-text">투자 성향 분석</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="learn.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span class="nav-text">용어사전</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="practice.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span class="nav-text">학습 및 실습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="nav-text">실시간 종목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="news.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path><path d="M21 7h-4v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2V7z"></path><line x1="7" y1="8" x2="13" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line><line x1="7" y1="16" x2="11" y2="16"></line></svg>
+                    <span class="nav-text">뉴스</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <a href="index.html" class="header-logo" title="OUTOFSTOCK 홈">
+                <img class="art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </a>
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="text" placeholder="종목명 또는 종목코드 검색">
+            </div>
+
+            <div class="header-profile" id="headerProfile">
+                <button class="header-profile-btn active" type="button" id="headerProfileBtn" aria-haspopup="true" aria-expanded="false">
+                    <span class="header-avatar"><img src="assets/logo-mark.png" alt=""></span>
+                    <span class="header-name">김입문</span>
+                    <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="header-dropdown" role="menu">
+                    <a href="mypage.html" role="menuitem">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                        마이페이지
+                    </a>
+                    <hr>
+                    <button type="button" class="danger" role="menuitem" onclick="headerLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-container">
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">마이페이지</h1>
+                    <p class="page-sub">내 투자 성향, 학습·실습 기록, 관심 종목을 한곳에서 확인해요.</p>
+                </div>
+            </div>
+
+            <div class="draft-banner"><svg class="ico"><use href="#i-info"/></svg>
+                <span><b>디자인 시안이에요.</b> 아래 기록은 백엔드 연동 전 화면 확인용 예시 데이터이고, 실제 내 기록은 아니에요.</span>
+            </div>
+
+            <div class="card profile-hero">
+                <div class="profile-avatar"><img src="assets/logo-mark.png" alt=""></div>
+                <div class="profile-main">
+                    <div class="profile-name-row"><span class="profile-name">김입문</span><span class="chip">일반 회원</span></div>
+                    <div class="profile-email">test@outofstock.io</div>
+                    <div class="profile-meta"><span>가입일 <b>2026.03.02</b></span><span>최근 접속 <b id="lastSeen"></b></span></div>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn sm" type="button" data-act="edit-profile"><svg class="ico"><use href="#i-edit"/></svg>프로필 수정</button>
+                    <button class="btn sm danger" type="button" data-act="logout"><svg class="ico"><use href="#i-log-out"/></svg>로그아웃</button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="left-column">
+                    <div class="card" id="secPersona"></div>
+                    <div class="card" id="secLearn"></div>
+                    <div class="card" id="secPractice"></div>
+                    <div class="card" id="secWatch"></div>
+                </div>
+                <div class="right-column">
+                    <div class="card" id="secAccess"></div>
+                    <div class="card" id="secPw"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+            <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+            <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+            <symbol id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+            <symbol id="i-activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+            <symbol id="i-target" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 14l2 2 4-4"/></symbol>
+            <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+            <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+            <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+            <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+            <symbol id="i-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+        </defs>
+    </svg>
+
+    <script src="assets/terms.js"></script>
+    <script>
+
+// ============================================================
+//  마이페이지 (디자인 시안 — 기능 없음)
+//
+//  아래 데이터는 전부 화면 확인용 예시(mock)입니다. 실제 계정 데이터는 백엔드가 연동되면
+//  각 섹션의 MOCK_* 변수를 API 응답으로 교체하면 됩니다. (요청사항: "기능을 넣는 게 아니라 디자인만")
+//
+//  백엔드 연동 시 필요한 데이터 (화면 기준):
+//   1) 투자 성향   : { type: 'stable'|'neutral'|'aggressive', score, analyzedAt }
+//   2) 학습 로그   : [{ term, learnedAt }]
+//   3) 실습 이력   : [{ name, tries, completed, inProgress, bestReturn, href }]
+//   4) 관심 종목   : [{ code, name, price, changeRate }]
+//   5) 접속 로그   : [{ type: 'login'|'logout', at, device }]
+//   6) 비밀번호 변경: POST 엔드포인트만 있으면 됨 (현재/새 비밀번호)
+// ============================================================
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const ico = (n) => `<svg class="ico"><use href="#i-${n}"/></svg>`;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const head = (icon, title, sub) => `<div class="card-header"><div class="card-title">${ico(icon)}${title}</div>${sub ? `<span class="card-sub">${sub}</span>` : ''}</div>`;
+
+const RISK_PROFILE = {
+    stable: { name: '안정형', cls: 'stable', img: 'assets/risk-stable.png', desc: '원금 변동을 줄이는 쪽이에요. 저위험 자산 위주로 천천히 배워가요.' },
+    neutral: { name: '중립형', cls: 'neutral', img: 'assets/risk-neutral.png', desc: '수익과 안정 사이에서 균형을 잡는 쪽이에요. 중위험 자산을 중심으로 조금씩 경험을 넓혀가요.' },
+    aggressive: { name: '공격형', cls: 'aggressive', img: 'assets/risk-aggressive.png', desc: '변동을 감수하고 수익을 노리는 쪽이에요. 고위험 자산 비중을 높여 실전 감각을 키워요.' }
+};
+
+// ---------- 1) 투자 성향 (예시) ----------
+const MOCK_PERSONA = { type: 'neutral', score: 14, analyzedAt: '2026.09.20' };
+
+function renderPersona() {
+    const p = RISK_PROFILE[MOCK_PERSONA.type];
+    $('#secPersona').innerHTML = head('target', '투자 성향', '') + `
+        <div class="persona-body">
+            <img src="${p.img}" alt="${p.name} 양봉이">
+            <div style="min-width:0;flex:1">
+                <div class="persona-type ${p.cls}">${p.name} <span class="sample-tag">예시</span></div>
+                <div class="persona-date">분석일 ${MOCK_PERSONA.analyzedAt} · 총점 ${MOCK_PERSONA.score}점</div>
+                <p class="persona-desc">${p.desc}</p>
+            </div>
+            <a class="btn outline sm" href="index.html#survey">다시 진단하기${ico('arrow-right')}</a>
+        </div>`;
+}
+
+// ---------- 2) 학습 로그 (예시) ----------
+const MOCK_LEARN_NAMES = ['골든크로스', 'RSI', '손절매 (손절)', '분산투자', 'PER', '시가총액', 'ETF', '배당금'];
+function mockDate(daysAgo) { const d = new Date(); d.setDate(d.getDate() - daysAgo); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')}`; }
+
+function renderLearn() {
+    const byName = new Map((typeof TERMS !== 'undefined' ? TERMS : []).map((t) => [t.name, t]));
+    const rows = MOCK_LEARN_NAMES.map((name, i) => ({ term: byName.get(name) || { name }, learnedAt: mockDate(i * 2 + 1) }));
+    $('#secLearn').innerHTML = head('book', '학습 로그', '예시 데이터') + `
+        <div class="log-summary"><span class="chip">누적 학습 <b class="num">${rows.length}</b>개</span><span class="chip">전체 용어 <b class="num">${typeof TERMS !== 'undefined' ? TERMS.length : 116}</b>개</span></div>
+        <div class="log-list" style="margin-top:10px">
+            ${rows.map((r) => `
+            <a class="log-row" href="learn.html?term=${encodeURIComponent(r.term.name)}">
+                <div class="lr-ico">${ico('check')}</div>
+                <div class="lr-name">${esc(r.term.name)}</div>
+                <div class="lr-date">${r.learnedAt} 학습</div>
+            </a>`).join('')}
+        </div>
+        <div style="text-align:center;margin-top:10px"><a class="link-btn" href="learn.html">용어사전에서 더 보기 →</a></div>`;
+}
+
+// ---------- 3) 실습 이력 (예시) ----------
+const MOCK_PRACTICE = [
+    { name: '골든크로스 매매 실습', icon: 'activity', tries: 5, completed: 3, inProgress: 0, bestReturn: 17.1, href: 'practice.html?t=golden' },
+    { name: 'RSI 과매도 반등 실습', icon: 'activity', tries: 2, completed: 1, inProgress: 1, bestReturn: 9.4, href: 'practice.html?t=rsi' }
+];
+function renderPractice() {
+    $('#secPractice').innerHTML = head('activity', '실습 이력', '예시 데이터') + `
+        <div class="practice-stat-grid">
+            ${MOCK_PRACTICE.map((p) => {
+                const pct = p.tries ? Math.round((p.completed / p.tries) * 100) : 0;
+                return `<a class="practice-stat" href="${esc(p.href)}" style="text-decoration:none;color:inherit">
+                    <div class="ps-ico">${ico(p.icon)}</div>
+                    <div style="min-width:0">
+                        <div class="ps-name">${esc(p.name)}</div>
+                        <div class="ps-bar-track"><div class="ps-bar-fill" style="width:${pct}%"></div></div>
+                        <div class="ps-meta">시도 ${p.tries}회 · 완료 ${p.completed}회${p.inProgress ? ` · 진행 중 ${p.inProgress}개` : ''}</div>
+                    </div>
+                    <div class="ps-right"><div class="ps-best up">+${p.bestReturn.toFixed(1)}%</div><div class="ps-best-label">최고 수익률</div></div>
+                </a>`;
+            }).join('')}
+        </div>`;
+}
+
+// ---------- 4) 관심 종목 (예시) ----------
+let MOCK_WATCH = [
+    { code: '005930', name: '삼성전자', price: 285500, rate: 3.25 },
+    { code: '000660', name: 'SK하이닉스', price: 1862000, rate: 1.20 },
+    { code: '035420', name: 'NAVER', price: 184700, rate: -0.76 },
+    { code: '373220', name: 'LG에너지솔루션', price: 365000, rate: 0.40 }
+];
+function renderWatch() {
+    const box = $('#secWatch');
+    box.innerHTML = head('star', '관심 종목', '예시 데이터') + `
+        <div class="watch-list" id="watchList">
+            ${MOCK_WATCH.length ? MOCK_WATCH.map((s) => `
+            <div class="watch-item" data-code="${esc(s.code)}">
+                <div class="wi-info"><span class="wi-name">${esc(s.name)}</span><span class="wi-code">${esc(s.code)}</span></div>
+                <div><div class="wi-price num">${s.price.toLocaleString('ko-KR')}</div><div class="wi-rate num ${s.rate >= 0 ? 'up' : 'down'}">${s.rate > 0 ? '+' : ''}${s.rate.toFixed(2)}%</div></div>
+                <button class="wi-remove" type="button" data-act="unwatch" data-code="${esc(s.code)}" title="관심 종목에서 빼기">${ico('x')}</button>
+            </div>`).join('') : `<div class="watch-empty">관심 종목이 없어요.</div>`}
+        </div>
+        <div class="watch-add"><input type="text" placeholder="종목명 또는 종목코드 검색 (백엔드 연동 예정)" disabled><button class="btn sm" type="button" disabled>${ico('plus')}추가</button></div>`;
+}
+function unwatch(code) {
+    const el = $(`.watch-item[data-code="${code}"]`); if (!el) return;
+    el.classList.add('removing');
+    setTimeout(() => { MOCK_WATCH = MOCK_WATCH.filter((s) => s.code !== code); renderWatch(); }, 200);
+}
+
+// ---------- 5) 접속 로그 (예시) ----------
+const MOCK_ACCESS = [
+    { type: 'login', at: '09.24 08:12', device: 'Chrome · Windows' },
+    { type: 'logout', at: '09.23 23:47', device: 'Chrome · Windows' },
+    { type: 'login', at: '09.23 19:03', device: 'Safari · iPhone' },
+    { type: 'logout', at: '09.22 22:10', device: 'Chrome · Windows' },
+    { type: 'login', at: '09.22 20:55', device: 'Chrome · Windows' },
+    { type: 'login', at: '09.21 13:30', device: 'Safari · iPhone' }
+];
+function renderAccess() {
+    $('#secAccess').innerHTML = head('clock', '접속 로그', '예시 데이터') + `
+        <div style="overflow-x:auto"><table class="access-table">
+            <thead><tr><th>구분</th><th>일시</th><th>기기</th></tr></thead>
+            <tbody>
+                ${MOCK_ACCESS.map((a) => `<tr>
+                    <td><span class="access-type ${a.type === 'login' ? 'in' : 'out'}">${ico(a.type === 'login' ? 'log-in' : 'log-out')}${a.type === 'login' ? '로그인' : '로그아웃'}</span></td>
+                    <td class="num">${a.at}</td>
+                    <td class="access-dev">${esc(a.device)}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table></div>`;
+}
+
+// ---------- 6) 비밀번호 변경 (디자인만 — 실제 변경 없음) ----------
+function renderPw() {
+    $('#secPw').innerHTML = head('lock', '비밀번호 변경', '') + `
+        <form class="pw-form" id="pwForm" novalidate>
+            <div class="pw-field">
+                <label for="pwCur">현재 비밀번호</label>
+                <div class="pw-input-wrap"><input type="password" id="pwCur" placeholder="현재 비밀번호" autocomplete="current-password">
+                    <button class="pw-toggle" type="button" data-act="toggle-pw" data-target="pwCur" aria-label="비밀번호 표시">${ico('eye')}</button></div>
+            </div>
+            <div class="pw-field">
+                <label for="pwNew">새 비밀번호</label>
+                <div class="pw-input-wrap"><input type="password" id="pwNew" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password">
+                    <button class="pw-toggle" type="button" data-act="toggle-pw" data-target="pwNew" aria-label="비밀번호 표시">${ico('eye')}</button></div>
+                <div class="pw-hint" id="pwNewHint">영문, 숫자를 포함해 8자 이상 입력해 주세요.</div>
+            </div>
+            <div class="pw-field">
+                <label for="pwNew2">새 비밀번호 확인</label>
+                <div class="pw-input-wrap"><input type="password" id="pwNew2" placeholder="새 비밀번호 다시 입력" autocomplete="new-password">
+                    <button class="pw-toggle" type="button" data-act="toggle-pw" data-target="pwNew2" aria-label="비밀번호 표시">${ico('eye')}</button></div>
+                <div class="pw-hint" id="pwMatchHint"></div>
+            </div>
+            <button class="btn primary block" type="submit">비밀번호 변경</button>
+            <div class="pw-notice" id="pwNotice">${ico('info')}<span>디자인 시안이에요. 백엔드 연동 후 실제로 비밀번호가 바뀌도록 연결할 예정이에요.</span></div>
+        </form>`;
+}
+
+function checkPw() {
+    const cur = $('#pwCur').value, n1 = $('#pwNew').value, n2 = $('#pwNew2').value;
+    const strongEnough = n1.length >= 8 && /[A-Za-z]/.test(n1) && /[0-9]/.test(n1);
+    const nh = $('#pwNewHint');
+    nh.textContent = n1 ? (strongEnough ? '사용할 수 있는 비밀번호예요.' : '영문, 숫자를 포함해 8자 이상 입력해 주세요.') : '영문, 숫자를 포함해 8자 이상 입력해 주세요.';
+    nh.className = 'pw-hint' + (n1 ? (strongEnough ? ' ok' : ' err') : '');
+    const mh = $('#pwMatchHint');
+    mh.textContent = n2 ? (n1 === n2 ? '비밀번호가 일치해요.' : '새 비밀번호가 서로 달라요.') : '';
+    mh.className = 'pw-hint' + (n2 ? (n1 === n2 ? ' ok' : ' err') : '');
+    return !!cur && strongEnough && n1 === n2 && !!n2;
+}
+
+// ---------- 공통 ----------
+function render() {
+    $('#lastSeen').textContent = (function () { const d = new Date(); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; })();
+    renderPersona(); renderLearn(); renderPractice(); renderWatch(); renderAccess(); renderPw();
+}
+
+document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act]'); if (!el) return;
+    const act = el.dataset.act;
+    if (act === 'unwatch') unwatch(el.dataset.code);
+    else if (act === 'toggle-pw') {
+        const input = document.getElementById(el.dataset.target); if (!input) return;
+        const show = input.type === 'password'; input.type = show ? 'text' : 'password';
+        el.innerHTML = show ? ico('eye-off') : ico('eye');
+    } else if (act === 'logout') alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
+    else if (act === 'edit-profile') alert('디자인 시안이에요. 프로필 수정 화면은 백엔드 연동 후 추가할 예정이에요.');
+});
+document.addEventListener('submit', (e) => {
+    if (e.target.id !== 'pwForm') return;
+    e.preventDefault();
+    const ok = checkPw();
+    const notice = $('#pwNotice');
+    notice.classList.toggle('show', true);
+    notice.style.color = ok ? '' : '#b91c1c';
+    if (!ok) { notice.querySelector('span').textContent = '입력값을 다시 확인해 주세요. (실제 변경 기능은 백엔드 연동 후 제공돼요)'; }
+    else { notice.querySelector('span').textContent = '입력하신 값은 정상이에요. 백엔드 연동 후 이 버튼을 누르면 실제로 비밀번호가 바뀌도록 연결할 예정이에요.'; }
+});
+
+const sidebar = $('#sidebar');
+$('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
+
+render();
+window.__M = { render, unwatch, checkPw, MOCK_WATCH: () => MOCK_WATCH };
+
+        // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
+        (function () {
+            const wrap = document.getElementById('headerProfile');
+            if (!wrap) return;
+            const btn = document.getElementById('headerProfileBtn');
+            function closeProfileMenu() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+            function toggleProfileMenu() {
+                const willOpen = !wrap.classList.contains('open');
+                wrap.classList.toggle('open', willOpen);
+                btn.setAttribute('aria-expanded', String(willOpen));
+            }
+            btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProfileMenu(); });
+            document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeProfileMenu(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProfileMenu(); });
+            window.headerLogout = function () {
+                closeProfileMenu();
+                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
+            };
+        })();
+
+    </script>
+</body>
+</html>
