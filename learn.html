@@ -149,8 +149,8 @@
         .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .page-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
         .page-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
-        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
-        .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+        .left-column { display: flex; flex-direction: column; gap: 20px; }
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px 18px; }
 
         /* ===== 검색 / 필터 ===== */
@@ -188,19 +188,50 @@
         .link-btn { background: none; border: none; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 4px; }
         .link-btn:hover { color: var(--accent-blue); }
 
-        /* ===== 용어 카드 ===== */
-        .group-head { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
-        .group-letter { min-width: 36px; height: 36px; padding: 0 9px; border-radius: 10px; background: var(--accent-blue); color: #fff; font-weight: 800; font-size: 19px; display: flex; align-items: center; justify-content: center; }
-        .group-count { font-size: 12px; color: var(--text-muted); font-weight: 700; }
-        .group-line { flex: 1; height: 1px; background: var(--card-border); }
-        .term-group + .term-group { margin-top: 26px; }
-        .term-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
-        .term-card {
-            display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; background: var(--card-bg);
-            border: 1px solid var(--card-border); border-radius: 10px; transition: border-color .15s, box-shadow .15s; scroll-margin-top: 180px;
+        /* ===== 분야 드롭다운 ===== */
+        .cat-tabs { display: flex; align-items: center; gap: 10px; }
+        .cat-tabs label { font-size: 13.5px; font-weight: 800; color: var(--text-primary); }
+        .cat-tabs select {
+            height: 40px; min-width: 220px; padding: 0 36px 0 14px; border: 1px solid var(--card-border); border-radius: 8px; appearance: none;
+            background: var(--card-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 14px center;
+            font-family: inherit; font-size: 14px; font-weight: 700; color: var(--text-primary); cursor: pointer;
         }
-        .term-card:hover { border-color: #a5b4fc; box-shadow: 0 6px 18px rgba(55, 48, 163, 0.07); }
+        .cat-tabs select:hover { border-color: var(--accent-blue); }
+        .cat-tabs select:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 1px; }
+
+        /* ===== 목록 + 상세 ===== */
+        .dict { --dict-h: clamp(520px, calc(100vh - 24px), 780px); display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; align-items: start; }
+        .term-list {
+            position: sticky; top: 12px; height: var(--dict-h); overflow-y: auto;
+            padding: 6px; display: flex; flex-direction: column;
+        }
+        .list-head { font-size: 12px; font-weight: 800; color: var(--accent-blue); padding: 10px 10px 4px; display: flex; justify-content: space-between; }
+        .list-head span { color: var(--text-muted); font-weight: 700; }
+        .list-head:first-child { padding-top: 4px; }
+        .t-row {
+            display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; border: none; border-radius: 7px;
+            background: none; color: var(--text-primary); font-size: 13.5px; font-weight: 600; text-align: left; cursor: pointer; font-family: inherit;
+        }
+        .t-row:hover { background: var(--item-bg); }
+        .t-row.sel { background: var(--hover-bg); color: var(--accent-blue); font-weight: 800; }
+        .t-row:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: -2px; }
+        .t-row .t-name { flex: 1; min-width: 0; }
+        .t-row .t-name mark { background: #fde68a; color: inherit; border-radius: 3px; padding: 0 1px; }
+        .t-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .t-dot.basic { background: #4ade80; }
+        .t-dot.mid { background: #facc15; }
+        .t-row svg.ico { width: 14px; height: 14px; color: var(--accent-green); }
+        .term-detail { position: sticky; top: 12px; height: var(--dict-h); }
+        .term-detail .term-card { height: 100%; overflow-y: auto; }
+        .back-btn { display: none; align-self: flex-start; }
+        .term-card {
+            display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; background: var(--card-bg);
+            border: 1px solid var(--card-border); border-radius: 10px; transition: border-color .15s, box-shadow .15s;
+        }
         .term-card.learned { border-color: #86efac; background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 46%); }
+        .term-card .term-name { font-size: 22px; }
+        .term-card .analogy p { font-size: 14px; }
+        .term-card .term-explain { font-size: 16px; }
         .term-card.flash { animation: flash 1.6s ease-out 1; border-color: var(--accent-blue); }
         @keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(55, 48, 163, .55); } 100% { box-shadow: 0 0 0 14px rgba(55, 48, 163, 0); } }
         .term-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
@@ -211,8 +242,31 @@
         .analogy img { width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; margin-top: 1px; }
         .analogy-label { font-size: 10.5px; font-weight: 800; color: var(--accent-blue); letter-spacing: 0.1px; margin-bottom: 2px; }
         .analogy p { font-size: 13px; font-weight: 600; line-height: 1.6; color: var(--text-primary); }
-        .explain-label { font-size: 10.5px; font-weight: 800; color: var(--text-muted); margin-bottom: 3px; }
-        .term-explain { font-size: 12.8px; color: var(--text-secondary); line-height: 1.75; }
+        /* 용어 설명 그림 (assets/terms/*.webp, 1600×900) — 누르면 화면 가득 크게 보기 */
+        .term-img { position: relative; display: block; flex-shrink: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--card-border); background: #f6f7fb; cursor: zoom-in; }
+        .term-img img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+        .term-img:hover { border-color: var(--accent-blue); }
+        .term-img-hint { position: absolute; right: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 999px; background: rgba(15, 23, 42, 0.78); color: #fff; font-size: 11.5px; font-weight: 700; pointer-events: none; }
+        .term-img-hint svg.ico { width: 13px; height: 13px; stroke: #fff; }
+        /* 그림 크게 보기 (화면 가득) */
+        .img-viewer { position: fixed; inset: 0; z-index: 2100; background: rgba(15, 23, 42, 0.86); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; }
+        .img-viewer[hidden] { display: none; }
+        .img-viewer-bar { width: min(94vw, 1600px); display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #fff; }
+        .img-viewer-bar b { font-size: 17px; font-weight: 800; }
+        .img-viewer-bar span { font-size: 13px; color: #cbd5e1; font-weight: 600; margin-left: 6px; }
+        .img-viewer-close { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.16); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+        .img-viewer-close:hover { background: rgba(255, 255, 255, 0.28); }
+        .img-viewer-close svg.ico { width: 15px; height: 15px; stroke: #fff; }
+        .img-viewer img { width: min(94vw, 1600px); max-height: calc(100vh - 110px); object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); background: #fff; }
+        body.viewer-open { overflow: hidden; }
+        .explain-label { display: flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
+        .explain-label svg.ico { width: 18px; height: 18px; color: var(--accent-blue); flex-shrink: 0; }
+        .term-explain { font-size: 15px; font-weight: 500; color: #1e293b; line-height: 1.9; }
+        .caution { display: flex; gap: 10px; align-items: flex-start; background: #ffedd5; border: 2px solid #fb923c; border-radius: 10px; padding: 14px 16px; }
+        .caution > svg.ico { width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; color: #ea580c; }
+        .caution-label { display: inline-block; font-size: 13px; font-weight: 800; color: #fff; background: #ea580c; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
+        .caution p { font-size: 15px; font-weight: 700; line-height: 1.8; color: #7c2d12; }
+        .term-card .caution p { font-size: 15.5px; }
         .term-foot { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 2px; }
         .foot-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
         .foot-label { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-left: 2px; }
@@ -224,34 +278,76 @@
         .empty .e-title { font-size: 15px; font-weight: 800; }
         .empty .e-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
 
-        /* ===== 사이드 패널 ===== */
-        .today-card { background: var(--login-bg); display: flex; flex-direction: column; gap: 10px; }
-        .today-top { display: flex; align-items: center; gap: 12px; }
-        .today-top img { width: 78px; height: auto; flex-shrink: 0; }
-        .today-name { font-size: 17px; font-weight: 800; letter-spacing: -0.4px; }
-        .today-en { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
-        .today-analogy { font-size: 12.5px; color: var(--text-secondary); line-height: 1.65; background: rgba(255,255,255,.75); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; }
-        .prog-big { display: flex; align-items: baseline; gap: 6px; }
-        .prog-big b { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; }
+        /* ===== 제목 아래 가로 띠: 나의 학습 현황 | Daily Stock Quiz ===== */
+        .status-strip { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; }
+        .status-strip .card { padding: 14px 18px; }
+        .status-strip .card-header { grid-column: 1 / -1; margin-bottom: 0; }
+        .prog-card { display: grid; grid-template-columns: auto minmax(80px, 1fr) auto auto; align-items: center; align-content: space-between; column-gap: 18px; row-gap: 10px; }
+        .prog-head-r { display: flex; align-items: center; gap: 6px; }
+        .prog-big { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+        .prog-big b { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
         .prog-big span { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
-        .prog-track { height: 8px; background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 999px; overflow: hidden; margin: 8px 0 12px; }
+        .prog-track { height: 8px; background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 999px; overflow: hidden; }
         .prog-fill { height: 100%; width: 0; background: linear-gradient(90deg, #4f46e5, #22c55e); border-radius: 999px; transition: width .35s ease; }
-        .prog-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; padding: 6px 0; border-top: 1px solid var(--card-border); color: var(--text-secondary); }
+        .prog-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; }
         .prog-row b { color: var(--text-primary); font-weight: 700; }
-        .cat-list { display: flex; flex-direction: column; gap: 6px; }
-        .cat-btn {
-            display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 9px 12px; text-align: left;
-            border: 1px solid var(--card-border); border-radius: 8px; background: var(--item-bg); color: var(--text-primary);
-            font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
-        }
-        .cat-btn:hover { border-color: var(--accent-blue); }
-        .cat-btn.active { background: var(--hover-bg); border-color: var(--accent-blue); color: var(--accent-blue); font-weight: 800; }
-        .cat-btn .c-num { font-size: 11px; font-weight: 700; color: var(--text-muted); }
-        .cat-btn.active .c-num { color: var(--accent-blue); }
 
-        @media (min-width: 1101px) {
-            .controls { position: sticky; top: 12px; z-index: 30; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06); }
-        }
+        /* ===== Daily Stock Quiz ===== */
+        .quiz-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 14px; row-gap: 10px; }
+        .quiz-card .btn { white-space: nowrap; }
+        .quiz-card .quiz-status { padding: 6px 10px; }
+        .quiz-card .quiz-status img { width: 32px; height: 32px; }
+        .quiz-card .q-date { font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
+        .quiz-status { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: var(--item-bg); border: 1px solid var(--card-border); }
+        .quiz-status img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+        .quiz-status b { display: block; font-size: 13px; }
+        .quiz-status span { display: block; font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+        .quiz-status.done { background: #f0fdf4; border-color: #86efac; }
+        .quiz-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .quiz-overlay[hidden] { display: none; }
+        .quiz-modal { position: relative; width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; background: var(--card-bg); border-radius: 16px; padding: 24px 24px 22px; box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3); }
+        .quiz-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .quiz-close:hover { background: var(--hover-bg); color: var(--accent-blue); }
+        .quiz-close svg { width: 18px; height: 18px; }
+        .quiz-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-right: 30px; }
+        .quiz-head > svg.ico { width: 30px; height: 30px; padding: 6px; border-radius: 8px; background: var(--hover-bg); stroke: var(--accent-blue); flex-shrink: 0; }
+        .quiz-title { font-size: 16px; font-weight: 800; }
+        .quiz-sub { font-size: 11.5px; color: var(--text-secondary); }
+        .quiz-progress { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; }
+        .quiz-tag { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--hover-bg); color: var(--accent-blue); }
+        .quiz-tag.deep { background: #fef3c7; color: #b45309; }
+        .quiz-track { height: 6px; background: var(--item-bg); border-radius: 3px; overflow: hidden; margin-bottom: 18px; }
+        .quiz-fill { height: 100%; background: var(--accent-blue); border-radius: 3px; transition: width .25s ease; }
+        .quiz-q { font-size: 15px; font-weight: 700; line-height: 1.55; margin-bottom: 14px; word-break: keep-all; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--card-border); background: var(--card-bg); font-size: 13.5px; font-weight: 600; color: var(--text-primary); cursor: pointer; font-family: inherit; line-height: 1.45; }
+        .quiz-opt:hover:not(:disabled) { border-color: var(--accent-blue); background: var(--hover-bg); }
+        .quiz-opt:disabled { cursor: default; }
+        .quiz-opt .no { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; background: var(--item-bg); border: 1px solid var(--card-border); color: var(--text-secondary); }
+        .quiz-actions { display: flex; gap: 8px; margin-top: 16px; }
+        .quiz-actions .btn { flex: 1; }
+        .quiz-result { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .quiz-result img { width: 110px; height: auto; }
+        .quiz-result .r-title { font-size: 17px; font-weight: 800; word-break: keep-all; }
+        .quiz-result .r-score { font-size: 13px; color: var(--text-secondary); }
+        .quiz-result .r-score b { font-size: 22px; color: var(--accent-blue); }
+        .quiz-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+        .quiz-opt.correct .no { background: #22c55e; border-color: #22c55e; color: #fff; }
+        .quiz-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+        .quiz-opt.wrong .no { background: #ef4444; border-color: #ef4444; color: #fff; }
+        .quiz-opt.dim { opacity: .55; }
+        .quiz-feedback { margin-top: 12px; padding: 12px 14px; border-radius: 10px; border: 1px solid #bbf7d0; background: #f0fdf4; word-break: keep-all; }
+        .quiz-feedback.no { border-color: #fecaca; background: #fef2f2; }
+        .quiz-feedback .fb-title { font-size: 14px; font-weight: 800; color: #15803d; }
+        .quiz-feedback.no .fb-title { color: #b91c1c; }
+        .quiz-feedback .fb-ans { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-top: 4px; }
+        .quiz-feedback p { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-top: 6px; }
+        .quiz-dots { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+        .quiz-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--card-border); }
+        .quiz-dots span.ok { background: #22c55e; }
+        .quiz-dots span.no { background: #ef4444; }
+        .quiz-dots span.cur { transform: scale(1.35); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--accent-blue); }
+        body.quiz-open { overflow: hidden; }
         /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
         .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
         .header-profile-btn {
@@ -285,14 +381,21 @@
         }
 
         @media (max-width: 1100px) {
-            .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
             .header-logo { display: none; }
-            .term-card { scroll-margin-top: 20px; }
+            .status-strip { grid-template-columns: minmax(0, 1fr); }
         }
         @media (max-width: 760px) {
             .content-container { padding: 16px; }
-            .term-grid { grid-template-columns: 1fr; }
             .seg { padding: 8px 11px; }
+            .prog-card { grid-template-columns: auto auto; justify-content: start; }
+            .prog-card .prog-big, .prog-card .prog-track { grid-column: 1 / -1; }
+            .quiz-card { grid-template-columns: minmax(0, 1fr); }
+            .cat-tabs select { flex: 1; min-width: 0; }
+            .dict { grid-template-columns: minmax(0, 1fr); }
+            .term-list, .term-detail, .term-detail .term-card { position: static; height: auto; }
+            .dict.show-detail .term-list, .dict:not(.show-detail) .term-detail { display: none; }
+            .back-btn { display: inline-flex; }
+            .term-card { padding: 18px; }
         }
     </style>
 </head>
@@ -388,6 +491,11 @@
 
             <div class="dashboard-grid">
                 <div class="left-column">
+                    <div class="status-strip">
+                        <div class="card prog-card" id="progressCard"></div>
+                        <div class="card quiz-card" id="quizCard"></div>
+                    </div>
+
                     <div class="card controls">
                         <div class="search-row">
                             <div class="term-search">
@@ -405,17 +513,13 @@
                         <div class="ini-bar" id="iniBar" aria-label="초성 필터"></div>
                     </div>
 
+                    <div class="cat-tabs" id="catTabs"></div>
                     <div class="result-head" id="resultHead"></div>
-                    <div id="results"></div>
-                </div>
-
-                <div class="right-column">
-                    <div class="card today-card" id="todayCard"></div>
-                    <div class="card" id="progressCard"></div>
-                    <div class="card">
-                        <div class="card-header"><div class="card-title"><svg class="ico"><use href="#i-layers"/></svg>주제별로 보기</div></div>
-                        <div class="cat-list" id="catList"></div>
+                    <div class="dict" id="dict">
+                        <nav class="card term-list" id="termList" aria-label="용어 목록"></nav>
+                        <div class="term-detail" id="termDetail" aria-live="polite"></div>
                     </div>
+                    <div id="emptyBox" hidden></div>
                 </div>
             </div>
         </div>
@@ -432,10 +536,40 @@
             <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></symbol>
             <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
             <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+            <symbol id="i-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+            <symbol id="i-candle" viewBox="0 0 24 24"><line x1="7" y1="3" x2="7" y2="21"/><rect x="5" y="7" width="4" height="8" rx="1"/><line x1="17" y1="3" x2="17" y2="21"/><rect x="15" y="10" width="4" height="6" rx="1"/></symbol>
+            <symbol id="i-exchange" viewBox="0 0 24 24"><polyline points="17 3 21 7 17 11"/><line x1="21" y1="7" x2="7" y2="7"/><polyline points="7 13 3 17 7 21"/><line x1="3" y1="17" x2="17" y2="17"/></symbol>
+            <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M16 13h2"/><path d="M3 9h18"/><path d="M7 6V4h10v2"/></symbol>
+            <symbol id="i-bank" viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"/><line x1="5" y1="10" x2="5" y2="18"/><line x1="10" y1="10" x2="10" y2="18"/><line x1="14" y1="10" x2="14" y2="18"/><line x1="19" y1="10" x2="19" y2="18"/><polygon points="12 3 21 8 3 8 12 3"/></symbol>
+            <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="9" y1="7" x2="9" y2="7.01"/><line x1="15" y1="7" x2="15" y2="7.01"/><line x1="9" y1="11" x2="9" y2="11.01"/><line x1="15" y1="11" x2="15" y2="11.01"/><path d="M10 21v-5h4v5"/></symbol>
+            <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><line x1="12" y1="13" x2="12" y2="21"/></symbol>
+            <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/></symbol>
+            <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/></symbol>
+            <symbol id="i-chart-line" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></symbol>
+            <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+            <symbol id="i-quiz" viewBox="0 0 24 24"><path d="M11 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v5"/><path d="M7 8h7"/><path d="M7 12h5"/><path d="M7 16h2"/><path d="M20.4 13.6a1.4 1.4 0 0 0-2-2L13 17l-.7 2.7L15 19z"/></symbol>
         </defs>
     </svg>
 
+    <!-- 용어 그림 크게 보기 -->
+    <div class="img-viewer" id="imgViewer" hidden role="dialog" aria-modal="true" aria-labelledby="imgViewerTitle">
+        <div class="img-viewer-bar"><div id="imgViewerTitle"></div><button class="img-viewer-close" type="button" data-act="img-close"><svg class="ico"><use href="#i-x"/></svg>닫기 (Esc)</button></div>
+        <img id="imgViewerImg" alt="">
+    </div>
+
+    <!-- Daily Stock Quiz 창 -->
+    <div class="quiz-overlay" id="quizOverlay" hidden>
+        <div class="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quizTitle">
+            <button class="quiz-close" type="button" data-act="quiz-close" aria-label="퀴즈 닫기"><svg class="ico"><use href="#i-x"/></svg></button>
+            <div class="quiz-head"><svg class="ico"><use href="#i-quiz"/></svg><div><div class="quiz-title" id="quizTitle">Daily Stock Quiz</div><div class="quiz-sub" id="quizDate"></div></div></div>
+            <div id="quizBody"></div>
+        </div>
+    </div>
+
     <script src="assets/terms.js"></script>
+    <script src="assets/daily-quiz.js"></script>
+    <script src="assets/term-images.js"></script>
     <script>
 // ============================================================
 //  학습하기 화면 로직 (프론트 전용)
@@ -452,7 +586,8 @@ const norm = (s) => String(s).toLowerCase().replace(/[\s\/·()\-&+]/g, '');
 const CHO = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
 const CHO_BASE = { 'ㄲ': 'ㄱ', 'ㄸ': 'ㄷ', 'ㅃ': 'ㅂ', 'ㅆ': 'ㅅ', 'ㅉ': 'ㅈ' };
 const ORDER = ['ㄱ', 'ㄴ', 'ㄷ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅅ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ', 'A-Z'];
-const CAT_ORDER = ['차트 기초', '거래 기초', '자금·계좌', '시장·지수', '기업·재무', '투자 상품', '제도·이벤트', '위험 관리', '보조지표·기법'];
+const CAT_ORDER = ['주식 기본', '계좌·세금', '주문·거래', '차트 기초', '보조지표·기법', '기업 분석', '기업 이벤트', '시장·경제', '투자 상품', '투자 전략', '위험·주의'];
+const CAT_ICON = { '주식 기본': 'book', '계좌·세금': 'wallet', '주문·거래': 'exchange', '차트 기초': 'candle', '보조지표·기법': 'chart-line', '기업 분석': 'building', '기업 이벤트': 'calendar', '시장·경제': 'bank', '투자 상품': 'box', '투자 전략': 'target', '위험·주의': 'shield' };
 const LV = { basic: { label: '초급', cls: 'badge-basic' }, mid: { label: '중급', cls: 'badge-mid' } };
 const PRACTICE = {
     golden: { label: '골든크로스 실습하러 가기', href: 'practice.html?t=golden' },
@@ -476,7 +611,7 @@ TERMS.forEach((t) => {
     t.initial = initialOf(t.name);
     t.ini = choseongOf(t.name.replace(/\s/g, ''));
     t.keys = [t.name, t.en, ...t.alias].map(norm);
-    t.body = norm(t.analogy + t.explain);
+    t.body = norm(t.analogy + t.explain + (t.caution || ''));
 });
 const byKey = new Map();
 TERMS.forEach((t) => [t.name, ...t.alias].forEach((a) => { if (!byKey.has(norm(a))) byKey.set(norm(a), t); }));
@@ -484,7 +619,8 @@ const resolve = (ref) => byKey.get(norm(ref)) || null;
 
 // ---- 상태 / 저장 ----
 const LKEY = 'outofstock_learned_terms';
-const state = { q: '', level: 'all', initial: 'all', cat: null };
+const state = { q: '', level: 'all', initial: 'all', cat: null, sel: null };
+let shown = [];  // 지금 목록에 보이는 순서 (키보드 이동용)
 let learned = new Set();
 try { learned = new Set(JSON.parse(localStorage.getItem(LKEY)) || []); } catch (e) { learned = new Set(); }
 learned = new Set([...learned].filter((id) => TERMS.some((t) => t.id === id)));
@@ -511,25 +647,59 @@ function highlight(text, q) {
     return esc(text.slice(0, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length));
 }
 
-// ---- 카드 ----
-function cardHTML(t, q, isIni) {
+// ---- 목록 / 상세 ----
+const learnLabel = (done) => (done ? ico('check') + '학습 완료' : ico('bulb') + '이해했어요');
+const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
+const findRow = (id) => $$('#termList .t-row').find((el) => el.dataset.id === id);
+
+// 용어 설명 그림: 한 줄 비유 바로 아래 (그림이 없는 용어는 표시 안 함)
+function termImageHTML(t) {
+    const f = typeof TERM_IMAGES !== 'undefined' && TERM_IMAGES[t.name];
+    if (!f) return '';
+    const src = `assets/terms/${encodeURIComponent(f)}`;
+    return `<a class="term-img" href="${src}" target="_blank" rel="noopener" data-act="img-open" data-id="${esc(t.id)}" aria-label="${esc(t.name)} 설명 그림 크게 보기"><img src="${src}" alt="${esc(t.name)} 설명 그림" width="1600" height="900" loading="lazy"><span class="term-img-hint">${ico('search')}눌러서 크게 보기</span></a>`;
+}
+// 그림 크게 보기: 지금 자리의 그림을 누르면 화면 가득 띄우고, 닫기·바깥 클릭·Esc로 닫아요
+let viewerReturnFocus = null;
+function openViewer(id) {
+    const t = TERMS.find((x) => x.id === id), f = t && TERM_IMAGES[t.name]; if (!f) return;
+    viewerReturnFocus = document.activeElement;
+    $('#imgViewerTitle').innerHTML = `<b>${esc(t.name)}</b><span>${esc(t.en)}</span>`;
+    const img = $('#imgViewerImg'); img.src = `assets/terms/${encodeURIComponent(f)}`; img.alt = `${t.name} 설명 그림`;
+    $('#imgViewer').hidden = false; document.body.classList.add('viewer-open');
+    $('.img-viewer-close').focus();
+}
+function closeViewer() {
+    if ($('#imgViewer').hidden) return;
+    $('#imgViewer').hidden = true; document.body.classList.remove('viewer-open');
+    if (viewerReturnFocus && document.contains(viewerReturnFocus)) viewerReturnFocus.focus();
+}
+function rowHTML(t, q, isIni) {
+    const on = t.id === state.sel;
+    return `<button class="t-row${on ? ' sel' : ''}" type="button" data-act="select" data-id="${esc(t.id)}" aria-current="${on}">`
+        + `<span class="t-dot ${t.level}" title="${LV[t.level].label}"></span>`
+        + `<span class="t-name">${isIni ? esc(t.name) : highlight(t.name, q)}</span>${learned.has(t.id) ? ico('check') : ''}</button>`;
+}
+function detailHTML(t, q, isIni) {
     const done = learned.has(t.id), lv = LV[t.level];
     const rel = t.related.map(resolve).filter((r, i, a) => r && r !== t && a.indexOf(r) === i);
     const pr = t.practice ? PRACTICE[t.practice] : null;
     return `
     <article class="term-card${done ? ' learned' : ''}" data-id="${esc(t.id)}">
+        <button class="btn back-btn" type="button" data-act="back">${ico('arrow-left')}목록으로</button>
         <div class="term-head">
-            <div><h3 class="term-name">${isIni ? esc(t.name) : highlight(t.name, q)}</h3><div class="term-en">${esc(t.en)}</div></div>
+            <div><h2 class="term-name">${isIni ? esc(t.name) : highlight(t.name, q)}</h2><div class="term-en">${esc(t.en)}</div></div>
             <span class="badge ${lv.cls}">${lv.label}</span>
         </div>
         <div class="analogy">
             <img src="assets/logo-mark.png" alt="">
             <div><div class="analogy-label">양봉이의 한 줄 비유</div><p>${esc(t.analogy)}</p></div>
         </div>
-        <div><div class="explain-label">쉬운 개념 풀이</div><p class="term-explain">${esc(t.explain).replace(/\n/g, '<br>')}</p></div>
-        <div class="term-foot">
+        ${termImageHTML(t)}
+        <div><div class="explain-label">${ico('book')}쉬운 개념 풀이</div><p class="term-explain">${esc(t.explain).replace(/\n/g, '<br>')}</p></div>
+        ${t.caution ? `<div class="caution">${ico('alert')}<div><div class="caution-label">주의</div><p>${esc(t.caution)}</p></div></div>` : ''}        <div class="term-foot">
             <div class="foot-tags">
-                <span class="chip">${esc(t.cat)}</span>
+                <button class="chip" type="button" data-act="cat" data-cat="${esc(t.cat)}">${ico(CAT_ICON[t.cat])}${esc(t.cat)}</button>
                 ${rel.length ? `<span class="foot-label">연관 용어</span>` + rel.map((r) => `<button class="chip" type="button" data-act="jump" data-id="${esc(r.id)}">${ico('link')}${esc(r.name)}</button>`).join('') : ''}
             </div>
             <div class="foot-actions">
@@ -539,8 +709,11 @@ function cardHTML(t, q, isIni) {
         </div>
     </article>`;
 }
-const learnLabel = (done) => (done ? ico('check') + '학습 완료' : ico('bulb') + '이해했어요');
-const gridHTML = (list, q, isIni) => `<div class="term-grid">${list.map((t) => cardHTML(t, q, isIni)).join('')}</div>`;
+function renderDetail() {
+    const t = TERMS.find((x) => x.id === state.sel); if (!t) return;
+    const q = state.q.trim();
+    $('#termDetail').innerHTML = detailHTML(t, q, !!q && isChoseongQuery(q));
+}
 
 // ---- 렌더 ----
 function render() {
@@ -565,79 +738,222 @@ function render() {
         ${state.cat ? `<button class="chip on" type="button" data-act="clear-cat">${esc(state.cat)} ${ico('x')}</button>` : ''}
         <span class="spacer"></span>
         ${filtered ? `<button class="link-btn" type="button" data-act="reset">필터 초기화</button>` : ''}`;
-
-    const box = $('#results');
-    if (!list.length) {
-        box.innerHTML = `<div class="card empty"><img src="assets/sad.png" alt="슬퍼하는 양봉이"><div class="e-title">찾는 용어가 없어요</div><div class="e-desc">다른 검색어로 찾아보거나 필터를 초기화해 보세요.<br>없는 용어는 계속 추가할 예정이에요.</div><button class="btn primary" type="button" data-act="reset">필터 초기화</button></div>`;
-    } else if (q) {
-        box.innerHTML = gridHTML(list.slice().sort((a, b) => score(a, q) - score(b, q) || a.name.localeCompare(b.name, 'ko')), q, isIni);
-    } else {
-        const groups = ORDER.map((k) => [k, list.filter((t) => t.initial === k)]).filter((g) => g[1].length);
-        box.innerHTML = groups.map(([k, items]) => `
-            <section class="term-group" data-group="${k}">
-                <div class="group-head"><div class="group-letter">${k}</div><span class="group-count num">${items.length}개</span><span class="group-line"></span></div>
-                ${gridHTML(items.slice().sort((a, b) => a.name.localeCompare(b.name, k === 'A-Z' ? 'en' : 'ko')), q, isIni)}
-            </section>`).join('');
-    }
     renderCats();
+
+    const dict = $('#dict');
+    dict.classList.remove('show-detail');
+    dict.hidden = !list.length; $('#emptyBox').hidden = !!list.length;
+    if (!list.length) {
+        shown = [];
+        $('#emptyBox').innerHTML = `<div class="card empty"><img src="assets/sad.png" alt="슬퍼하는 양봉이"><div class="e-title">찾는 용어가 없어요</div><div class="e-desc">다른 검색어로 찾아보거나 필터를 초기화해 보세요.<br>없는 용어는 계속 추가할 예정이에요.</div><button class="btn primary" type="button" data-act="reset">필터 초기화</button></div>`;
+        return;
+    }
+    // 검색 중엔 관련도 순, 아니면 초성 그룹
+    const groups = q
+        ? [['검색 결과', list.slice().sort((a, b) => score(a, q) - score(b, q) || a.name.localeCompare(b.name, 'ko'))]]
+        : ORDER.map((k) => [k, list.filter((t) => t.initial === k).sort((a, b) => a.name.localeCompare(b.name, k === 'A-Z' ? 'en' : 'ko'))]).filter((g) => g[1].length);
+    shown = groups.flatMap((g) => g[1]);
+    if (!shown.some((t) => t.id === state.sel)) state.sel = shown[0].id;
+    $('#termList').innerHTML = groups.map(([k, items]) =>
+        `<div class="list-head">${k}<span class="num">${items.length}${q ? '개' : ''}</span></div>` + items.map((t) => rowHTML(t, q, isIni)).join('')).join('');
+    renderDetail();
 }
 
-// ---- 사이드 패널 ----
+// ---- 제목 아래 가로 띠 ----
 function renderProgress() {
     const total = TERMS.length, n = learned.size, pct = Math.round((n / total) * 100);
     const cnt = (lv) => [TERMS.filter((t) => t.level === lv && learned.has(t.id)).length, TERMS.filter((t) => t.level === lv).length];
     const [b1, b2] = cnt('basic'), [m1, m2] = cnt('mid');
     $('#progressCard').innerHTML = `
-        <div class="card-header"><div class="card-title">${ico('award')}나의 학습 현황</div><span class="chip">${pct}%</span></div>
+        <div class="card-header"><div class="card-title">${ico('award')}나의 학습 현황</div><div class="prog-head-r">${n ? `<button class="link-btn" type="button" data-act="reset-progress">학습 기록 지우기</button>` : ''}<span class="chip">${pct}%</span></div></div>
         <div class="prog-big"><b class="num">${n}</b><span>/ ${total}개 학습 완료</span></div>
         <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
         <div class="prog-row"><span>초급 용어</span><b class="num">${b1} / ${b2}</b></div>
-        <div class="prog-row"><span>중급 용어</span><b class="num">${m1} / ${m2}</b></div>
-        <a class="btn primary block" href="practice.html" style="margin-top:12px">${ico('target')}배운 걸 실습해 보기</a>
-        ${n ? `<div style="text-align:center;margin-top:6px"><button class="link-btn" type="button" data-act="reset-progress">학습 기록 지우기</button></div>` : ''}`;
+        <div class="prog-row"><span>중급 용어</span><b class="num">${m1} / ${m2}</b></div>`;
 }
 function renderCats() {
-    const total = (c) => TERMS.filter((t) => t.cat === c).length, done = (c) => TERMS.filter((t) => t.cat === c && learned.has(t.id)).length;
-    $('#catList').innerHTML = `<button class="cat-btn${state.cat ? '' : ' active'}" type="button" data-act="cat" data-cat="">전체 주제<span class="c-num num">${TERMS.length}</span></button>`
-        + CAT_ORDER.map((c) => `<button class="cat-btn${state.cat === c ? ' active' : ''}" type="button" data-act="cat" data-cat="${esc(c)}">${esc(c)}<span class="c-num num">${done(c)} / ${total(c)}</span></button>`).join('');
+    const total = (c) => TERMS.filter((t) => t.cat === c).length;
+    const opt = (c, label, n) => `<option value="${esc(c)}"${(state.cat || '') === c ? ' selected' : ''}>${esc(label)} (${n})</option>`;
+    $('#catTabs').innerHTML = `<label for="catSel">분야</label><select id="catSel">${opt('', '전체', TERMS.length)}${CAT_ORDER.map((c) => opt(c, c, total(c))).join('')}</select>`;
 }
-function todayTerm() { const d = new Date(); return TERMS[Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000) % TERMS.length]; }
-function renderToday() {
-    const t = todayTerm();
-    $('#todayCard').innerHTML = `
-        <div class="card-title">${ico('bulb')}오늘의 용어</div>
-        <div class="today-top"><img src="assets/study.png" alt="공부하는 양봉이"><div><div class="today-name">${esc(t.name)}</div><div class="today-en">${esc(t.en)}</div></div></div>
-        <div class="today-analogy">${esc(t.analogy)}</div>
-        <button class="btn outline block" type="button" data-act="jump" data-id="${esc(t.id)}">자세히 보기${ico('arrow-right')}</button>`;
+
+// ---- Daily Stock Quiz (문제은행: assets/daily-quiz.js) ----
+//  - 하루 5문제(상황 3 + 심화 2), 날짜가 같으면 같은 문제
+//  - 보기를 고르면 바로 정답·해설 표시(답은 못 바꿈), 결과 화면은 맞은 개수만
+//  - 답을 고를 때마다 저장: 중간에 닫아도 푼 문제는 그대로 잠기고, 다음에 남은 문제부터 이어서 풀기
+//  - localStorage(outofstock_daily_quiz)에 { date, answers(안 푼 문제는 null), done }로 저장
+const QKEY = 'outofstock_daily_quiz', QUIZ_N = 5;
+const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const dateLabel = (s) => { const [y, m, d] = s.split('-').map(Number); return `${m}월 ${d}일 (${'일월화수목금토'[new Date(y, m - 1, d).getDay()]})`; };
+const quiz = { date: '', items: [], answers: [], done: false, view: 'q', draft: [], cur: 0 };
+function loadQuiz() {
+    quiz.date = todayStr(); quiz.items = buildDailyQuiz(quiz.date); quiz.answers = []; quiz.done = false; quiz.draft = Array(QUIZ_N).fill(null);
+    try {
+        const s = JSON.parse(localStorage.getItem(QKEY));
+        const valid = s && s.date === quiz.date && Array.isArray(s.answers) && s.answers.length === QUIZ_N
+            && s.answers.every((a) => a === null || (Number.isInteger(a) && a >= 0 && a < 4));
+        if (valid && s.done && !s.answers.includes(null)) { quiz.answers = s.answers; quiz.done = true; }
+        else if (valid) quiz.draft = s.answers;  // 풀던 중 → 이어서
+    } catch (e) { /* 저장된 기록이 없거나 읽을 수 없으면 새로 시작 */ }
+}
+const saveQuiz = () => { try { localStorage.setItem(QKEY, JSON.stringify({ date: quiz.date, answers: quiz.done ? quiz.answers : quiz.draft, done: quiz.done })); } catch (e) { /* 저장 실패해도 진행 */ } };
+const quizSolved = () => quiz.draft.filter((a) => a !== null).length;
+const quizScore = () => quiz.answers.filter((a, i) => a === quiz.items[i].answer).length;
+const ensureToday = () => { if (quiz.date !== todayStr()) loadQuiz(); };
+
+function renderQuizCard() {
+    ensureToday();
+    const sc = quizScore(), solved = quizSolved();
+    const [cls, img, title, desc] = quiz.done ? ['done', 'happy', '오늘의 퀴즈 완료!', `${QUIZ_N}문제 중 ${sc}문제 정답<br>내일 새 퀴즈가 열려요`]
+        : solved ? ['', 'study', `${QUIZ_N}문제 중 ${solved}문제 풀었어요`, '남은 문제부터 이어서 풀 수 있어요']
+        : ['', 'study', `오늘의 ${QUIZ_N}문제가 준비됐어요`, ''];
+    const btn = quiz.done ? `${ico('award')}결과 보기` : solved ? `${ico('target')}이어서 풀기` : `${ico('target')}퀴즈 시작하기`;
+    $('#quizCard').innerHTML = `
+        <div class="card-header"><div class="card-title">${ico('quiz')}Daily Stock Quiz</div><span class="q-date">${dateLabel(quiz.date)}</span></div>
+        <div class="quiz-status ${cls}"><img src="assets/${img}.png" alt=""><div><b>${title}</b>${desc ? `<span>${desc}</span>` : ''}</div></div>
+        <button class="btn primary" type="button" data-act="quiz-start">${btn}</button>`;
+}
+// 문제 화면: 보기를 고르면 바로 정답·해설을 보여주고, 고른 답은 바꿀 수 없어요
+function quizQuestionHTML() {
+    const i = quiz.cur, q = quiz.items[i], sel = quiz.draft[i], answered = sel !== null, last = i === QUIZ_N - 1;
+    const filled = quiz.draft.filter((a) => a !== null).length;
+    const opts = q.options.map((o, k) => {
+        const cls = !answered ? '' : k === q.answer ? ' correct' : k === sel ? ' wrong' : ' dim';
+        return `<button class="quiz-opt${cls}" type="button" data-act="quiz-pick" data-k="${k}"${answered ? ' disabled' : ''}><span class="no">${answered && k === q.answer ? '✓' : answered && k === sel ? '✕' : k + 1}</span>${esc(o)}</button>`;
+    }).join('');
+    const dots = quiz.draft.map((a, k) => `<span class="${k === i ? 'cur' : ''}${a === null ? '' : a === quiz.items[k].answer ? ' ok' : ' no'}"></span>`).join('');
+    const ok = sel === q.answer;
+    return `
+        <div class="quiz-progress"><span>문제 ${i + 1} / ${QUIZ_N}</span><span class="quiz-tag${q.type === 'deep' ? ' deep' : ''}">${q.type === 'deep' ? '심화' : '상황'}</span></div>
+        <div class="quiz-track"><div class="quiz-fill" style="width:${(filled / QUIZ_N) * 100}%"></div></div>
+        <div class="quiz-q">${esc(q.q)}</div>
+        <div class="quiz-opts">${opts}</div>
+        ${answered ? `<div class="quiz-feedback ${ok ? 'ok' : 'no'}" role="status">
+            <div class="fb-title">${ok ? '정답이에요!' : '아쉬워요, 오답이에요'}</div>
+            ${ok ? '' : `<div class="fb-ans">정답: ${esc(q.options[q.answer])}</div>`}
+            <p>${esc(q.explain)}</p>
+        </div>` : ''}
+        <div class="quiz-dots" aria-label="${filled} / ${QUIZ_N} 문제 답함">${dots}</div>
+        ${answered ? `<div class="quiz-actions">${last ? `<button class="btn primary" type="button" data-act="quiz-submit">${ico('check')}결과 보기</button>`
+            : `<button class="btn primary" type="button" data-act="quiz-next">다음 문제${ico('arrow-right')}</button>`}</div>` : ''}`;
+}
+// 결과: 맞은 개수만 보여줘요
+function quizResultHTML(already) {
+    const sc = quizScore(), good = sc >= 4;
+    const title = already ? '오늘의 퀴즈는 이미 완료했어요!' : sc === QUIZ_N ? '만점이에요! 대단해요!' : good ? '잘했어요! 거의 다 맞혔어요' : '수고했어요! 내일 또 도전해 봐요';
+    return `<div class="quiz-result">
+        <img src="assets/${good ? 'happy' : 'sad'}.png" alt="${good ? '신난 양봉이' : '아쉬워하는 양봉이'}">
+        <div class="r-title">${title}</div>
+        <div class="r-score">${QUIZ_N}문제 중 <b class="num">${sc}</b>문제 정답</div>
+        ${already ? '<div class="r-score">내일 새로운 퀴즈가 열려요.</div>' : ''}
+        <div class="quiz-actions" style="width:100%"><button class="btn primary" type="button" data-act="quiz-close">닫기</button></div>
+    </div>`;
+}
+function renderQuizBody() {
+    $('#quizBody').innerHTML = quiz.view === 'q' ? quizQuestionHTML() : quizResultHTML(quiz.view === 'already');
+    $('.quiz-modal').scrollTop = 0;
+}
+let quizReturnFocus = null;
+function openQuiz() {
+    ensureToday();
+    if (quiz.done) quiz.view = 'already';
+    else { quiz.view = 'q'; const next = quiz.draft.indexOf(null); quiz.cur = next === -1 ? QUIZ_N - 1 : next; }  // 안 푼 첫 문제부터
+    quizReturnFocus = document.activeElement;
+    $('#quizDate').textContent = `${dateLabel(quiz.date)} · 하루 ${QUIZ_N}문제`;
+    $('#quizOverlay').hidden = false; document.body.classList.add('quiz-open');
+    renderQuizBody();
+    $('.quiz-close').focus();
+}
+function closeQuiz() {
+    if ($('#quizOverlay').hidden) return;
+    $('#quizOverlay').hidden = true; document.body.classList.remove('quiz-open');
+    renderQuizCard();
+    if (quizReturnFocus && document.contains(quizReturnFocus)) quizReturnFocus.focus();
+}
+function pickQuiz(k) {
+    if (quiz.view !== 'q' || quiz.draft[quiz.cur] !== null) return;  // 한 번 고르면 바꿀 수 없어요
+    quiz.draft[quiz.cur] = k; saveQuiz(); renderQuizBody();
+    $('.quiz-feedback').scrollIntoView({ block: 'nearest' });
+}
+function moveQuiz() {
+    if (quiz.view !== 'q' || quiz.draft[quiz.cur] === null) return;
+    quiz.cur = Math.min(QUIZ_N - 1, quiz.cur + 1); renderQuizBody();
+}
+function submitQuiz() {
+    if (quiz.view !== 'q' || quiz.draft.some((a) => a === null)) return;
+    quiz.answers = quiz.draft.slice(); quiz.done = true; saveQuiz();
+    quiz.view = 'result'; renderQuizBody(); renderQuizCard();
 }
 
 // ---- 동작 ----
-const findCard = (id) => $$('.term-card').find((el) => el.dataset.id === id);
 function resetFilters() { state.q = ''; state.level = 'all'; state.initial = 'all'; state.cat = null; $('#q').value = ''; $('#qClear').hidden = true; }
+function syncUrl() {
+    try { history.replaceState(null, '', `${location.pathname}?term=${encodeURIComponent(state.sel)}`); } catch (e) { /* file:// 등에서 실패해도 진행 */ }
+}
+// 목록 박스 안에서만 스크롤해서 행이 보이게
+function revealRow(row, center) {
+    const box = $('#termList'), r = row.getBoundingClientRect(), b = box.getBoundingClientRect();
+    if (center) box.scrollTop += r.top - b.top - (box.clientHeight - r.height) / 2;
+    else if (r.top < b.top) box.scrollTop -= b.top - r.top + 8;
+    else if (r.bottom > b.bottom) box.scrollTop += r.bottom - b.bottom + 8;
+}
+function openDetailOnMobile() {
+    if (!isMobile()) return;
+    $('#dict').classList.add('show-detail');
+    $('#dict').scrollIntoView({ block: 'start' });
+}
+function selectTerm(id, { open = true, focus = false } = {}) {
+    state.sel = id;
+    $$('#termList .t-row').forEach((r) => { const on = r.dataset.id === id; r.classList.toggle('sel', on); r.setAttribute('aria-current', on); });
+    renderDetail(); syncUrl();
+    const row = findRow(id);
+    if (row) { revealRow(row); if (focus) row.focus({ preventScroll: true }); }
+    if (open) openDetailOnMobile();
+}
 function jumpTo(id) {
-    resetFilters(); render();
-    const card = findCard(id); if (!card) return;
-    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    resetFilters(); state.sel = id; render(); syncUrl();
+    const row = findRow(id); if (row) revealRow(row, true);
+    const card = $('#termDetail .term-card');
+    if (card) { card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash'); }
+    if (isMobile()) openDetailOnMobile();
+    else if ($('#dict').getBoundingClientRect().top < 0) $('#dict').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function toggleLearned(id) {
     learned.has(id) ? learned.delete(id) : learned.add(id); saveLearned();
-    const card = findCard(id), done = learned.has(id);
-    if (card) { card.classList.toggle('learned', done); const b = $('.learn-btn', card); b.classList.toggle('done', done); b.innerHTML = learnLabel(done); }
-    renderProgress(); renderCats();
+    const done = learned.has(id), card = $('#termDetail .term-card');
+    if (card && card.dataset.id === id) { card.classList.toggle('learned', done); const b = $('.learn-btn', card); b.classList.toggle('done', done); b.innerHTML = learnLabel(done); }
+    const row = findRow(id), chk = row && $('svg.ico', row);
+    if (row && done && !chk) row.insertAdjacentHTML('beforeend', ico('check'));
+    if (chk && !done) chk.remove();
+    renderProgress();
 }
 
 document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]'); if (!el) return;
+    if (el.dataset.act === 'img-open') { e.preventDefault(); openViewer(el.dataset.id); return; }
+    if (el.dataset.act === 'img-close') { closeViewer(); return; }
     const act = el.dataset.act;
     if (act === 'level') { state.level = el.dataset.level; render(); }
     else if (act === 'ini') { state.initial = el.dataset.ini; render(); }
     else if (act === 'cat') { state.cat = el.dataset.cat || null; state.initial = 'all'; render(); }
     else if (act === 'clear-cat') { state.cat = null; render(); }
     else if (act === 'reset') { resetFilters(); render(); }
+    else if (act === 'select') selectTerm(el.dataset.id);
+    else if (act === 'back') { $('#dict').classList.remove('show-detail'); const row = findRow(state.sel); if (row) row.scrollIntoView({ block: 'center' }); }
     else if (act === 'jump') jumpTo(el.dataset.id);
     else if (act === 'learned') toggleLearned(el.dataset.id);
+    else if (act === 'quiz-start') openQuiz();
+    else if (act === 'quiz-close') closeQuiz();
+    else if (act === 'quiz-pick') pickQuiz(Number(el.dataset.k));
+    else if (act === 'quiz-next') moveQuiz();
+    else if (act === 'quiz-submit') submitQuiz();
     else if (act === 'reset-progress') { if (confirm('학습 기록을 모두 지울까요?')) { learned.clear(); saveLearned(); renderProgress(); render(); } }
+});
+$('#termList').addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    const i = shown.findIndex((t) => t.id === state.sel), next = shown[i + (e.key === 'ArrowDown' ? 1 : -1)];
+    if (next) selectTerm(next.id, { open: false, focus: true });
 });
 $('#q').addEventListener('input', (e) => { state.q = e.target.value; state.initial = 'all'; $('#qClear').hidden = !state.q; render(); });
 $('#qClear').addEventListener('click', () => { $('#q').value = ''; state.q = ''; $('#qClear').hidden = true; render(); $('#q').focus(); });
@@ -645,14 +961,19 @@ const sidebar = $('#sidebar');
 $('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
 
+$('#quizOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeQuiz(); });
+document.addEventListener('change', (e) => { if (e.target.id === 'catSel') { state.cat = e.target.value || null; state.initial = 'all'; render(); } });
+document.addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; if (!$('#imgViewer').hidden) closeViewer(); else closeQuiz(); });
+$('#imgViewer').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeViewer(); });
+
 // ---- 시작 ----
-renderToday(); renderProgress(); render();
+loadQuiz(); renderProgress(); renderQuizCard(); render();
 (function initFromUrl() {
     const p = new URLSearchParams(location.search), term = p.get('term'), q = p.get('q');
-    if (term) { const t = resolve(term) || TERMS.find((x) => x.keys.some((k) => k.includes(norm(term)))); if (t) { setTimeout(() => jumpTo(t.id), 60); return; } }
+    if (term) { const t = resolve(term) || TERMS.find((x) => x.keys.some((k) => k.includes(norm(term)))); if (t) { jumpTo(t.id); return; } }
     if (q) { $('#q').value = q; state.q = q; $('#qClear').hidden = false; render(); }
 })();
-window.__L = { TERMS, state, render, jumpTo, resolve, toggleLearned, learned: () => [...learned] };
+window.__L = { TERMS, state, render, jumpTo, selectTerm, resolve, toggleLearned, learned: () => [...learned] };
 
         // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
         (function () {
