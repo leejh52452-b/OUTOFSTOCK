@@ -233,6 +233,49 @@
         .start-info { display: flex; flex-direction: column; gap: 6px; text-align: left; }
         .start-info .kv { padding: 7px 10px; background: rgba(255,255,255,.75); border: 1px solid var(--card-border); border-radius: 6px; }
 
+        /* ===== 실습 방식 선택 모달 ===== */
+        .mode-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .mode-overlay[hidden] { display: none; }
+        .mode-modal {
+            position: relative; width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto;
+            background-color: var(--card-bg); border-radius: 16px; padding: 30px 28px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+        }
+        .mode-modal-close {
+            position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+            border: none; background: none; color: var(--text-secondary); cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        }
+        .mode-modal-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .mode-modal-close svg { width: 18px; height: 18px; }
+        .mode-modal-head { margin-bottom: 22px; padding-right: 30px; }
+        .mode-modal-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 4px; }
+        .mode-modal-head p { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+        .mode-section { padding: 20px 0; border-top: 1px solid var(--card-border); }
+        .mode-section:first-of-type { border-top: none; padding-top: 0; }
+        .mode-section-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; letter-spacing: -0.2px; margin-bottom: 14px; }
+        .mode-section-title svg.ico { width: 18px; height: 18px; stroke: var(--accent-blue); flex-shrink: 0; }
+
+        /* ===== 실전 모드 (SOXL 실제 데이터) ===== */
+        .mode-ticker {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+            background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 3px 10px; margin-bottom: 12px;
+        }
+        .mode-ticker b { color: var(--accent-blue); font-weight: 800; }
+        .real-case-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        .real-case {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%;
+            padding: 14px 8px; border: 1px solid var(--card-border); border-radius: 9px; background: var(--item-bg);
+            cursor: pointer; text-align: center; font-family: inherit;
+        }
+        .real-case:hover { border-color: var(--accent-blue); background: var(--hover-bg); }
+        .real-case .rc-label { font-size: 13.5px; font-weight: 800; color: var(--text-primary); }
+        .real-case .rc-range { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; font-weight: 600; }
+        @media (max-width: 480px) { .real-case-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
         /* ===== 실습 진행 ===== */
         .chart-card { padding: 14px 16px 16px; }
         .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -258,6 +301,9 @@
             position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 16px;
             background: rgba(248, 250, 252, 0.78); backdrop-filter: blur(1.5px);
         }
+        /* 손절선/목표가를 차트에서 드래그할 수 있어야 하는 안내는 전체를 가리지 않고, 카드만 떠 있는 토스트로 보여줌 */
+        .tutorial-layer.info-toast { background: none; backdrop-filter: none; align-items: flex-start; justify-content: flex-end; pointer-events: none; }
+        .tutorial-layer.info-toast .tutorial-card { max-width: 340px; pointer-events: auto; }
         .tutorial-card {
             display: flex; gap: 14px; align-items: flex-start; width: 100%; max-width: 500px; background: #fff;
             border: 1.5px solid var(--accent-blue); border-radius: 14px; padding: 16px 18px 14px 12px;
@@ -274,6 +320,7 @@
         .tutorial-illust { margin-top: 10px; background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 4px 6px; }
         .tutorial-illust svg { width: 100%; height: auto; display: block; }
         .tutorial-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+        .tutorial-card.gameover-card { border-color: var(--accent-red); box-shadow: 0 14px 40px rgba(220, 38, 38, 0.18); }
 
         .asset-total { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
         .asset-rate { font-size: 13px; font-weight: 800; margin: 2px 0 12px; }
@@ -502,7 +549,7 @@
                 <div class="page-head">
                     <div>
                         <button class="back-btn" type="button" data-act="quit"><svg class="ico"><use href="#i-arrow-left"/></svg>실습 목록으로</button>
-                        <h1 class="page-title"><span id="playTitle"></span><span class="badge" id="playLevel"></span></h1>
+                        <h1 class="page-title"><span id="playTitle"></span><span class="badge" id="playLevel"></span><span class="chip" id="playModeChip"></span></h1>
                         <p class="page-sub" id="playSub"></p>
                     </div>
                 </div>
@@ -511,6 +558,7 @@
                         <div class="card chart-card">
                             <div class="chart-head">
                                 <div class="chart-legend" id="playLegend"></div>
+                                <span class="chip" id="myRatioChip" hidden></span>
                                 <div class="chart-tools">
                                     <span class="chart-progress num" id="playProgress"></span>
                                     <div class="seg-group" id="speedGroup">
@@ -551,6 +599,7 @@
                             <div class="mini-guide" id="miniGuide"></div>
                         </div>
                         <div class="card">
+                            <button class="btn outline block" type="button" id="btnDrawBox" hidden style="margin-bottom:10px"><svg class="ico"><use href="#i-edit"/></svg>손절·목표 그리기</button>
                             <div class="trade-grid">
                                 <button class="btn buy lg" type="button" id="btnBuy"><svg class="ico"><use href="#i-trending-up"/></svg>매수</button>
                                 <button class="btn sell lg" type="button" id="btnSell"><svg class="ico"><use href="#i-trending-down"/></svg>매도</button>
@@ -592,6 +641,28 @@
         </div>
     </div>
 
+    <!-- 실습 방식 선택 모달 -->
+    <div class="mode-overlay" id="modeOverlay" hidden onclick="if (event.target === this) closeModeModal();">
+        <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeModalTitle">
+            <button class="mode-modal-close" type="button" data-act="close-mode" aria-label="닫기">
+                <svg class="ico"><use href="#i-x"/></svg>
+            </button>
+            <div class="mode-modal-head">
+                <h2 id="modeModalTitle">튜토리얼</h2>
+                <p>어떤 방식으로 연습할지 골라주세요. 둘 중 뭘 먼저 해도 괜찮아요!</p>
+            </div>
+            <div class="mode-section">
+                <div class="mode-section-title"><svg class="ico"><use href="#i-book"/></svg>양봉이의 설명과 함께 연습해보기</div>
+                <button class="btn primary lg block" type="button" id="modeStartPractice" data-act="start"><svg class="ico"><use href="#i-play"/></svg>시작하기</button>
+            </div>
+            <div class="mode-section">
+                <div class="mode-section-title"><svg class="ico"><use href="#i-activity"/></svg>과거 데이터로 실전연습하기</div>
+                <div class="mode-ticker">종목 <b>SOXL</b></div>
+                <div class="real-case-list" id="modeRealCaseList"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- 아이콘 스프라이트 (기존 UI와 동일한 2px 라운드 라인 스타일) -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <defs>
@@ -620,9 +691,12 @@
             <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
             <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
             <symbol id="i-scale" viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 8l-3 7a4 4 0 0 0 6 0z"/><path d="M19 8l-3 7a4 4 0 0 0 6 0z"/><line x1="5" y1="8" x2="19" y2="8"/></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+            <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/><path d="M15 5l4 4"/></symbol>
         </defs>
     </svg>
 
+    <script src="assets/soxl-real.js"></script>
     <script>
 'use strict';
 // ============================================================
@@ -636,6 +710,9 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const ico = (n) => `<svg class="ico"><use href="#i-${n}"/></svg>`;
 const num = (v) => Math.round(v).toLocaleString('ko-KR');
 const won = (v) => num(v) + '원';
+// 실전 모드(SOXL 실제 데이터)는 달러 가격이라 "원"으로 보여주면 오해가 생겨 $ 표기로 분리
+const priceFmt = (v, usd) => usd ? '$' + v.toFixed(2) : num(v);
+const priceWon = (v, usd) => usd ? '$' + v.toFixed(2) : won(v);
 const pct = (v, d = 2) => (v > 0.00004 ? '+' : '') + (Math.abs(v) < 0.00004 ? '0.00' : (v * 100).toFixed(d)) + '%';
 const dirCls = (v) => (v > 0.00004 ? 'up' : v < -0.00004 ? 'down' : 'flat');
 const p2 = (v) => String(v).padStart(2, '0');
@@ -727,6 +804,65 @@ const TECH = {
     }
 };
 
+// ---------- 실전 모드: SOXL 실제 데이터 (assets/soxl-real.js의 SOXL_REAL) ----------
+// 지표(이동평균·RSI)는 2016년부터 이어지는 전체 구간에 대해 "딱 한 번만" 계산해서 캐시해둔다.
+// (구간을 잘라낸 뒤 그 안에서만 다시 계산하면, 워밍업이 짧아 RSI 등이 실제 흐름과 달라지는 문제가 있었음 — 그래서 반드시 전체 계산 후 슬라이스만 한다.)
+let _realCandles = null, _realInd = null;
+function realCandles() {
+    if (_realCandles) return _realCandles;
+    _realCandles = SOXL_REAL.map(r => ({ date: new Date(r[0] + 'T00:00:00'), o: r[1], h: r[2], l: r[3], c: r[4] }));
+    return _realCandles;
+}
+function realInd() {
+    if (_realInd) return _realInd;
+    const rc = realCandles();
+    return (_realInd = { sma5: calcSMA(rc, 5), sma20: calcSMA(rc, 20), rsi: calcRSI(rc, 14) });
+}
+function findRealIndex(dateStr) {
+    const rc = realCandles(), target = new Date(dateStr + 'T00:00:00').getTime();
+    for (let i = 0; i < rc.length; i++) if (rc[i].date.getTime() >= target) return i;
+    return rc.length - 1;
+}
+const REAL_PLAYLEN = 90, REAL_LEAD = 10, REAL_CONTEXT = 15;
+// 실전 구간을 통째로 슬라이스(전체 계산된 지표를 그대로 잘라 쓰므로 수치가 실제 흐름과 100% 일치함)
+// searchStartAbs: analyze() 탐색이 시작되는 지점(신호가 뜨기 REAL_LEAD거래일 전부터 — RSI는 '30 하향→30 복귀' 2단계라 미리 보고 있어야 함)
+// sliceFromAbs: 거기서 REAL_CONTEXT만큼 더 앞서, 차트에 약간의 사전 흐름과 재생 커서(P.cur)의 시작 지점을 확보
+function buildRealData(entryIdxAbs) {
+    const rc = realCandles(), ind = realInd();
+    const searchStartAbs = Math.max(0, entryIdxAbs - REAL_LEAD);
+    const sliceFromAbs = Math.max(0, searchStartAbs - REAL_CONTEXT);
+    const toAbs = Math.min(rc.length - 1, searchStartAbs + REAL_PLAYLEN - 1);
+    const candles = rc.slice(sliceFromAbs, toAbs + 1);
+    const slice = (arr) => arr.slice(sliceFromAbs, toAbs + 1);
+    return { candles, ind: { sma5: slice(ind.sma5), sma20: slice(ind.sma20), rsi: slice(ind.rsi) }, playStart: searchStartAbs - sliceFromAbs };
+}
+function realWindowLabel(entryDate) {
+    const rc = realCandles(), entryIdxAbs = findRealIndex(entryDate);
+    const playStartAbs = Math.max(0, entryIdxAbs - REAL_LEAD);
+    const toAbs = Math.min(rc.length - 1, playStartAbs + REAL_PLAYLEN - 1);
+    return `${fmtFull(rc[playStartAbs].date)} ~ ${fmtFull(rc[toAbs].date)}`;
+}
+// 추천 구간: 실제로 골든/데드크로스·RSI 신호가 났던 지점을 직접 분석해 검증한 날짜만 등록함
+// (아래 entryDate는 전체 2016~2026 구간에서 한 번만 계산한 지표로 교차검증을 마친 값 — 게임 내 계산과 100% 일치)
+// 결과(승/패)는 일부러 알려주지 않음 — 직접 플레이해서 확인하도록
+const REAL_PICKS = {
+    golden: [
+        { entryDate: '2019-01-10', label: '2019년 1월' },
+        { entryDate: '2018-07-18', label: '2018년 7월' },
+        { entryDate: '2020-05-08', label: '2020년 5월' },
+        { entryDate: '2021-12-27', label: '2021년 12월' },
+        { entryDate: '2023-05-16', label: '2023년 5월' },
+        { entryDate: '2026-02-11', label: '2026년 2월' }
+    ],
+    rsi: [
+        { entryDate: '2016-02-12', label: '2016년 2월' },
+        { entryDate: '2019-05-21', label: '2019년 5월' },
+        { entryDate: '2020-03-13', label: '2020년 3월' },
+        { entryDate: '2022-01-28', label: '2022년 1월' },
+        { entryDate: '2025-04-09', label: '2025년 4월' }
+    ]
+};
+
 // ---------- 데이터 / 분석 ----------
 const _cache = {};
 function getData(id) {
@@ -737,8 +873,8 @@ function getData(id) {
     const ind = { sma5: calcSMA(candles, 5), sma20: calcSMA(candles, 20), rsi: calcRSI(candles, 14) };
     return (_cache[id] = { candles, ind, an: analyze(t, candles, ind) });
 }
-function analyze(t, c, ind) {
-    const s = t.gen.playStart; let entry = -1, exit = -1;
+function analyze(t, c, ind, playStartOverride) {
+    const s = playStartOverride != null ? playStartOverride : t.gen.playStart; let entry = -1, exit = -1;
     if (t.id === 'golden') {
         for (let i = s; i < c.length; i++) {
             if (entry < 0 && ind.sma5[i - 1] <= ind.sma20[i - 1] && ind.sma5[i] > ind.sma20[i]) entry = i;
@@ -757,12 +893,24 @@ function analyze(t, c, ind) {
     return { entry, exit };
 }
 // 손절선/목표가 (손익비 가이드)
-function guideFor(t, c, idx) {
-    const p = c[idx].c; let stop;
-    if (t.id === 'golden') stop = p * (1 - t.stopPct);
-    else { let low = Infinity; for (let i = Math.max(0, idx - 12); i <= idx; i++) low = Math.min(low, c[i].l); stop = Math.min(low, p * 0.98); }
+const RSI_DEFAULT_STOP_PCT = 0.02;
+function guideFor(t, c, idx, usd, ratioOverride, stopPctOverride) {
+    const p = c[idx].c, ratio = ratioOverride != null ? ratioOverride : t.ratio; let stop;
+    if (t.id === 'golden') {
+        const pct = stopPctOverride != null ? stopPctOverride : t.stopPct;
+        stop = p * (1 - pct);
+    } else {
+        let low = Infinity; for (let i = Math.max(0, idx - 12); i <= idx; i++) low = Math.min(low, c[i].l);
+        const pct = stopPctOverride != null ? stopPctOverride : RSI_DEFAULT_STOP_PCT;
+        stop = Math.min(low, p * (1 - pct));
+    }
+    if (usd) {
+        stop = Math.round(stop * 100) / 100;
+        const target = Math.round((p + (p - stop) * ratio) * 100) / 100;
+        return { stop, target };
+    }
     stop = Math.round(stop / 10) * 10;
-    const target = Math.round((p + (p - stop) * t.ratio) / 10) * 10;
+    const target = Math.round((p + (p - stop) * ratio) / 10) * 10;
     return { stop, target };
 }
 function simulate(c, b, s) {
@@ -773,9 +921,10 @@ function simulate(c, b, s) {
 // ---------- 기록 (localStorage) ----------
 const REC_KEY = 'outofstock_practice_records';
 function loadRecords() { try { return JSON.parse(localStorage.getItem(REC_KEY)) || {}; } catch (e) { return {}; } }
-function saveRecord(id, ret, traded) {
-    const r = loadRecords(); const cur = r[id] || { tries: 0, best: null };
-    cur.tries += 1; if (traded && (cur.best === null || ret > cur.best)) cur.best = ret;
+function saveRecord(id, ret, traded, mode) {
+    const r = loadRecords(); const cur = r[id] || { tries: 0, best: null, realTries: 0, realBest: null };
+    if (mode === 'real') { cur.realTries = (cur.realTries || 0) + 1; if (traded && (cur.realBest === null || ret > cur.realBest)) cur.realBest = ret; }
+    else { cur.tries += 1; if (traded && (cur.best === null || ret > cur.best)) cur.best = ret; }
     r[id] = cur;
     try { localStorage.setItem(REC_KEY, JSON.stringify(r)); } catch (e) { /* 저장 실패해도 진행 */ }
 }
@@ -828,7 +977,16 @@ function niceStep(range, ticks) { const raw = range / ticks, mag = Math.pow(10, 
 function createChart(canvas, wrap, tip) {
     const ctx = canvas.getContext('2d');
     const FONT = "11px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif";
-    const ch = { S: null, geom: null, hover: -1, mouse: null, onRender: null };
+    const ch = { S: null, geom: null, hover: -1, mouse: null, onRender: null, dragKey: null };
+
+    function lineAtY(y) {
+        const g = ch.geom, S = ch.S; if (!g || !S || !S.dragEnabled) return null;
+        for (const L of (S.lines || [])) {
+            if (!L.draggable) continue;
+            if (Math.abs(y - g.yOf(L.price)) <= 7) return L;
+        }
+        return null;
+    }
 
     function chip(text, x, y, bg, fg, align) {
         ctx.font = "700 10.5px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif";
@@ -867,7 +1025,7 @@ function createChart(canvas, wrap, tip) {
         for (let p = Math.ceil(lo / step) * step; p <= hi; p += step) {
             const y = yOf(p);
             ctx.strokeStyle = COLOR.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
-            ctx.fillStyle = COLOR.axis; ctx.textAlign = 'left'; ctx.fillText(num(p), W - padR + 8, y);
+            ctx.fillStyle = COLOR.axis; ctx.textAlign = 'left'; ctx.fillText(priceFmt(p, S.usd), W - padR + 8, y);
         }
         // 세로 격자 + 날짜 축
         const every = Math.max(1, Math.ceil((last - start + 1) / Math.max(2, Math.floor(plotW / 66))));
@@ -885,6 +1043,16 @@ function createChart(canvas, wrap, tip) {
                 ctx.stroke();
             });
         }
+        // 손익 박스(매수가 기준 보상 구간/위험 구간 색칠)
+        if (S.zone) {
+            const z = S.zone, x1 = z.from != null ? xOf(Math.max(z.from, start)) : padL, x2 = padL + plotW;
+            const yBuy = yOf(z.buyPrice), yStop = yOf(z.stop), yTarget = yOf(z.target);
+            const alpha = z.active ? 0.16 : 0.08;
+            ctx.save();
+            ctx.fillStyle = `rgba(55,48,163,${alpha})`; ctx.fillRect(x1, Math.min(yTarget, yBuy), x2 - x1, Math.abs(yBuy - yTarget));
+            ctx.fillStyle = `rgba(202,138,4,${alpha})`; ctx.fillRect(x1, Math.min(yBuy, yStop), x2 - x1, Math.abs(yStop - yBuy));
+            ctx.restore();
+        }
         // 캔들
         const bw = Math.max(1.6, Math.min(sw * 0.62, 14));
         for (let i = start; i <= last; i++) {
@@ -895,7 +1063,7 @@ function createChart(canvas, wrap, tip) {
         }
         // 손익비 가이드선
         (S.lines || []).forEach(L => {
-            const inView = L.price >= lo && L.price <= hi; const label = L.label + ' ' + num(L.price);
+            const inView = L.price >= lo && L.price <= hi; const label = L.label + ' ' + priceFmt(L.price, S.usd);
             if (!inView) { chip((L.price > hi ? '▲ ' : '▼ ') + label, padL + plotW - 4, L.price > hi ? padT + 10 : padT + mainH - 10, L.color, '#fff', 'right'); return; }
             const y = yOf(L.price);
             const x1 = L.from != null ? xOf(Math.max(L.from, start)) : padL, x2 = L.to != null ? xOf(Math.min(L.to, last)) : padL + plotW;
@@ -908,7 +1076,7 @@ function createChart(canvas, wrap, tip) {
             const k = c[last], prev = last > 0 ? c[last - 1].c : k.o, y = yOf(k.c), col = k.c >= prev ? COLOR.up : COLOR.down;
             ctx.save(); ctx.strokeStyle = col; ctx.globalAlpha = 0.55; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(xOf(last), y); ctx.lineTo(padL + plotW, y); ctx.stroke(); ctx.restore();
             ctx.fillStyle = col; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(W - padR + 2, y - 9, padR - 4, 18, 4) : ctx.rect(W - padR + 2, y - 9, padR - 4, 18); ctx.fill();
-            ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = "700 10.5px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif"; ctx.fillText(num(k.c), W - padR + 2 + (padR - 4) / 2, y + 0.5); ctx.font = FONT;
+            ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = "700 10.5px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif"; ctx.fillText(priceFmt(k.c, S.usd), W - padR + 2 + (padR - 4) / 2, y + 0.5); ctx.font = FONT;
         }
         // 매매 마커 (B/S) + 링 마커
         (S.rings || []).forEach(R => { if (R.i < start || R.i > last) return; const x = xOf(R.i), y = yOf(c[R.i].c); ctx.save(); ctx.fillStyle = '#fff'; ctx.strokeStyle = R.color; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore(); });
@@ -947,8 +1115,8 @@ function createChart(canvas, wrap, tip) {
         const g = ch.geom;
         if (!g || ch.hover < g.start || ch.hover > g.last || !ch.mouse) { tip.hidden = true; return; }
         const k = S.candles[ch.hover], ind = S.ind, i = ch.hover;
-        let html = `<b>${fmtFull(k.date)}</b><br>시 ${num(k.o)} · 고 ${num(k.h)}<br>저 ${num(k.l)} · 종 ${num(k.c)}`;
-        if (S.showMA && ind.sma5[i] != null && ind.sma20[i] != null) html += `<br><span style="color:#fcd34d">5일선 ${num(ind.sma5[i])}</span> · <span style="color:#a5b4fc">20일선 ${num(ind.sma20[i])}</span>`;
+        let html = `<b>${fmtFull(k.date)}</b><br>시 ${priceFmt(k.o, S.usd)} · 고 ${priceFmt(k.h, S.usd)}<br>저 ${priceFmt(k.l, S.usd)} · 종 ${priceFmt(k.c, S.usd)}`;
+        if (S.showMA && ind.sma5[i] != null && ind.sma20[i] != null) html += `<br><span style="color:#fcd34d">5일선 ${priceFmt(ind.sma5[i], S.usd)}</span> · <span style="color:#a5b4fc">20일선 ${priceFmt(ind.sma20[i], S.usd)}</span>`;
         if (S.showRSI && ind.rsi[i] != null) html += `<br>RSI ${ind.rsi[i].toFixed(1)}`;
         tip.innerHTML = html; tip.hidden = false;
         const tw = tip.offsetWidth, th = tip.offsetHeight;
@@ -960,10 +1128,23 @@ function createChart(canvas, wrap, tip) {
     canvas.addEventListener('mousemove', (e) => {
         const g = ch.geom; if (!g) return; const r = canvas.getBoundingClientRect();
         const x = e.clientX - r.left, y = e.clientY - r.top;
+        if (ch.dragKey) {
+            const price = g.hi - (y - g.padT) / g.mainH * (g.hi - g.lo);
+            if (ch.S && ch.S.onDrag) ch.S.onDrag(ch.dragKey, price);
+            return;
+        }
         const idx = Math.round((x - g.padL) / g.sw - 0.5 + g.start);
-        ch.hover = (idx >= g.start && idx <= g.last) ? idx : -1; ch.mouse = { x, y }; render();
+        ch.hover = (idx >= g.start && idx <= g.last) ? idx : -1; ch.mouse = { x, y };
+        canvas.style.cursor = lineAtY(y) ? 'ns-resize' : 'default';
+        render();
     });
-    canvas.addEventListener('mouseleave', () => { ch.hover = -1; ch.mouse = null; render(); });
+    canvas.addEventListener('mousedown', (e) => {
+        const g = ch.geom; if (!g) return; const r = canvas.getBoundingClientRect();
+        const y = e.clientY - r.top, L = lineAtY(y);
+        if (L) { ch.dragKey = L.key; e.preventDefault(); }
+    });
+    window.addEventListener('mouseup', () => { if (ch.dragKey) { ch.dragKey = null; render(); } });
+    canvas.addEventListener('mouseleave', () => { ch.hover = -1; ch.mouse = null; if (!ch.dragKey) render(); });
     if (window.ResizeObserver) new ResizeObserver(() => render()).observe(wrap);
     ch.render = render;
     return ch;
@@ -991,7 +1172,7 @@ function renderList() {
             <div class="tech-illust">${illust(t.id)}</div>
             <div class="tech-meta">${t.tags.map(x => `<span class="chip">#${x}</span>`).join('')}<span class="chip">${ico('clock')}약 2분</span></div>
             <div class="tech-cta">
-                <span class="tech-record">${r ? `실습 <b>${r.tries}회</b>${r.best !== null ? ` · 최고 <b class="${dirCls(r.best)}">${pct(r.best, 1)}</b>` : ''}` : '아직 도전 전이에요'}</span>
+                <span class="tech-record">${r ? `연습 <b>${r.tries}회</b>${r.best !== null ? ` · 최고 <b class="${dirCls(r.best)}">${pct(r.best, 1)}</b>` : ''}${r.realTries ? ` · 실전 <b>${r.realTries}회</b>` : ''}` : '아직 도전 전이에요'}</span>
                 <button class="btn primary sm" type="button" data-act="open" data-id="${t.id}">설명 보고 시작하기${ico('arrow-right')}</button>
             </div>
         </div>`;
@@ -1005,7 +1186,7 @@ function renderList() {
     $('#recordTitle').innerHTML = ico('star') + '나의 실습 기록';
     $('#recordList').innerHTML = Object.values(TECH).map(t => {
         const r = rec[t.id];
-        return `<div class="record-row"><span>${t.short}</span><b class="${r && r.best !== null ? dirCls(r.best) : 'flat'}">${r ? (r.best !== null ? '최고 ' + pct(r.best, 1) : '매매 기록 없음') + ' · ' + r.tries + '회' : '기록 없음'}</b></div>`;
+        return `<div class="record-row"><span>${t.short}</span><b class="${r && r.best !== null ? dirCls(r.best) : 'flat'}">${r ? (r.best !== null ? '최고 ' + pct(r.best, 1) : '매매 기록 없음') + ' · ' + r.tries + '회' + (r.realTries ? ` (실전 ${r.realTries}회)` : '') : '기록 없음'}</b></div>`;
     }).join('');
     showView('list');
 }
@@ -1036,10 +1217,11 @@ function renderIntro(id) {
                 </div>
                 <div class="card">
                     <div class="rr-head">
-                        <div class="card-title">${ico('scale')}손익비율 (Risk/Reward)</div>
-                        <div class="rr-ratio">약 ${t.ratioText}</div>
+                        <div class="card-title">${ico('scale')}추천 손익비율 (Risk/Reward)</div>
+                        <div class="rr-ratio">${t.ratioText}</div>
                     </div>
                     <div class="rr-bar"><span class="risk" style="flex:1">위험 1</span><span class="reward" style="flex:${t.ratio}">보상 ${t.ratio}</span></div>
+                    <p style="font-size:11.5px;color:var(--text-muted);margin:-8px 0 12px">추천값일 뿐이에요 — 매수하면 나만의 손익비를 직접 정할 수 있어요.</p>
                     <div class="rr-cols">
                         <div class="rr-box risk-box"><h4>${ico('scissors')}위험(손절)</h4><p>${t.risk}</p></div>
                         <div class="rr-box reward-box"><h4>${ico('target')}보상(수익)</h4><p>${t.reward}</p></div>
@@ -1049,14 +1231,14 @@ function renderIntro(id) {
             <div class="right-column">
                 <div class="card start-card">
                     <img src="assets/study.png" alt="공부하는 양봉이">
-                    <div><div class="m-title" style="font-size:15px;font-weight:800">양봉이와 함께 시작해요</div>
+                    <div><div class="m-title" style="font-size:15px;font-weight:800">실습 시작하기</div>
                     <div class="m-desc" style="font-size:12px;color:var(--text-secondary);margin-top:4px;line-height:1.55">${t.oneLine}</div></div>
                     <div class="start-info">
                         <div class="kv"><span>시작 자금</span><b class="num">10,000,000원</b></div>
                         <div class="kv"><span>실습 구간</span><b class="num">약 ${total}거래일</b></div>
                         <div class="kv"><span>매매 방식</span><b>전액 매수 · 전액 매도</b></div>
                     </div>
-                    <button class="btn primary lg block" type="button" data-act="start" data-id="${id}">${ico('play')}실습 시작하기</button>
+                    <button class="btn primary lg block" type="button" data-act="open-mode" data-id="${id}">${ico('play')}실습 시작하기</button>
                 </div>
                 <div class="card">
                     <div class="card-header"><div class="card-title">${ico('flag')}실습은 이렇게 진행돼요</div></div>
@@ -1071,20 +1253,51 @@ function renderIntro(id) {
     showView('intro');
 }
 
+// ---------- 2.5) 실습 방식 선택 (모달) ----------
+let modeReturnFocus = null;
+function openModeModal(id) {
+    $('#modeStartPractice').dataset.id = id;
+    $('#modeRealCaseList').innerHTML = (REAL_PICKS[id] || []).map(p => `
+        <button class="real-case" type="button" data-act="start-real" data-id="${id}" data-entry="${p.entryDate}">
+            <span class="rc-label">${p.label}</span>
+            <span class="rc-range num">${realWindowLabel(p.entryDate)}</span>
+        </button>`).join('');
+    modeReturnFocus = document.activeElement;
+    $('#modeOverlay').hidden = false;
+    $('.mode-modal-close').focus();
+}
+function closeModeModal() {
+    if ($('#modeOverlay').hidden) return;
+    $('#modeOverlay').hidden = true;
+    if (modeReturnFocus && document.contains(modeReturnFocus)) modeReturnFocus.focus();
+}
+
 // ---------- 3) 실습 진행 ----------
 const chartPlay = createChart($('#playCanvas'), $('#playWrap'), $('#playTip'));
-const P = { tech: null, data: null, cur: 0, timer: null, speed: 1, paused: true, tut: -1, cash: START_CASH, shares: 0, avg: 0, buyIdx: null, sellIdx: null, closed: false, final: START_CASH };
+const P = { tech: null, data: null, cur: 0, timer: null, speed: 1, paused: true, tut: -1, overlay: null, customStopPrice: null, customTargetPrice: null, editingBox: false, cash: START_CASH, shares: 0, avg: 0, buyIdx: null, sellIdx: null, closed: false, final: START_CASH, mode: 'practice', playStart: 0, realEntryDate: null };
 const BASE_MS = 700;
 
 function startPlay(id, opt) {
     opt = opt || {};
     stopTimer();
-    const t = TECH[id], d = getData(id);
-    Object.assign(P, { tech: t, data: d, cur: t.gen.playStart - 1, speed: P.speed || 1, paused: true, tut: -1, cash: START_CASH, shares: 0, avg: 0, buyIdx: null, sellIdx: null, closed: false, final: START_CASH });
+    const t = TECH[id];
+    let d, playStart;
+    if (opt.real) {
+        const rd = buildRealData(findRealIndex(opt.entryDate));
+        playStart = rd.playStart;
+        d = { candles: rd.candles, ind: rd.ind, an: analyze(t, rd.candles, rd.ind, playStart) };
+    } else {
+        d = getData(id); playStart = t.gen.playStart;
+    }
+    Object.assign(P, { tech: t, data: d, playStart, cur: playStart - 1, speed: P.speed || 1, paused: true, tut: -1, overlay: null, customStopPrice: null, customTargetPrice: null, editingBox: false, cash: START_CASH, shares: 0, avg: 0, buyIdx: null, sellIdx: null, closed: false, final: START_CASH, mode: opt.real ? 'real' : 'practice', realEntryDate: opt.real ? opt.entryDate : null });
+    $('#myRatioChip').hidden = true;
     $('#playTitle').textContent = t.name;
     const lv = $('#playLevel'); lv.textContent = '난이도 ' + t.level; lv.className = 'badge ' + t.levelClass;
+    const modeChip = $('#playModeChip'); if (modeChip) modeChip.textContent = opt.real ? 'SOXL 실전 데이터' : '연습용 예시 데이터';
     const s = d.candles[0].date, e = d.candles[d.candles.length - 1].date;
-    $('#playSub').textContent = `과거 사례 차트 · ${fmtFull(s)} ~ ${fmtFull(e)} (예시 데이터) · 시작 자금 1,000만 원`;
+    $('#playSub').textContent = opt.real
+        ? `SOXL 실제 데이터 · ${fmtFull(s)} ~ ${fmtFull(e)} · 시작 자금 1,000만 원`
+        : `과거 사례 차트 · ${fmtFull(s)} ~ ${fmtFull(e)} (예시 데이터) · 시작 자금 1,000만 원`;
     $('#playLegend').innerHTML = (t.showMA
         ? `<span class="chip" data-legend="ma"><i class="lg-dot" style="background:${COLOR.sma5}"></i>5일선</span><span class="chip" data-legend="ma"><i class="lg-dot" style="background:${COLOR.sma20}"></i>20일선</span>`
         : `<span class="chip" data-legend="rsi"><i class="lg-dot" style="background:${COLOR.rsi}"></i>RSI(14)</span>`)
@@ -1095,43 +1308,71 @@ function startPlay(id, opt) {
     updatePlayUI(); drawPlay();
     if (opt.skipTutorial) { hideTutorial(); resume(); } else { openTutorial(0); }
 }
+function currentGuide() {
+    const t = P.tech, c = P.data.candles, usd = P.mode === 'real';
+    const def = guideFor(t, c, P.buyIdx, usd);
+    return { stop: P.customStopPrice != null ? P.customStopPrice : def.stop, target: P.customTargetPrice != null ? P.customTargetPrice : def.target };
+}
 function playState() {
-    const t = P.tech, c = P.data.candles, lines = [], markers = [];
+    const t = P.tech, c = P.data.candles, lines = [], markers = [], usd = P.mode === 'real';
+    let zone = null;
     if (P.buyIdx !== null && P.shares > 0) {
-        const g = guideFor(t, c, P.buyIdx);
+        const g = currentGuide();
         lines.push({ price: P.avg, color: COLOR.entry, label: '매수가', from: P.buyIdx, dash: [3, 4] });
-        lines.push({ price: g.stop, color: COLOR.risk, label: '손절선', from: P.buyIdx });
-        lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: P.buyIdx });
+        lines.push({ price: g.stop, color: COLOR.risk, label: '손절선', from: P.buyIdx, draggable: true, key: 'stop' });
+        lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: P.buyIdx, draggable: true, key: 'target' });
+        zone = { from: P.buyIdx, buyPrice: P.avg, stop: g.stop, target: g.target, active: P.editingBox };
     }
     if (P.buyIdx !== null) markers.push({ i: P.buyIdx, type: 'B' });
     if (P.sellIdx !== null) markers.push({ i: P.sellIdx, type: 'S' });
-    return { candles: c, ind: P.data.ind, upTo: P.cur, full: false, showMA: t.showMA, showRSI: t.showRSI, lines, markers, rings: [] };
+    return { candles: c, ind: P.data.ind, upTo: P.cur, full: false, showMA: t.showMA, showRSI: t.showRSI, lines, markers, rings: [], usd, zone, dragEnabled: P.editingBox, onDrag: handleLineDrag };
 }
 function drawPlay() { chartPlay.render(playState()); }
+function handleLineDrag(key, price) {
+    if (P.shares === 0 || P.closed) return;
+    const usd = P.mode === 'real', rounded = usd ? Math.round(price * 100) / 100 : Math.round(price / 10) * 10;
+    if (key === 'stop') { if (rounded >= P.avg) return; P.customStopPrice = rounded; }
+    else if (key === 'target') { if (rounded <= P.avg) return; P.customTargetPrice = rounded; }
+    drawPlay(); updateRatioReadout();
+}
+function updateRatioReadout() {
+    const chip = $('#myRatioChip');
+    if (P.shares === 0 || P.closed) { chip.hidden = true; return; }
+    const g = currentGuide(), stopPct = (P.avg - g.stop) / P.avg * 100, ratio = (g.target - P.avg) / (P.avg - g.stop);
+    chip.hidden = false;
+    chip.textContent = `내 손절 -${stopPct.toFixed(1)}% · 손익비 1:${ratio.toFixed(1)}`;
+}
 
 function updatePlayUI() {
-    const c = P.data.candles, k = c[P.cur], price = k.c, total = P.cash + P.shares * price, ret = total / START_CASH - 1;
+    const c = P.data.candles, k = c[P.cur], price = k.c, total = P.cash + P.shares * price, ret = total / START_CASH - 1, usd = P.mode === 'real';
     $('#aTotal').textContent = won(total);
     const r = $('#aRate'); r.textContent = pct(ret); r.className = 'asset-rate num ' + dirCls(ret);
     $('#aCash').textContent = won(P.cash); $('#aQty').textContent = num(P.shares) + '주';
-    $('#aAvg').textContent = P.shares > 0 ? won(P.avg) : '-'; $('#aPrice').textContent = won(price);
+    $('#aAvg').textContent = P.shares > 0 ? priceWon(P.avg, usd) : '-'; $('#aPrice').textContent = priceWon(price, usd);
     const pnl = P.shares > 0 ? (price - P.avg) * P.shares : (P.closed && P.buyIdx !== null ? P.final - START_CASH : 0);
     const pe = $('#aPnl'); pe.textContent = (pnl > 0 ? '+' : '') + num(pnl) + '원'; pe.className = 'num ' + dirCls(pnl);
-    const play0 = P.tech.gen.playStart, n = c.length - play0, done = Math.max(0, P.cur - play0 + 1);
+    const play0 = P.playStart, n = c.length - play0, done = Math.max(0, P.cur - play0 + 1);
     $('#playProgress').textContent = `${done} / ${n}일`; $('#playBar').style.width = (done / n * 100) + '%';
     const pill = $('#statusPill');
     if (P.closed) { pill.textContent = '매도 완료'; pill.className = 'status-pill done'; }
     else if (P.shares > 0) { pill.textContent = '보유 중'; pill.className = 'status-pill hold'; }
+    else if (P.overlay === 'gameover') { pill.textContent = 'GAME OVER'; pill.className = 'status-pill hold'; }
     else if (P.tut >= 0) { pill.textContent = '가이드 중'; pill.className = 'status-pill'; }
     else { pill.textContent = P.paused ? '일시정지' : '관망 중'; pill.className = 'status-pill'; }
-    const inTut = P.tut >= 0;
+    const inTut = P.tut >= 0 || !!P.overlay;
     $('#btnBuy').disabled = inTut || P.closed || P.shares > 0;
     $('#btnSell').disabled = inTut || P.closed || P.shares === 0;
     $('#btnPause').innerHTML = ico(P.paused ? 'play' : 'pause'); $('#btnPause').classList.toggle('on', P.paused && P.tut < 0 && !P.closed);
     $('#btnPause').disabled = inTut || P.closed;
+    const drawBtn = $('#btnDrawBox');
+    drawBtn.hidden = P.shares === 0 || P.closed;
+    drawBtn.disabled = P.tut >= 0 || P.overlay === 'gameover';
+    drawBtn.classList.toggle('primary', P.editingBox);
+    drawBtn.classList.toggle('outline', !P.editingBox);
+    drawBtn.innerHTML = P.editingBox ? ico('check') + '그리기 완료' : ico('edit') + '손절·목표 그리기';
 }
 function stopTimer() { if (P.timer) { clearInterval(P.timer); P.timer = null; } }
-function resume() { if (P.closed || P.tut >= 0) return; P.paused = false; stopTimer(); P.timer = setInterval(tick, BASE_MS / P.speed); updatePlayUI(); }
+function resume() { if (P.closed || P.tut >= 0 || P.overlay) return; P.paused = false; stopTimer(); P.timer = setInterval(tick, BASE_MS / P.speed); updatePlayUI(); }
 function pause() { P.paused = true; stopTimer(); updatePlayUI(); }
 function tick() {
     if (P.cur >= P.data.candles.length - 1) { finish('end'); return; }
@@ -1139,12 +1380,15 @@ function tick() {
     if (P.cur >= P.data.candles.length - 1) finish('end');
 }
 function buy() {
-    if (P.closed || P.shares > 0 || P.tut >= 0) return;
+    if (P.closed || P.shares > 0 || P.tut >= 0 || P.overlay) return;
+    const an = P.data.an;
+    if (an.entry >= 0 && P.cur < an.entry) { showGameOver(); return; }
     const price = P.data.candles[P.cur].c, q = Math.floor(P.cash / price); if (q <= 0) return;
     P.shares = q; P.cash -= q * price; P.avg = price; P.buyIdx = P.cur; updatePlayUI(); drawPlay();
+    showBuyInfo();
 }
 function sell() {
-    if (P.closed || P.shares === 0 || P.tut >= 0) return;
+    if (P.closed || P.shares === 0 || P.tut >= 0 || P.overlay) return;
     finish('sold');
 }
 function finish(reason) {
@@ -1174,6 +1418,7 @@ function openTutorial(i) {
                 </div>
             </div>
         </div>`;
+    $('#tutorialLayer').classList.remove('info-toast');
     $('#tutorialLayer').hidden = false;
     $$('#playLegend [data-legend]').forEach(el => el.classList.toggle('pulse', !!s.pulse));
     updatePlayUI();
@@ -1181,6 +1426,71 @@ function openTutorial(i) {
 function hideTutorial() { P.tut = -1; $('#tutorialLayer').hidden = true; $$('#playLegend [data-legend]').forEach(el => el.classList.remove('pulse')); updatePlayUI(); }
 function tutNext() { const steps = P.tech.tutorial; if (P.tut >= steps.length - 1) { hideTutorial(); resume(); } else openTutorial(P.tut + 1); }
 function tutSkip() { hideTutorial(); resume(); }
+
+// ---- 신호 타이밍 체크 (GAME OVER) / 손익비 직접 설정 ----
+function showGameOver() {
+    P.overlay = 'gameover'; pause();
+    const t = P.tech;
+    $('#tutorialLayer').innerHTML = `
+        <div class="tutorial-card gameover-card">
+            <img class="tutorial-mascot" src="assets/sad.png" alt="우는 양봉이">
+            <div class="tutorial-body">
+                <div class="tutorial-step" style="color:var(--accent-red)">GAME OVER</div>
+                <p class="tutorial-text"><em>${t.signalName}</em> 신호가 나오기도 전에 매수해버렸어요! 신호를 끝까지 기다렸다가 매수하는 연습을 해봐요.</p>
+                <div class="tutorial-actions">
+                    <button class="link-btn" type="button" data-act="quit">실습 목록으로</button>
+                    <button class="btn primary sm" type="button" data-act="retry-inplay">${ico('refresh')}다시하기</button>
+                </div>
+            </div>
+        </div>`;
+    $('#tutorialLayer').classList.remove('info-toast');
+    $('#tutorialLayer').hidden = false;
+    updatePlayUI();
+}
+function buyTutorialSteps(t) {
+    const defStopPct = t.id === 'golden' ? Math.round(t.stopPct * 1000) / 10 : Math.round(RSI_DEFAULT_STOP_PCT * 1000) / 10;
+    return [
+        { text: `<em>${t.signalName}</em> 신호에 맞춰 잘 매수했어요! 이제 가장 중요한 <em>손익비 설정</em>이에요!`, img: 'happy' },
+        { text: `기본적인 ${t.short} 매매기법은 손절 <em>-${defStopPct}%</em>, 손익비 <em>1 : ${t.ratio}</em>로 해요!`, img: 'happy' },
+        { text: `주식에서는 이득만큼 손절도 칼같이 해야 돼서, 매수한 다음엔 꼭 <em>손절·목표액을 그려서</em> 그거에 맞춰 진행해야 해요.`, img: 'study' },
+        { text: `아래 <em>'손절·목표 그리기'</em> 버튼을 눌러서 직접 차트에 그려보세요!`, img: 'study' }
+    ];
+}
+function showBuyInfo() {
+    P.overlay = 'ratio'; pause();
+    P.buySteps = buyTutorialSteps(P.tech); P.buyStep = 0;
+    updateRatioReadout();
+    renderBuyStep();
+}
+function renderBuyStep() {
+    const steps = P.buySteps, i = P.buyStep, s = steps[i], last = i === steps.length - 1;
+    $('#tutorialLayer').innerHTML = `
+        <div class="tutorial-card">
+            <img class="tutorial-mascot" src="assets/${s.img}.png" alt="양봉이">
+            <div class="tutorial-body">
+                <div class="tutorial-step">${i + 1} / ${steps.length}<span class="tutorial-dots">${steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</span></div>
+                <p class="tutorial-text">${s.text}</p>
+                <div class="tutorial-actions">
+                    <span></span>
+                    <button class="btn primary sm" type="button" data-act="${last ? 'confirm-ratio' : 'buy-info-next'}">${last ? ico('check') + '확인' : '다음' + ico('arrow-right')}</button>
+                </div>
+            </div>
+        </div>`;
+    $('#tutorialLayer').classList.remove('info-toast');
+    $('#tutorialLayer').hidden = false;
+    updatePlayUI();
+}
+function buyInfoNext() { P.buyStep++; renderBuyStep(); }
+function hideOverlay() { P.overlay = null; $('#tutorialLayer').classList.remove('info-toast'); $('#tutorialLayer').hidden = true; updatePlayUI(); }
+function retryInPlay() {
+    hideOverlay();
+    const id = P.tech.id;
+    startPlay(id, P.mode === 'real' ? { real: true, entryDate: P.realEntryDate, skipTutorial: true } : { skipTutorial: true });
+}
+function confirmRatio() {
+    hideOverlay();
+    resume();
+}
 
 // ---------- 4) 결과 복기 ----------
 const chartRes = createChart($('#resCanvas'), $('#resWrap'), $('#resTip'));
@@ -1190,28 +1500,28 @@ function showResult() {
     const traded = P.buyIdx !== null;
     const my = { traded, ret: P.final / START_CASH - 1, final: P.final, buyIdx: P.buyIdx, sellIdx: P.sellIdx };
     const ideal = an.entry >= 0 ? simulate(c, an.entry, an.exit) : { ret: 0, final: START_CASH };
-    const hold = simulate(c, t.gen.playStart - 1, c.length - 1);
-    RES = { my, ideal, hold, tech: t, data: d };
-    saveRecord(t.id, my.ret, traded);
+    const hold = simulate(c, P.playStart - 1, c.length - 1);
+    RES = { my, ideal, hold, tech: t, data: d, mode: P.mode };
+    saveRecord(t.id, my.ret, traded, P.mode);
     renderResult();
     showView('result');
     drawResultChart();
 }
 function renderResult() {
-    const { my, ideal, hold, tech: t, data: d } = RES, c = d.candles, an = d.an;
-    $('#resTitle').textContent = t.short + ' 매매법 실습 복기';
-    const gap = my.traded ? (my.ret - ideal.ret) : null;
+    const { my, ideal, hold, tech: t, data: d, mode } = RES, c = d.candles, an = d.an, hasIdeal = an.entry >= 0;
+    $('#resTitle').innerHTML = t.short + ' 매매법 실습 복기' + (mode === 'real' ? ` <span class="chip">SOXL 실전 데이터</span>` : '');
+    const gap = my.traded && hasIdeal ? (my.ret - ideal.ret) : null;
     $('#sumGrid').innerHTML = `
         <div class="card sum-card">
             <div class="sum-label"><span class="si">${ico('flag')}</span>나의 매매 결과</div>
             <div class="sum-value num ${my.traded ? dirCls(my.ret) : 'flat'}">${my.traded ? pct(my.ret) : '매매 없음'}</div>
-            <div class="sum-sub">${my.traded ? `최종 자산 <b class="num">${won(my.final)}</b><br>최적 타점 대비 <b class="num ${dirCls(gap)}">${pct(gap, 1).replace('%', '%p')}</b>` : '이번 실습에서는 매수하지 않았어요.'}</div>
+            <div class="sum-sub">${my.traded ? `최종 자산 <b class="num">${won(my.final)}</b>${gap !== null ? `<br>최적 타점 대비 <b class="num ${dirCls(gap)}">${pct(gap, 1).replace('%', '%p')}</b>` : ''}` : '이번 실습에서는 매수하지 않았어요.'}</div>
         </div>
         <div class="card sum-card best">
             <div class="sum-label"><span class="si">${ico('star')}</span>양봉이의 최적 타점</div>
-            <div class="sum-value num ${dirCls(ideal.ret)}">${pct(ideal.ret)}</div>
-            <div class="sum-quote">"양봉이의 수많은 시도 끝에 찾아낸 베스트 수익률!"</div>
-            <div class="sum-sub num">${fmtYMD(c[an.entry].date)} 진입 → ${fmtYMD(c[an.exit].date)} 청산</div>
+            <div class="sum-value num ${hasIdeal ? dirCls(ideal.ret) : 'flat'}">${hasIdeal ? pct(ideal.ret) : '신호 없음'}</div>
+            <div class="sum-quote">${hasIdeal ? '"양봉이의 수많은 시도 끝에 찾아낸 베스트 수익률!"' : '"이 구간엔 뚜렷한 신호가 없었어요. 그래도 실제 가격으로 연습해본 거예요!"'}</div>
+            <div class="sum-sub num">${hasIdeal ? `${fmtYMD(c[an.entry].date)} 진입 → ${fmtYMD(c[an.exit].date)} 청산` : '-'}</div>
         </div>
         <div class="card sum-card">
             <div class="sum-label"><span class="si">${ico('lock')}</span>단순 보유 (존버)</div>
@@ -1232,21 +1542,23 @@ function renderResult() {
         <ul class="fb-tips">${fb.tips.map(x => `<li>${ico('check')}<span>${x}</span></li>`).join('')}</ul></div>`;
 }
 function drawResultChart() {
-    const { my, tech: t, data: d } = RES, c = d.candles, an = d.an, g = guideFor(t, c, an.entry);
+    const { my, tech: t, data: d, mode } = RES, c = d.candles, an = d.an, hasIdeal = an.entry >= 0, usd = mode === 'real';
+    const g = hasIdeal ? guideFor(t, c, an.entry, usd) : null;
     const markers = []; if (my.buyIdx !== null) markers.push({ i: my.buyIdx, type: 'B' }); if (my.sellIdx !== null) markers.push({ i: my.sellIdx, type: 'S' });
     chartRes.onRender = placeBubbles;
     chartRes.render({
-        candles: c, ind: d.ind, upTo: c.length - 1, full: true, showMA: t.showMA, showRSI: t.showRSI, markers,
-        rings: [{ i: an.entry, color: COLOR.risk }, { i: an.exit, color: '#be123c' }],
-        lines: [
+        candles: c, ind: d.ind, upTo: c.length - 1, full: true, showMA: t.showMA, showRSI: t.showRSI, markers, usd,
+        rings: hasIdeal ? [{ i: an.entry, color: COLOR.risk }, { i: an.exit, color: '#be123c' }] : [],
+        lines: hasIdeal ? [
             { price: g.stop, color: COLOR.risk, label: '손절선', from: an.entry, to: an.exit },
             { price: g.target, color: COLOR.reward, label: '목표가', from: an.entry, to: an.exit }
-        ]
+        ] : []
     });
 }
 function placeBubbles(geom) {
     const layer = $('#resOverlay'); if (!RES || !geom) return;
     const { tech: t, data: d } = RES, c = d.candles, an = d.an;
+    if (an.entry < 0) { layer.innerHTML = ''; return; }
     const defs = [
         { kind: 'buy', icon: 'bulb', idx: an.entry, html: `<b>${t.idealBuy.split('!')[0]}!</b> ${t.idealBuy.split('!')[1] || ''}`, dir: 'below' },
         { kind: 'exit', icon: 'scissors', idx: an.exit, html: t.idealExit, dir: 'above' }
@@ -1267,11 +1579,17 @@ function placeBubbles(geom) {
     });
 }
 function makeFeedback() {
-    const { my, ideal, tech: t, data: d } = RES, c = d.candles, an = d.an, g = guideFor(t, c, an.entry);
+    const { my, ideal, tech: t, data: d, mode } = RES, c = d.candles, an = d.an, usd = mode === 'real';
+    if (an.entry < 0) {
+        return my.traded
+            ? { mood: 'study', title: '이 구간에는 뚜렷한 신호가 없었어요', body: `이번에 고른 실제 구간에는 ${t.signalName} 신호가 뚜렷하게 나오지 않았어요. 그래도 실제 가격으로 매매 판단을 직접 내려본 좋은 경험이에요!`, tips: ['다른 실전 구간으로 다시 도전해보세요.'] }
+            : { mood: 'study', title: '이 구간에는 뚜렷한 신호가 없었어요', body: `이번에 고른 실제 구간에는 ${t.signalName} 신호가 뚜렷하게 나오지 않았어요. 다른 실전 구간으로 다시 도전해보는 건 어때요?`, tips: [] };
+    }
+    const g = guideFor(t, c, an.entry, usd);
     const tips = []; const entryDate = fmtMD(c[an.entry].date), exitDate = fmtMD(c[an.exit].date);
     if (!my.traded) {
         return { mood: 'study', title: '이번에는 매수하지 않았어요', body: `${t.short} 신호가 오는 걸 지켜보기만 했어요. 신호가 보이면 과감하게 <b>[매수]</b>를 눌러서 실전 감각을 키워 보세요!`,
-            tips: [`이번 구간의 이상적인 진입 시점은 <b>${entryDate}</b> 부근이었어요.`, `손익비 ${t.ratioText} 기준 손절선은 ${won(g.stop)}, 목표가는 ${won(g.target)}였어요.`] };
+            tips: [`이번 구간의 이상적인 진입 시점은 <b>${entryDate}</b> 부근이었어요.`, `손익비 ${t.ratioText} 기준 손절선은 ${priceWon(g.stop, usd)}, 목표가는 ${priceWon(g.target, usd)}였어요.`] };
     }
     const diff = my.buyIdx - an.entry, profit = my.ret > 0; let mood, title, body;
     if (profit) {
@@ -1285,11 +1603,17 @@ function makeFeedback() {
         else { title = '신호는 잡았지만, 결과가 아쉬웠어요'; body = `신호 이후에 진입했지만 손실로 마무리했어요. 손절선을 지켰는지, 추세가 꺾인 뒤에도 들고 있지는 않았는지 복기해 보세요.`; }
     }
     if (my.sellIdx !== null) {
+        // 손절선 준수 여부 — 매수 이후 손절선 아래로 내려간 적이 있었는데도 안 팔고 버텼다면, 결과(수익/손실)와 무관하게 짚어줌
+        const myGuide = guideFor(t, c, my.buyIdx, usd);
+        const breachIdx = c.slice(my.buyIdx, my.sellIdx + 1).findIndex(k => k.l <= myGuide.stop);
+        if (breachIdx >= 0 && my.buyIdx + breachIdx < my.sellIdx) {
+            tips.push(`매수 후 손절선(${priceWon(myGuide.stop, usd)}) 아래로 내려간 적이 있었는데 그때 팔지 않고 버텼어요. ${profit ? '이번엔 운 좋게 반등해서 수익으로 끝났지만' : '결국 손실로 이어졌어요'} — 손절선에 닿으면 미련 없이 파는 습관이 중요해요.`);
+        }
         if (profit && my.sellIdx < an.exit - 5) tips.push(`양봉이는 <b>${exitDate}</b>까지 들고 갔어요. 조금 더 보유했다면 최적 수익률 ${pct(ideal.ret, 1)}에 가까워졌을 거예요.`);
         else if (my.sellIdx > an.exit + 2) tips.push(`추세가 꺾인 <b>${exitDate}</b> 이후에도 보유해서 수익을 일부 반납했어요. 청산 신호를 놓치지 마세요.`);
-        else if (!profit) tips.push(`손익비 ${t.ratioText} 기준 손절선(${won(g.stop)})을 지키면 손실을 작게 막을 수 있어요.`);
+        else if (!profit) tips.push(`손익비 ${t.ratioText} 기준 손절선(${priceWon(g.stop, usd)})을 지키면 손실을 작게 막을 수 있어요.`);
     }
-    tips.push(`손익비 <b>${t.ratioText}</b> — 손절선 ${won(g.stop)} / 목표가 ${won(g.target)}. 잃을 땐 짧게, 벌 땐 길게!`);
+    tips.push(`손익비 <b>${t.ratioText}</b> — 손절선 ${priceWon(g.stop, usd)} / 목표가 ${priceWon(g.target, usd)}. 잃을 땐 짧게, 벌 땐 길게!`);
     return { mood, title, body, tips };
 }
 
@@ -1298,17 +1622,25 @@ document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, id = b.dataset.id;
     if (act === 'open') { e.stopPropagation(); renderIntro(id); }
-    else if (act === 'start') startPlay(id);
+    else if (act === 'open-mode') openModeModal(id);
+    else if (act === 'close-mode') closeModeModal();
+    else if (act === 'start') { closeModeModal(); startPlay(id); }
+    else if (act === 'start-real') { closeModeModal(); startPlay(id, { real: true, entryDate: b.dataset.entry }); }
     else if (act === 'quit') { stopTimer(); renderList(); }
-    else if (act === 'retry') startPlay(RES.tech.id, { skipTutorial: true });
+    else if (act === 'retry') startPlay(RES.tech.id, RES.mode === 'real' ? { real: true, entryDate: P.realEntryDate, skipTutorial: true } : { skipTutorial: true });
     else if (act === 'tut-next') tutNext();
     else if (act === 'tut-skip') tutSkip();
+    else if (act === 'retry-inplay') retryInPlay();
+    else if (act === 'buy-info-next') buyInfoNext();
+    else if (act === 'confirm-ratio') confirmRatio();
 });
 document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('tech-card')) { e.preventDefault(); renderIntro(e.target.dataset.id); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModeModal(); });
 $('#btnBuy').addEventListener('click', buy);
 $('#btnSell').addEventListener('click', sell);
-$('#btnPause').addEventListener('click', () => { if (P.closed || P.tut >= 0) return; P.paused ? resume() : pause(); });
-$('#btnHelp').addEventListener('click', () => { if (!P.closed) openTutorial(0); });
+$('#btnDrawBox').addEventListener('click', () => { if (P.shares === 0 || P.closed) return; P.editingBox = !P.editingBox; updatePlayUI(); drawPlay(); });
+$('#btnPause').addEventListener('click', () => { if (P.closed || P.tut >= 0 || P.overlay) return; P.paused ? resume() : pause(); });
+$('#btnHelp').addEventListener('click', () => { if (!P.closed && !P.overlay) openTutorial(0); });
 $('#speedGroup').addEventListener('click', (e) => {
     const b = e.target.closest('[data-speed]'); if (!b) return;
     P.speed = +b.dataset.speed; $$('#speedGroup .seg').forEach(x => x.classList.toggle('active', x === b));
@@ -1323,7 +1655,7 @@ $('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collap
     const t = new URLSearchParams(location.search).get('t');
     if (t && TECH[t]) renderIntro(t); else renderList();
 })();
-window.__P = { P, TECH, getData, startPlay, tick, buy, sell, finish, showResult, renderIntro, renderList, tutNext, tutSkip, drawPlay, RES: () => RES, guideFor, simulate };
+window.__P = { P, TECH, getData, startPlay, tick, buy, sell, finish, showResult, renderIntro, openModeModal, closeModeModal, renderList, tutNext, tutSkip, showGameOver, showBuyInfo, buyInfoNext, confirmRatio, retryInPlay, handleLineDrag, currentGuide, drawPlay, chartPlay, RES: () => RES, guideFor, simulate };
 
         // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
         (function () {
