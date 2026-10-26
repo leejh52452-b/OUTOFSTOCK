@@ -320,6 +320,8 @@
         .tutorial-illust { margin-top: 10px; background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 4px 6px; }
         .tutorial-illust svg { width: 100%; height: auto; display: block; }
         .tutorial-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+        .tutorial-actions-left { display: flex; align-items: center; gap: 4px; }
+        .tutorial-actions-left .link-btn svg.ico { width: 12px; height: 12px; }
         .tutorial-card.gameover-card { border-color: var(--accent-red); box-shadow: 0 14px 40px rgba(220, 38, 38, 0.18); }
 
         .asset-total { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
@@ -378,36 +380,27 @@
         .result-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 4px 0 10px; }
         .result-actions .btn { min-width: 190px; }
 
-        /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
-        .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
-        .header-profile-btn {
-            display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--card-border);
-            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit; color: var(--text-primary);
+        /* 우측 상단 영역 (마이페이지 / 가상머니 / 로그아웃) */
+        .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .header-balance {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+            background: linear-gradient(135deg, #fff7e3, #ffedbd); border: 1px solid #f0d888; color: #8a5f09;
+            font-size: 12.5px; font-weight: 800; white-space: nowrap;
         }
-        .header-profile-btn:hover, .header-profile-btn.active { border-color: var(--accent-blue); background-color: var(--hover-bg); }
-        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; padding: 4px; flex-shrink: 0; overflow: hidden; }
-        .header-avatar img { width: 100%; height: 100%; object-fit: contain; }
-        .header-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
-        .header-chevron { width: 14px; height: 14px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; }
-        .header-profile.open .header-chevron { transform: rotate(180deg); }
-        .header-dropdown {
-            position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; background-color: var(--card-bg);
-            border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
-            padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 500;
+        .header-balance svg { width: 15px; height: 15px; stroke: #b9800f; flex-shrink: 0; }
+        .header-btn {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit;
+            color: var(--text-primary); font-size: 12.5px; font-weight: 700; text-decoration: none; white-space: nowrap;
         }
-        .header-profile.open .header-dropdown { display: flex; }
-        .header-dropdown a, .header-dropdown button {
-            display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px;
-            background: none; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600;
-            font-family: inherit; cursor: pointer; text-align: left;
-        }
-        .header-dropdown a:hover, .header-dropdown button:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
-        .header-dropdown svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
-        .header-dropdown button.danger:hover { background-color: #fee2e2; color: #b91c1c; }
-        .header-dropdown hr { border: none; border-top: 1px solid var(--card-border); margin: 4px 2px; }
-        @media (max-width: 480px) {
-            .header-name { display: none; }
-            .header-profile-btn { padding: 6px; }
+        .header-btn svg { width: 15px; height: 15px; stroke: currentColor; flex-shrink: 0; }
+        .header-btn-mypage:hover { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-btn-logout { color: var(--text-muted); }
+        .header-btn-logout:hover { border-color: #fca5a5; background-color: #fee2e2; color: #b91c1c; }
+        @media (max-width: 560px) {
+            .header-btn-label { display: none; }
+            .header-btn { padding: 7px; }
+            .header-balance { padding: 6px 10px; font-size: 11.5px; }
         }
 
         @media (max-width: 1100px) {
@@ -489,23 +482,19 @@
                 <input type="text" placeholder="종목명 또는 종목코드 검색">
             </div>
 
-            <div class="header-profile" id="headerProfile">
-                <button class="header-profile-btn" type="button" id="headerProfileBtn" aria-haspopup="true" aria-expanded="false">
-                    <span class="header-avatar"><img src="assets/logo-mark.png" alt=""></span>
-                    <span class="header-name">김입문</span>
-                    <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-                <div class="header-dropdown" role="menu">
-                    <a href="mypage.html" role="menuitem">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
-                        마이페이지
-                    </a>
-                    <hr>
-                    <button type="button" class="danger" role="menuitem" onclick="headerLogout()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        로그아웃
-                    </button>
+            <div class="header-actions" id="headerProfile">
+                <div class="header-balance" title="가상머니 잔액">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+                    <span id="headerBalanceAmt">1,000,000</span>원
                 </div>
+                <a href="mypage.html" class="header-btn header-btn-mypage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                    <span class="header-btn-label">마이페이지</span>
+                </a>
+                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span class="header-btn-label">로그아웃</span>
+                </button>
             </div>
         </header>
 
@@ -599,7 +588,7 @@
                             <div class="mini-guide" id="miniGuide"></div>
                         </div>
                         <div class="card">
-                            <button class="btn outline block" type="button" id="btnDrawBox" hidden style="margin-bottom:10px"><svg class="ico"><use href="#i-edit"/></svg>손절·목표 그리기</button>
+                            <button class="btn outline block" type="button" id="btnDrawBox" hidden style="margin-bottom:10px"><svg class="ico"><use href="#i-edit"/></svg>손절선 그리기</button>
                             <div class="trade-grid">
                                 <button class="btn buy lg" type="button" id="btnBuy"><svg class="ico"><use href="#i-trending-up"/></svg>매수</button>
                                 <button class="btn sell lg" type="button" id="btnSell"><svg class="ico"><use href="#i-trending-down"/></svg>매도</button>
@@ -655,7 +644,7 @@
                 <div class="mode-section-title"><svg class="ico"><use href="#i-book"/></svg>양봉이의 설명과 함께 연습해보기</div>
                 <button class="btn primary lg block" type="button" id="modeStartPractice" data-act="start"><svg class="ico"><use href="#i-play"/></svg>시작하기</button>
             </div>
-            <div class="mode-section">
+            <div class="mode-section" id="modeRealSection">
                 <div class="mode-section-title"><svg class="ico"><use href="#i-activity"/></svg>과거 데이터로 실전연습하기</div>
                 <div class="mode-ticker">종목 <b>SOXL</b></div>
                 <div class="real-case-list" id="modeRealCaseList"></div>
@@ -762,13 +751,13 @@ const TECH = {
         summary: '단기 주가 흐름(5일선)이 장기 주가 흐름(20일선)을 아래에서 위로 강하게 뚫고 올라가는 상승 전환 시점을 포착하는 추세 추종 기법이에요.',
         how: '주식에는 5일 동안의 평균 주가를 이은 <b>\'빠른 선\'</b>과 20일 동안의 평균을 이은 <b>\'느린 선\'</b>이 있어요. 빠른 선이 느린 선을 밑에서 위로 교차하며 올라가는 순간을 <b>\'골든크로스\'</b>라고 불러요. 이는 최근 사람들이 주식을 비싸게라도 사려고 몰려들고 있다는 강력한 상승 신호이므로, 이때 <b>매수 버튼</b>을 누르는 실습을 해볼 거예요!',
         risk: '매수 후 주가가 다시 떨어져서 \'느린 선(20일선)\'을 깨고 내려가면 미련 없이 손절합니다. (손실 최소화)',
-        reward: '한 번 상승 추세를 타면 주가가 계속 오르는 경향이 있어요. 반대로 빠른 선이 느린 선 아래로 꺾이는 \'데드크로스\'가 나올 때까지 길게 들고 가며 수익을 극대화합니다. 잃을 땐 찔끔 잃고, 먹을 땐 크게 먹는 정석적인 비율이에요.',
-        showMA: true, showRSI: false, stopPct: 0.03,
+        reward: '한 번 상승 추세를 타면 주가가 계속 오르는 경향이 있어요. 목표가를 정해두고 거기서 파는 게 아니라, 반대로 빠른 선이 느린 선 아래로 꺾이는 \'데드크로스\'가 나올 때까지 길게 들고 가며 수익을 극대화합니다. 잃을 땐 찔끔 잃고, 먹을 땐 끝까지 먹는 추세추종의 정석이에요.',
+        showMA: true, showRSI: false, stopPct: 0.03, stopMode: 'pct', exitMode: 'signal',
         gen: { seed: 1, start: 61200, startDate: '2021-03-02', playStart: 45, phases: [{ n: 34, drift: -0.05, vol: 1.15 }, { n: 12, drift: -0.30, vol: 1.05 }, { n: 12, drift: 0.05, vol: 1.0 }, { n: 32, drift: 0.85, vol: 1.25 }, { n: 14, drift: 0.0, vol: 1.4 }, { n: 26, drift: -0.95, vol: 1.35 }] },
         guideRows: [
             ['trending-up', '', '<b>매수 신호</b> 5일선이 20일선을 아래에서 위로 돌파'],
             ['scissors', 'warn', '<b>청산 신호</b> 데드크로스(추세 꺾임) 또는 손절선 이탈'],
-            ['scale', '', '<b>손익비 1 : 2</b> 손절 -3% · 목표 +6% (매수하면 차트에 표시돼요)']
+            ['flag', '', '<b>목표가 없음</b> 데드크로스가 뜰 때까지 길게 들고 가요 (손절선만 차트에 표시돼요)']
         ],
         tutorial: [
             { text: '백문이 불여일견! 지금부터 과거 실제 데이터를 빠르게 돌려보며 <em>골든크로스 매매</em>를 연습해볼게요.', img: 'study' },
@@ -776,7 +765,7 @@ const TECH = {
             { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 신호가 오면 우측의 <em>[매수]</em> 버튼을 누르고, 추세가 꺾이면 <em>[매도]</em>를 눌러 수익을 내보세요. 준비되셨나요?', img: 'happy' }
         ],
         idealBuy: '이때 샀어야 했어요! (골든크로스 돌파)',
-        idealExit: '<b>손익비 1:2 기준 이탈 구간!</b> 여기서 칼손절 했어야 해요!',
+        idealExit: '<b>데드크로스 발생!</b> 추세가 꺾였어요, 여기서 정리했어야 해요!',
         signalName: '골든크로스'
     },
     rsi: {
@@ -785,13 +774,13 @@ const TECH = {
         summary: '시장의 공포 심리로 주가가 비정상적으로 폭락한 \'과매도\' 구간(RSI 30 이하)에서 탈출할 때, 바닥을 잡고 반등하는 타이밍을 노리는 기법이에요.',
         how: 'RSI는 주식 시장의 <b>\'온도계\'</b> 같아요. 악재가 터져서 사람들이 공포에 질려 주식을 마구 던지면 RSI 온도가 <b>30 밑으로</b> 뚝 떨어집니다(과매도). 하지만 영원히 떨어지는 주식은 없죠! 온도가 30 밑에서 허우적대다가 고개를 쑥 내밀고 <b>\'30을 돌파하며 올라오는 순간\'</b>, 투매가 멈추고 반등이 시작되었다고 판단하여 매수하는 실습이에요.',
         risk: '바닥인 줄 알고 샀는데 지하실이 있을 수 있어요. 따라서 매수할 때 찍었던 최저점 가격을 이탈하면 칼같이 손절해야 합니다. (리스크가 크기 때문에 고급 기법이에요.)',
-        reward: '공포에 질려 지나치게 많이 떨어진 상태에서 샀기 때문에, 정상 궤도(RSI 50~70 부근)로 회복하기만 해도 단기간에 아주 큰 수익률을 올릴 수 있어 손익비율이 매우 뛰어나요.',
-        showMA: false, showRSI: true, stopPct: 0.03,
+        reward: '공포에 질려 지나치게 많이 떨어진 상태에서 샀기 때문에, 정해둔 가격이 아니라 RSI가 정상 궤도(50~70 부근)로 회복하는 신호가 뜰 때까지 들고 가면 단기간에 아주 큰 수익률을 올릴 수 있어요.',
+        showMA: false, showRSI: true, stopPct: 0.03, stopLookback: 12, exitMode: 'signal',
         gen: { seed: 6, start: 84300, startDate: '2021-09-01', playStart: 32, phases: [{ n: 30, drift: 0.32, vol: 0.9 }, { n: 14, drift: -2.1, vol: 1.5 }, { n: 6, drift: -0.15, vol: 1.7 }, { n: 26, drift: 1.25, vol: 1.3 }, { n: 20, drift: -0.1, vol: 1.2 }, { n: 12, drift: -0.3, vol: 1.2 }] },
         guideRows: [
             ['thermo', '', '<b>매수 신호</b> RSI가 30 밑으로 내려갔다가 30을 다시 돌파'],
             ['scissors', 'warn', '<b>청산 신호</b> 매수 직전 최저점 이탈(손절) 또는 RSI 70 부근 도달'],
-            ['scale', '', '<b>손익비 1 : 3</b> 손절은 직전 저점 · 목표는 위험의 3배 (매수하면 차트에 표시돼요)']
+            ['flag', '', '<b>목표가 없음</b> RSI가 70 부근에 닿을 때까지 들고 가요 (손절선만 차트에 표시돼요)']
         ],
         tutorial: [
             { text: '백문이 불여일견! 지금부터 과거 실제 데이터를 빠르게 돌려보며 <em>RSI 과매도 반등 매매</em>를 연습해볼게요.', img: 'study' },
@@ -801,6 +790,56 @@ const TECH = {
         idealBuy: '이때 샀어야 했어요! (RSI 30 돌파)',
         idealExit: '<b>수익 실현 구간!</b> RSI가 70에 닿았어요. 여기서 정리했어야 해요!',
         signalName: 'RSI 30 돌파'
+    },
+    pullback: {
+        id: 'pullback', name: '눌림목 매매 실습', short: '눌림목 매매', level: '중급', levelClass: 'badge-mid', icon: 'bars',
+        tags: ['추세 추종', '되돌림'], ratio: 2, ratioText: '1 : 2', oneLine: '추세는 길게, 손익비는 국룰 1:2',
+        summary: '상승 추세인 종목이 20일 이동평균선까지 잠깐 눌렸다가(조정받았다가) 다시 반등하는 지점을 노리는, 손익비를 미리 정해두고 들어가는 기법이에요.',
+        how: '주가가 쭉 오르다가 잠깐 \'눌림목\'(조정)을 주며 <b>20일선</b> 근처까지 내려오는 구간이 있어요. 이때 20일선을 깨지 않고 <b>양봉으로 반등</b>하면, 상승 추세가 아직 살아있다는 신호로 보고 매수해요. 데드크로스 같은 뚜렷한 반전 신호를 기다리는 기법이 아니라서, 매수할 때 <b>손절선과 목표가를 미리 정해두고</b> 거래해요!',
+        risk: '눌림목인 줄 알았는데 추세 자체가 꺾여서 20일선 아래로 더 내려갈 수 있어요. 눌림목 저점을 깨면 바로 손절해야 합니다.',
+        reward: '눌림목 매매는 반전 신호를 기다리는 대신, 매수할 때 손익비를 미리 정해요. 가장 흔히 쓰는 기준은 손익비 <b>1 : 2</b> — 손절폭의 2배를 목표로 잡는 거예요.',
+        showMA: true, showRSI: false, stopPct: 0.04, stopLookback: 8, exitMode: 'ratio',
+        gen: { seed: 74, start: 42000, startDate: '2021-01-04', playStart: 30, phases: [{ n: 20, drift: 0.05, vol: 1.0 }, { n: 40, drift: 0.9, vol: 1.1 }, { n: 10, drift: -0.5, vol: 0.9 }, { n: 20, drift: 0.3, vol: 1.1 }, { n: 20, drift: -0.2, vol: 1.2 }] },
+        guideRows: [
+            ['bars', '', '<b>매수 신호</b> 상승 추세 중 20일선까지 눌렸다가 양봉으로 반등'],
+            ['scissors', 'warn', '<b>청산 신호</b> 눌림목 저점 이탈(손절) 또는 목표가 도달'],
+            ['scale', '', '<b>손익비 1 : 2</b> (국룰) — 매수하면 차트에 표시돼요']
+        ],
+        tutorial: [
+            { text: '백문이 불여일견! 지금부터 과거 실제 데이터를 빠르게 돌려보며 <em>눌림목 매매</em>를 연습해볼게요.', img: 'study' },
+            { text: '상승하던 주가가 <em>20일선</em>까지 내려왔다가, <em>양봉으로 반등</em>하는 순간을 잘 노려야 해요!', img: 'study', illust: 'pullback', pulse: true },
+            { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 신호가 오면 <em>[매수]</em>를 누르고, 손절선이나 목표가에 닿으면 <em>[매도]</em>를 눌러 마무리하세요. 준비되셨나요?', img: 'happy' }
+        ],
+        idealBuy: '이때 샀어야 했어요! (20일선 눌림목 반등)',
+        idealExit: (c, an) => c[an.exit].c > c[an.entry].c
+            ? '<b>목표가 도달!</b> 여기서 수익 실현했어야 해요!'
+            : '<b>손절선 이탈!</b> 여기서 칼손절 했어야 해요!',
+        signalName: '눌림목 반등'
+    },
+    support: {
+        id: 'support', name: '지지선 매매 실습', short: '지지선 매매', level: '중급', levelClass: 'badge-mid', icon: 'shield',
+        tags: ['역추세', '지지저항'], ratio: 2, ratioText: '1 : 2', oneLine: '지지선은 믿고, 손익비는 국룰 1:2',
+        summary: '주가가 과거에 여러 번 버텨낸 지지선 근처까지 내려왔다가 다시 반등하는 지점을 노리는, 손익비를 미리 정해두고 들어가는 기법이에요.',
+        how: '차트를 보면 주가가 특정 가격대(<b>지지선</b>)에서 여러 번 반등한 걸 볼 수 있어요. 주가가 그 지지선 근처까지 다시 내려왔다가 <b>양봉으로 반등</b>하면, 이번에도 지지선이 버텨줄 거라 보고 매수해요. 손절선은 지지선 바로 아래, 목표가는 <b>손익비 기준으로 미리</b> 정해둬요!',
+        risk: '지지선이라고 믿었는데 이번엔 뚫리고 더 내려갈 수 있어요(지지선 붕괴). 지지선 아래로 완전히 이탈하면 바로 손절해야 합니다.',
+        reward: '목표가를 저항선에 맞추기보다, 손익비 <b>1 : 2</b>처럼 미리 정해둔 비율로 기계적으로 수익을 실현하는 게 지지선 매매의 기본이에요.',
+        showMA: false, showRSI: false, stopPct: 0.03, stopLookback: 30, exitMode: 'ratio',
+        gen: { seed: 22, start: 38000, startDate: '2021-02-01', playStart: 35, phases: [{ n: 20, drift: -0.3, vol: 1.2 }, { n: 15, drift: 0.0, vol: 0.9 }, { n: 25, drift: -0.25, vol: 1.1 }, { n: 15, drift: 0.0, vol: 0.85 }, { n: 35, drift: 0.5, vol: 1.15 }] },
+        guideRows: [
+            ['shield', '', '<b>매수 신호</b> 지지선 근처까지 내려왔다가 양봉으로 반등'],
+            ['scissors', 'warn', '<b>청산 신호</b> 지지선 이탈(손절) 또는 목표가 도달'],
+            ['scale', '', '<b>손익비 1 : 2</b> (국룰) — 매수하면 차트에 표시돼요']
+        ],
+        tutorial: [
+            { text: '백문이 불여일견! 지금부터 과거 실제 데이터를 빠르게 돌려보며 <em>지지선 매매</em>를 연습해볼게요.', img: 'study' },
+            { text: '주가가 과거에 여러 번 버텨낸 <em>지지선</em> 근처까지 내려왔다가, <em>양봉으로 반등</em>하는 순간을 잘 노려야 해요!', img: 'study', illust: 'support', pulse: true },
+            { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 신호가 오면 <em>[매수]</em>를 누르고, 손절선이나 목표가에 닿으면 <em>[매도]</em>를 눌러 마무리하세요. 준비되셨나요?', img: 'happy' }
+        ],
+        idealBuy: '이때 샀어야 했어요! (지지선 반등)',
+        idealExit: (c, an) => c[an.exit].c > c[an.entry].c
+            ? '<b>목표가 도달!</b> 여기서 수익 실현했어야 해요!'
+            : '<b>손절선 이탈!</b> 여기서 칼손절 했어야 해요!',
+        signalName: '지지선 반등'
     }
 };
 
@@ -873,6 +912,25 @@ function getData(id) {
     const ind = { sma5: calcSMA(candles, 5), sma20: calcSMA(candles, 20), rsi: calcRSI(candles, 14) };
     return (_cache[id] = { candles, ind, an: analyze(t, candles, ind) });
 }
+// 눌림목/지지선 같은 '손익비 기법'의 진입 지점 탐지
+function findRatioEntry(t, c, ind, s) {
+    if (t.id === 'pullback') {
+        for (let i = s; i < c.length; i++) {
+            const ma = ind.sma20[i], maPrev = ind.sma20[i - 10];
+            if (ma == null || maPrev == null) continue;
+            if (ma > maPrev * 1.01 && c[i].l <= ma * 1.02 && c[i].c > ma && c[i].c > c[i].o) return i;
+        }
+    } else if (t.id === 'support') {
+        const lb = t.stopLookback;
+        for (let i = s; i < c.length; i++) {
+            if (i - lb < 0) continue;
+            let support = Infinity;
+            for (let j = i - lb; j <= i - 2; j++) support = Math.min(support, c[j].l);
+            if (c[i].l <= support * 1.015 && c[i].c > support && c[i].c > c[i].o) return i;
+        }
+    }
+    return -1;
+}
 function analyze(t, c, ind, playStartOverride) {
     const s = playStartOverride != null ? playStartOverride : t.gen.playStart; let entry = -1, exit = -1;
     if (t.id === 'golden') {
@@ -880,7 +938,7 @@ function analyze(t, c, ind, playStartOverride) {
             if (entry < 0 && ind.sma5[i - 1] <= ind.sma20[i - 1] && ind.sma5[i] > ind.sma20[i]) entry = i;
             else if (entry >= 0 && ind.sma5[i - 1] >= ind.sma20[i - 1] && ind.sma5[i] < ind.sma20[i]) { exit = i; break; }
         }
-    } else {
+    } else if (t.id === 'rsi') {
         let dn = -1;
         for (let i = s; i < c.length; i++) {
             const R = ind.rsi;
@@ -888,20 +946,29 @@ function analyze(t, c, ind, playStartOverride) {
             else if (dn >= 0 && entry < 0 && R[i - 1] < 30 && R[i] >= 30) entry = i;
             else if (entry >= 0 && R[i - 1] < 70 && R[i] >= 70) { exit = i; break; }
         }
+    } else if (t.exitMode === 'ratio') {
+        entry = findRatioEntry(t, c, ind, s);
+        if (entry >= 0) {
+            const g = guideFor(t, c, entry, false);
+            for (let i = entry + 1; i < c.length; i++) {
+                if (c[i].l <= g.stop || c[i].h >= g.target) { exit = i; break; }
+            }
+        }
     }
-    if (exit < 0) exit = c.length - 1;
+    if (exit < 0 && entry >= 0) exit = c.length - 1;
     return { entry, exit };
 }
 // 손절선/목표가 (손익비 가이드)
 const RSI_DEFAULT_STOP_PCT = 0.02;
 function guideFor(t, c, idx, usd, ratioOverride, stopPctOverride) {
     const p = c[idx].c, ratio = ratioOverride != null ? ratioOverride : t.ratio; let stop;
-    if (t.id === 'golden') {
+    if (t.stopMode === 'pct') {
         const pct = stopPctOverride != null ? stopPctOverride : t.stopPct;
         stop = p * (1 - pct);
     } else {
-        let low = Infinity; for (let i = Math.max(0, idx - 12); i <= idx; i++) low = Math.min(low, c[i].l);
-        const pct = stopPctOverride != null ? stopPctOverride : RSI_DEFAULT_STOP_PCT;
+        const lb = t.stopLookback || 12;
+        let low = Infinity; for (let i = Math.max(0, idx - lb); i <= idx; i++) low = Math.min(low, c[i].l);
+        const pct = stopPctOverride != null ? stopPctOverride : (t.id === 'rsi' ? RSI_DEFAULT_STOP_PCT : t.stopPct);
         stop = Math.min(low, p * (1 - pct));
     }
     if (usd) {
@@ -954,6 +1021,34 @@ function illust(kind) {
             <g transform="translate(${cx - 34} ${cy + 16})"><rect width="68" height="17" rx="8.5" fill="#dc2626"/><text x="34" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>골든크로스</text></g>
             <text x="16" y="108" fill="${COLOR.sma5}" font-size="9" font-weight="800" ${F}>5일선 (빠른 선)</text>
             <text x="16" y="47" fill="${COLOR.sma20}" font-size="9" font-weight="800" ${F}>20일선 (느린 선)</text>
+        </svg>`;
+    }
+    if (kind === 'pullback') {
+        const xs = [14, 42, 70, 98, 126, 154, 182, 210, 232];
+        const ma = [95, 88, 82, 76, 70, 64, 58, 52, 46].map((y, i) => [xs[i], y]);
+        const price = [100, 78, 58, 74, 66, 38, 52, 26, 14].map((y, i) => [xs[i], y]);
+        const cx = xs[4], cy = price[4][1];
+        return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="눌림목 매매 예시">
+            <g stroke="#e8edf3" stroke-width="1"><line x1="8" y1="30" x2="234" y2="30"/><line x1="8" y1="60" x2="234" y2="60"/><line x1="8" y1="90" x2="234" y2="90"/></g>
+            <path d="${smoothPath(ma)}" fill="none" stroke="${COLOR.sma20}" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="${smoothPath(price)}" fill="none" stroke="${COLOR.up}" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="${cx}" cy="${cy}" r="11" fill="rgba(220,38,38,.13)"/><circle cx="${cx}" cy="${cy}" r="4.2" fill="#dc2626"/>
+            <g transform="translate(${cx - 24} ${cy + 16})"><rect width="76" height="17" rx="8.5" fill="#dc2626"/><text x="38" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>눌림목 반등</text></g>
+            <text x="16" y="108" fill="${COLOR.up}" font-size="9" font-weight="800" ${F}>주가</text>
+            <text x="16" y="44" fill="${COLOR.sma20}" font-size="9" font-weight="800" ${F}>20일선</text>
+        </svg>`;
+    }
+    if (kind === 'support') {
+        const xs = [14, 42, 70, 98, 126, 154, 182, 210, 232];
+        const price = [30, 50, 74, 90, 70, 92, 66, 40, 20].map((y, i) => [xs[i], y]);
+        const supportY = 92, cx = xs[5], cy = price[5][1];
+        return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="지지선 매매 예시">
+            <g stroke="#e8edf3" stroke-width="1"><line x1="8" y1="30" x2="234" y2="30"/><line x1="8" y1="60" x2="234" y2="60"/></g>
+            <line x1="8" y1="${supportY}" x2="234" y2="${supportY}" stroke="${COLOR.risk}" stroke-width="1.6" stroke-dasharray="4 4"/>
+            <path d="${smoothPath(price)}" fill="none" stroke="${COLOR.up}" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="${cx}" cy="${cy}" r="11" fill="rgba(220,38,38,.13)"/><circle cx="${cx}" cy="${cy}" r="4.2" fill="#dc2626"/>
+            <g transform="translate(${cx - 24} ${cy + 16})"><rect width="76" height="17" rx="8.5" fill="#dc2626"/><text x="38" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>지지선 반등</text></g>
+            <text x="16" y="${supportY - 5}" fill="${COLOR.risk}" font-size="9" font-weight="800" ${F}>지지선</text>
         </svg>`;
     }
     const xs = Array.from({ length: 13 }, (_, i) => 14 + i * 18.2);
@@ -1043,13 +1138,16 @@ function createChart(canvas, wrap, tip) {
                 ctx.stroke();
             });
         }
-        // 손익 박스(매수가 기준 보상 구간/위험 구간 색칠)
+        // 손익 박스(매수가~손절선은 항상 색칠, 손익비 기법은 매수가~목표가 보상 구간도 같이 색칠)
         if (S.zone) {
             const z = S.zone, x1 = z.from != null ? xOf(Math.max(z.from, start)) : padL, x2 = padL + plotW;
-            const yBuy = yOf(z.buyPrice), yStop = yOf(z.stop), yTarget = yOf(z.target);
+            const yBuy = yOf(z.buyPrice), yStop = yOf(z.stop);
             const alpha = z.active ? 0.16 : 0.08;
             ctx.save();
-            ctx.fillStyle = `rgba(55,48,163,${alpha})`; ctx.fillRect(x1, Math.min(yTarget, yBuy), x2 - x1, Math.abs(yBuy - yTarget));
+            if (z.target != null) {
+                const yTarget = yOf(z.target);
+                ctx.fillStyle = `rgba(55,48,163,${alpha})`; ctx.fillRect(x1, Math.min(yTarget, yBuy), x2 - x1, Math.abs(yBuy - yTarget));
+            }
             ctx.fillStyle = `rgba(202,138,4,${alpha})`; ctx.fillRect(x1, Math.min(yBuy, yStop), x2 - x1, Math.abs(yStop - yBuy));
             ctx.restore();
         }
@@ -1165,7 +1263,7 @@ function renderList() {
         return `<div class="card tech-card" data-act="open" data-id="${t.id}" tabindex="0" role="button" aria-label="${t.name}">
             <div class="tech-top">
                 <div class="tech-top-left"><div class="tech-icon">${ico(t.icon)}</div><span class="badge ${t.levelClass}">난이도 ${t.level}</span></div>
-                <span class="chip">${ico('scale')}손익비 ${t.ratioText}</span>
+                ${t.exitMode === 'ratio' ? `<span class="chip">${ico('scale')}손익비 ${t.ratioText}</span>` : ''}
             </div>
             <div><div class="tech-title">${t.name}</div></div>
             <div class="tech-summary">${t.summary}</div>
@@ -1217,14 +1315,13 @@ function renderIntro(id) {
                 </div>
                 <div class="card">
                     <div class="rr-head">
-                        <div class="card-title">${ico('scale')}추천 손익비율 (Risk/Reward)</div>
-                        <div class="rr-ratio">${t.ratioText}</div>
+                        <div class="card-title">${ico('scale')}${t.exitMode === 'ratio' ? '추천 손익비율 (Risk/Reward)' : '매수·매도 기준'}</div>
+                        ${t.exitMode === 'ratio' ? `<div class="rr-ratio">${t.ratioText} (국룰)</div>` : ''}
                     </div>
-                    <div class="rr-bar"><span class="risk" style="flex:1">위험 1</span><span class="reward" style="flex:${t.ratio}">보상 ${t.ratio}</span></div>
-                    <p style="font-size:11.5px;color:var(--text-muted);margin:-8px 0 12px">추천값일 뿐이에요 — 매수하면 나만의 손익비를 직접 정할 수 있어요.</p>
+                    ${t.exitMode === 'ratio' ? `<div class="rr-bar"><span class="risk" style="flex:1">위험 1</span><span class="reward" style="flex:${t.ratio}">보상 ${t.ratio}</span></div>` : ''}
                     <div class="rr-cols">
                         <div class="rr-box risk-box"><h4>${ico('scissors')}위험(손절)</h4><p>${t.risk}</p></div>
-                        <div class="rr-box reward-box"><h4>${ico('target')}보상(수익)</h4><p>${t.reward}</p></div>
+                        <div class="rr-box reward-box"><h4>${ico('flag')}보상(수익)</h4><p>${t.reward}</p></div>
                     </div>
                 </div>
             </div>
@@ -1257,7 +1354,9 @@ function renderIntro(id) {
 let modeReturnFocus = null;
 function openModeModal(id) {
     $('#modeStartPractice').dataset.id = id;
-    $('#modeRealCaseList').innerHTML = (REAL_PICKS[id] || []).map(p => `
+    const picks = REAL_PICKS[id] || [];
+    $('#modeRealSection').hidden = picks.length === 0;
+    $('#modeRealCaseList').innerHTML = picks.map(p => `
         <button class="real-case" type="button" data-act="start-real" data-id="${id}" data-entry="${p.entryDate}">
             <span class="rc-label">${p.label}</span>
             <span class="rc-range num">${realWindowLabel(p.entryDate)}</span>
@@ -1306,12 +1405,14 @@ function startPlay(id, opt) {
     $$('#speedGroup .seg').forEach(b => b.classList.toggle('active', +b.dataset.speed === P.speed));
     showView('play');
     updatePlayUI(); drawPlay();
-    if (opt.skipTutorial) { hideTutorial(); resume(); } else { openTutorial(0); }
+    if (opt.skipTutorial || opt.real) { hideTutorial(); resume(); } else { openTutorial(0); }
 }
 function currentGuide() {
     const t = P.tech, c = P.data.candles, usd = P.mode === 'real';
     const def = guideFor(t, c, P.buyIdx, usd);
-    return { stop: P.customStopPrice != null ? P.customStopPrice : def.stop, target: P.customTargetPrice != null ? P.customTargetPrice : def.target };
+    const g = { stop: P.customStopPrice != null ? P.customStopPrice : def.stop };
+    if (t.exitMode === 'ratio') g.target = P.customTargetPrice != null ? P.customTargetPrice : def.target;
+    return g;
 }
 function playState() {
     const t = P.tech, c = P.data.candles, lines = [], markers = [], usd = P.mode === 'real';
@@ -1320,8 +1421,11 @@ function playState() {
         const g = currentGuide();
         lines.push({ price: P.avg, color: COLOR.entry, label: '매수가', from: P.buyIdx, dash: [3, 4] });
         lines.push({ price: g.stop, color: COLOR.risk, label: '손절선', from: P.buyIdx, draggable: true, key: 'stop' });
-        lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: P.buyIdx, draggable: true, key: 'target' });
-        zone = { from: P.buyIdx, buyPrice: P.avg, stop: g.stop, target: g.target, active: P.editingBox };
+        zone = { from: P.buyIdx, buyPrice: P.avg, stop: g.stop, active: P.editingBox };
+        if (t.exitMode === 'ratio') {
+            lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: P.buyIdx, draggable: true, key: 'target' });
+            zone.target = g.target;
+        }
     }
     if (P.buyIdx !== null) markers.push({ i: P.buyIdx, type: 'B' });
     if (P.sellIdx !== null) markers.push({ i: P.sellIdx, type: 'S' });
@@ -1333,14 +1437,20 @@ function handleLineDrag(key, price) {
     const usd = P.mode === 'real', rounded = usd ? Math.round(price * 100) / 100 : Math.round(price / 10) * 10;
     if (key === 'stop') { if (rounded >= P.avg) return; P.customStopPrice = rounded; }
     else if (key === 'target') { if (rounded <= P.avg) return; P.customTargetPrice = rounded; }
-    drawPlay(); updateRatioReadout();
+    drawPlay(); updateStopReadout();
 }
-function updateRatioReadout() {
+function updateStopReadout() {
     const chip = $('#myRatioChip');
     if (P.shares === 0 || P.closed) { chip.hidden = true; return; }
-    const g = currentGuide(), stopPct = (P.avg - g.stop) / P.avg * 100, ratio = (g.target - P.avg) / (P.avg - g.stop);
+    const g = currentGuide(), stopPct = (P.avg - g.stop) / P.avg * 100;
+    if (P.tech.exitMode === 'ratio') {
+        const ratio = (g.target - P.avg) / (P.avg - g.stop);
+        chip.hidden = false;
+        chip.textContent = `내 손절 -${stopPct.toFixed(1)}% · 손익비 1:${ratio.toFixed(1)}`;
+        return;
+    }
     chip.hidden = false;
-    chip.textContent = `내 손절 -${stopPct.toFixed(1)}% · 손익비 1:${ratio.toFixed(1)}`;
+    chip.textContent = `내 손절 -${stopPct.toFixed(1)}%`;
 }
 
 function updatePlayUI() {
@@ -1369,7 +1479,8 @@ function updatePlayUI() {
     drawBtn.disabled = P.tut >= 0 || P.overlay === 'gameover';
     drawBtn.classList.toggle('primary', P.editingBox);
     drawBtn.classList.toggle('outline', !P.editingBox);
-    drawBtn.innerHTML = P.editingBox ? ico('check') + '그리기 완료' : ico('edit') + '손절·목표 그리기';
+    const drawLabel = P.tech && P.tech.exitMode === 'ratio' ? '손절·목표 그리기' : '손절선 그리기';
+    drawBtn.innerHTML = P.editingBox ? ico('check') + '그리기 완료' : ico('edit') + drawLabel;
 }
 function stopTimer() { if (P.timer) { clearInterval(P.timer); P.timer = null; } }
 function resume() { if (P.closed || P.tut >= 0 || P.overlay) return; P.paused = false; stopTimer(); P.timer = setInterval(tick, BASE_MS / P.speed); updatePlayUI(); }
@@ -1381,6 +1492,13 @@ function tick() {
 }
 function buy() {
     if (P.closed || P.shares > 0 || P.tut >= 0 || P.overlay) return;
+    // 실전모드(실제 데이터)는 연습용 튜토리얼/GAME OVER 없이 실제 매매처럼 바로 진행하고, 판단은 복기 화면에서만 해줌
+    if (P.mode === 'real') {
+        const price = P.data.candles[P.cur].c, q = Math.floor(P.cash / price); if (q <= 0) return;
+        P.shares = q; P.cash -= q * price; P.avg = price; P.buyIdx = P.cur; updatePlayUI(); drawPlay();
+        updateStopReadout();
+        return;
+    }
     const an = P.data.an;
     if (an.entry >= 0 && P.cur < an.entry) { showGameOver(); return; }
     const price = P.data.candles[P.cur].c, q = Math.floor(P.cash / price); if (q <= 0) return;
@@ -1413,7 +1531,10 @@ function openTutorial(i) {
                 <p class="tutorial-text">${s.text}</p>
                 ${s.illust ? `<div class="tutorial-illust">${illust(s.illust)}</div>` : ''}
                 <div class="tutorial-actions">
-                    <button class="link-btn" type="button" data-act="tut-skip">건너뛰기</button>
+                    <div class="tutorial-actions-left">
+                        ${i > 0 ? `<button class="link-btn" type="button" data-act="tut-prev">${ico('arrow-left')}이전</button>` : ''}
+                        <button class="link-btn" type="button" data-act="tut-skip">건너뛰기</button>
+                    </div>
                     <button class="btn primary sm" type="button" data-act="tut-next">${last ? '실전 돌입' : '다음'}${ico(last ? 'play' : 'arrow-right')}</button>
                 </div>
             </div>
@@ -1425,6 +1546,7 @@ function openTutorial(i) {
 }
 function hideTutorial() { P.tut = -1; $('#tutorialLayer').hidden = true; $$('#playLegend [data-legend]').forEach(el => el.classList.remove('pulse')); updatePlayUI(); }
 function tutNext() { const steps = P.tech.tutorial; if (P.tut >= steps.length - 1) { hideTutorial(); resume(); } else openTutorial(P.tut + 1); }
+function tutPrev() { if (P.tut > 0) openTutorial(P.tut - 1); }
 function tutSkip() { hideTutorial(); resume(); }
 
 // ---- 신호 타이밍 체크 (GAME OVER) / 손익비 직접 설정 ----
@@ -1448,18 +1570,27 @@ function showGameOver() {
     updatePlayUI();
 }
 function buyTutorialSteps(t) {
-    const defStopPct = t.id === 'golden' ? Math.round(t.stopPct * 1000) / 10 : Math.round(RSI_DEFAULT_STOP_PCT * 1000) / 10;
+    const defStopPct = Math.round((t.id === 'rsi' ? RSI_DEFAULT_STOP_PCT : t.stopPct) * 1000) / 10;
+    if (t.exitMode === 'ratio') {
+        return [
+            { text: `<em>${t.signalName}</em> 신호에 맞춰 잘 매수했어요! 이 기법은 미리 <em>손익비</em>를 정해두고 거래해요.`, img: 'happy' },
+            { text: `${t.short}의 국룰 손익비는 <em>1 : ${t.ratio}</em>예요! 손절은 매수가 대비 약 <em>-${defStopPct}%</em> 선으로 잡아요.`, img: 'happy' },
+            { text: `목표가에 닿으면 미련 없이 수익 실현하고, 손절선에 닿으면 바로 손절하세요. 손익비를 지키는 게 가장 중요해요!`, img: 'study' },
+            { text: `아래 <em>'손절·목표 그리기'</em> 버튼을 눌러서 직접 차트에 그려보세요!`, img: 'study' }
+        ];
+    }
+    const exitDesc = t.id === 'golden' ? '데드크로스(추세 꺾임)가 뜰 때까지' : 'RSI가 70 부근에 닿을 때까지';
     return [
-        { text: `<em>${t.signalName}</em> 신호에 맞춰 잘 매수했어요! 이제 가장 중요한 <em>손익비 설정</em>이에요!`, img: 'happy' },
-        { text: `기본적인 ${t.short} 매매기법은 손절 <em>-${defStopPct}%</em>, 손익비 <em>1 : ${t.ratio}</em>로 해요!`, img: 'happy' },
-        { text: `주식에서는 이득만큼 손절도 칼같이 해야 돼서, 매수한 다음엔 꼭 <em>손절·목표액을 그려서</em> 그거에 맞춰 진행해야 해요.`, img: 'study' },
-        { text: `아래 <em>'손절·목표 그리기'</em> 버튼을 눌러서 직접 차트에 그려보세요!`, img: 'study' }
+        { text: `<em>${t.signalName}</em> 신호에 맞춰 잘 매수했어요! 이제 가장 중요한 <em>매도 원칙</em>을 지킬 차례예요!`, img: 'happy' },
+        { text: `${t.short}는 ${exitDesc} 들고 가요. 손절선은 매수가 대비 <em>-${defStopPct}%</em>로 잡아요! (목표가는 따로 안 정해요)`, img: 'happy' },
+        { text: `운이 좋으면 원칙보다 늦게 팔아도 더 벌 수 있지만, 그건 매매 원칙을 지킨 게 아니라서 장기적으로 보면 위험해요.`, img: 'study' },
+        { text: `아래 <em>'손절선 그리기'</em> 버튼을 눌러서 손절선을 직접 그려보고, 신호가 뜨면 꼭 매도해 보세요!`, img: 'study' }
     ];
 }
 function showBuyInfo() {
     P.overlay = 'ratio'; pause();
     P.buySteps = buyTutorialSteps(P.tech); P.buyStep = 0;
-    updateRatioReadout();
+    updateStopReadout();
     renderBuyStep();
 }
 function renderBuyStep() {
@@ -1471,7 +1602,7 @@ function renderBuyStep() {
                 <div class="tutorial-step">${i + 1} / ${steps.length}<span class="tutorial-dots">${steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</span></div>
                 <p class="tutorial-text">${s.text}</p>
                 <div class="tutorial-actions">
-                    <span></span>
+                    <div class="tutorial-actions-left">${i > 0 ? `<button class="link-btn" type="button" data-act="buy-info-prev">${ico('arrow-left')}이전</button>` : ''}</div>
                     <button class="btn primary sm" type="button" data-act="${last ? 'confirm-ratio' : 'buy-info-next'}">${last ? ico('check') + '확인' : '다음' + ico('arrow-right')}</button>
                 </div>
             </div>
@@ -1481,6 +1612,7 @@ function renderBuyStep() {
     updatePlayUI();
 }
 function buyInfoNext() { P.buyStep++; renderBuyStep(); }
+function buyInfoPrev() { if (P.buyStep > 0) { P.buyStep--; renderBuyStep(); } }
 function hideOverlay() { P.overlay = null; $('#tutorialLayer').classList.remove('info-toast'); $('#tutorialLayer').hidden = true; updatePlayUI(); }
 function retryInPlay() {
     hideOverlay();
@@ -1499,6 +1631,12 @@ function showResult() {
     const t = P.tech, d = P.data, c = d.candles, an = d.an;
     const traded = P.buyIdx !== null;
     const my = { traded, ret: P.final / START_CASH - 1, final: P.final, buyIdx: P.buyIdx, sellIdx: P.sellIdx };
+    // 내가 직접 그린(드래그한) 손절선/목표가가 있으면 그걸 기준으로, 없으면 기본 추천값을 기준으로 "내가 세운 원칙"을 복기에 남겨둠
+    if (traded) {
+        const defG = guideFor(t, c, P.buyIdx, P.mode === 'real');
+        my.myStop = P.customStopPrice != null ? P.customStopPrice : defG.stop;
+        if (t.exitMode === 'ratio') my.myTarget = P.customTargetPrice != null ? P.customTargetPrice : defG.target;
+    }
     const ideal = an.entry >= 0 ? simulate(c, an.entry, an.exit) : { ret: 0, final: START_CASH };
     const hold = simulate(c, P.playStart - 1, c.length - 1);
     RES = { my, ideal, hold, tech: t, data: d, mode: P.mode };
@@ -1509,7 +1647,7 @@ function showResult() {
 }
 function renderResult() {
     const { my, ideal, hold, tech: t, data: d, mode } = RES, c = d.candles, an = d.an, hasIdeal = an.entry >= 0;
-    $('#resTitle').innerHTML = t.short + ' 매매법 실습 복기' + (mode === 'real' ? ` <span class="chip">SOXL 실전 데이터</span>` : '');
+    $('#resTitle').innerHTML = t.short + (t.short.endsWith('매매') ? '법 실습 복기' : ' 매매법 실습 복기') + (mode === 'real' ? ` <span class="chip">SOXL 실전 데이터</span>` : '');
     const gap = my.traded && hasIdeal ? (my.ret - ideal.ret) : null;
     $('#sumGrid').innerHTML = `
         <div class="card sum-card">
@@ -1533,8 +1671,7 @@ function renderResult() {
         <span class="chip"><i class="lg-box" style="background:${COLOR.down}"></i>내 매도 S</span>
         <span class="chip"><i class="lg-dot" style="background:${COLOR.risk}"></i>이상적 진입</span>
         <span class="chip"><i class="lg-dot" style="background:#be123c"></i>이상적 청산</span>
-        <span class="chip"><i class="lg-dot" style="background:${COLOR.risk}"></i>손절선</span>
-        <span class="chip"><i class="lg-dot" style="background:${COLOR.reward}"></i>목표가</span>`;
+        <span class="chip"><i class="lg-dot" style="background:${COLOR.risk}"></i>손절선</span>${t.exitMode === 'ratio' ? `<span class="chip"><i class="lg-dot" style="background:${COLOR.reward}"></i>목표가</span>` : ''}`;
     const fb = makeFeedback();
     $('#feedbackCard').innerHTML = `
         <img src="assets/${fb.mood}.png" alt="양봉이">
@@ -1546,22 +1683,22 @@ function drawResultChart() {
     const g = hasIdeal ? guideFor(t, c, an.entry, usd) : null;
     const markers = []; if (my.buyIdx !== null) markers.push({ i: my.buyIdx, type: 'B' }); if (my.sellIdx !== null) markers.push({ i: my.sellIdx, type: 'S' });
     chartRes.onRender = placeBubbles;
+    const lines = hasIdeal ? [{ price: g.stop, color: COLOR.risk, label: '손절선', from: an.entry, to: an.exit }] : [];
+    if (hasIdeal && t.exitMode === 'ratio') lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: an.entry, to: an.exit });
     chartRes.render({
         candles: c, ind: d.ind, upTo: c.length - 1, full: true, showMA: t.showMA, showRSI: t.showRSI, markers, usd,
         rings: hasIdeal ? [{ i: an.entry, color: COLOR.risk }, { i: an.exit, color: '#be123c' }] : [],
-        lines: hasIdeal ? [
-            { price: g.stop, color: COLOR.risk, label: '손절선', from: an.entry, to: an.exit },
-            { price: g.target, color: COLOR.reward, label: '목표가', from: an.entry, to: an.exit }
-        ] : []
+        lines
     });
 }
 function placeBubbles(geom) {
     const layer = $('#resOverlay'); if (!RES || !geom) return;
     const { tech: t, data: d } = RES, c = d.candles, an = d.an;
     if (an.entry < 0) { layer.innerHTML = ''; return; }
+    const exitHtml = typeof t.idealExit === 'function' ? t.idealExit(c, an) : t.idealExit;
     const defs = [
         { kind: 'buy', icon: 'bulb', idx: an.entry, html: `<b>${t.idealBuy.split('!')[0]}!</b> ${t.idealBuy.split('!')[1] || ''}`, dir: 'below' },
-        { kind: 'exit', icon: 'scissors', idx: an.exit, html: t.idealExit, dir: 'above' }
+        { kind: 'exit', icon: 'scissors', idx: an.exit, html: exitHtml, dir: 'above' }
     ];
     layer.innerHTML = defs.map((b, n) => `<div class="bubble ${b.kind} ${b.dir}" data-n="${n}"><div class="b-ico">${ico(b.icon)}</div><div>${b.html}</div></div>`).join('');
     $$('.bubble', layer).forEach((el, n) => {
@@ -1587,9 +1724,12 @@ function makeFeedback() {
     }
     const g = guideFor(t, c, an.entry, usd);
     const tips = []; const entryDate = fmtMD(c[an.entry].date), exitDate = fmtMD(c[an.exit].date);
+    const exitSignalName = t.exitMode === 'ratio'
+        ? (c[an.exit].c > c[an.entry].c ? '목표가 도달' : '손절선 이탈')
+        : (t.id === 'golden' ? '데드크로스' : 'RSI 70 도달');
     if (!my.traded) {
         return { mood: 'study', title: '이번에는 매수하지 않았어요', body: `${t.short} 신호가 오는 걸 지켜보기만 했어요. 신호가 보이면 과감하게 <b>[매수]</b>를 눌러서 실전 감각을 키워 보세요!`,
-            tips: [`이번 구간의 이상적인 진입 시점은 <b>${entryDate}</b> 부근이었어요.`, `손익비 ${t.ratioText} 기준 손절선은 ${priceWon(g.stop, usd)}, 목표가는 ${priceWon(g.target, usd)}였어요.`] };
+            tips: [`이번 구간의 이상적인 진입 시점은 <b>${entryDate}</b> 부근이었어요.`, `진입했다면 손절선은 ${priceWon(g.stop, usd)} 부근, 청산은 <b>${exitSignalName}</b> 시점(${exitDate})이었을 거예요.`] };
     }
     const diff = my.buyIdx - an.entry, profit = my.ret > 0; let mood, title, body;
     if (profit) {
@@ -1602,18 +1742,40 @@ function makeFeedback() {
         if (diff < 0) { title = '조금 성급했어요'; body = `${t.short}가 완전히 확정되기 전에 진입했어요. 신호가 확정된 후 진입해보는 건 어떨까요?`; }
         else { title = '신호는 잡았지만, 결과가 아쉬웠어요'; body = `신호 이후에 진입했지만 손실로 마무리했어요. 손절선을 지켰는지, 추세가 꺾인 뒤에도 들고 있지는 않았는지 복기해 보세요.`; }
     }
+    const EXIT_WINDOW = 4; // 기준 시점 ±4거래일까지는 봐줌
     if (my.sellIdx !== null) {
-        // 손절선 준수 여부 — 매수 이후 손절선 아래로 내려간 적이 있었는데도 안 팔고 버텼다면, 결과(수익/손실)와 무관하게 짚어줌
-        const myGuide = guideFor(t, c, my.buyIdx, usd);
-        const breachIdx = c.slice(my.buyIdx, my.sellIdx + 1).findIndex(k => k.l <= myGuide.stop);
-        if (breachIdx >= 0 && my.buyIdx + breachIdx < my.sellIdx) {
-            tips.push(`매수 후 손절선(${priceWon(myGuide.stop, usd)}) 아래로 내려간 적이 있었는데 그때 팔지 않고 버텼어요. ${profit ? '이번엔 운 좋게 반등해서 수익으로 끝났지만' : '결국 손실로 이어졌어요'} — 손절선에 닿으면 미련 없이 파는 습관이 중요해요.`);
+        // 손절선 준수 여부 — 내가 정한 손절선(드래그로 직접 그렸다면 그 값, 아니면 추천값) 아래로 내려간 적이 있었는데도 안 팔고 버텼다면, 결과(수익/손실)와 무관하게 짚어줌
+        const myStop = my.myStop;
+        const stopBreachIdx = c.slice(my.buyIdx, my.sellIdx + 1).findIndex(k => k.l <= myStop);
+        if (stopBreachIdx >= 0 && my.buyIdx + stopBreachIdx < my.sellIdx) {
+            tips.push(`매수 후 내가 정한 손절선(${priceWon(myStop, usd)}) 아래로 내려간 적이 있었는데 그때 팔지 않고 버텼어요. ${profit ? '이번엔 운 좋게 반등해서 수익으로 끝났지만' : '결국 손실로 이어졌어요'} — 손절선에 닿으면 미련 없이 파는 습관이 중요해요.`);
         }
-        if (profit && my.sellIdx < an.exit - 5) tips.push(`양봉이는 <b>${exitDate}</b>까지 들고 갔어요. 조금 더 보유했다면 최적 수익률 ${pct(ideal.ret, 1)}에 가까워졌을 거예요.`);
-        else if (my.sellIdx > an.exit + 2) tips.push(`추세가 꺾인 <b>${exitDate}</b> 이후에도 보유해서 수익을 일부 반납했어요. 청산 신호를 놓치지 마세요.`);
-        else if (!profit) tips.push(`손익비 ${t.ratioText} 기준 손절선(${priceWon(g.stop, usd)})을 지키면 손실을 작게 막을 수 있어요.`);
+        if (t.exitMode === 'ratio') {
+            // 목표가(내가 정한 손익비) 준수 여부 — 목표가에 닿았는데도 더 들고 있었으면, 결과가 더 좋았더라도 원칙 위반으로 봄
+            const myTarget = my.myTarget;
+            const targetHitIdx = c.slice(my.buyIdx, my.sellIdx + 1).findIndex(k => k.h >= myTarget);
+            if (targetHitIdx >= 0 && my.buyIdx + targetHitIdx + EXIT_WINDOW < my.sellIdx) {
+                const hitDate = fmtMD(c[my.buyIdx + targetHitIdx].date), heldDays = my.sellIdx - (my.buyIdx + targetHitIdx);
+                tips.push(`<b>경고!</b> 내가 정한 목표가(${priceWon(myTarget, usd)}, <b>${hitDate}</b>) 도달 이후로 ${heldDays}일이나 더 들고 있었어요. 손익비를 가장 잘 지키는 것이 중요합니다! 이번엔 운이 좋았을 뿐 매매 원칙을 지킨 게 아니어서 장기적으로 보면 위험해요.`);
+            } else if (targetHitIdx < 0 && !profit) {
+                tips.push(`손절선(${priceWon(myStop, usd)}) 부근을 지키면 손실을 작게 막을 수 있어요.`);
+            }
+        } else {
+            // 청산 원칙 준수 여부 — 신호(데드크로스/RSI 70)가 뜨고도 한참 더 들고 있었다면, 결과가 더 좋았더라도 원칙을 어긴 것으로 봄
+            if (my.sellIdx > an.exit + EXIT_WINDOW) {
+                tips.push(`<b>경고!</b> 청산 신호(<b>${exitDate}</b>) 이후로 ${my.sellIdx - an.exit}일이나 더 들고 있었어요. 손익비를 가장 잘 지키는 것이 중요합니다! ${profit ? '이번엔 운이 좋았을 뿐 매매 원칙을 지킨 게 아니어서' : '청산 신호를 놓쳐서'} 장기적으로 보면 위험해요.`);
+            } else if (profit && my.sellIdx < an.exit - EXIT_WINDOW) {
+                tips.push(`양봉이는 <b>${exitDate}</b>까지 들고 갔어요. 조금 더 보유했다면 최적 수익률 ${pct(ideal.ret, 1)}에 가까워졌을 거예요.`);
+            } else if (!profit) {
+                tips.push(`손절선(${priceWon(myStop, usd)}) 부근을 지키면 손실을 작게 막을 수 있어요.`);
+            }
+        }
     }
-    tips.push(`손익비 <b>${t.ratioText}</b> — 손절선 ${priceWon(g.stop, usd)} / 목표가 ${priceWon(g.target, usd)}. 잃을 땐 짧게, 벌 땐 길게!`);
+    if (t.exitMode === 'ratio') {
+        tips.push(`이 기법은 손익비 <b>1 : ${t.ratio}</b>을 미리 정해두고, 손절선(${priceWon(g.stop, usd)} 부근)이나 목표가(${priceWon(guideFor(t, c, an.entry, usd).target, usd)} 부근) 중 먼저 닿는 곳에서 정리하는 게 정석이에요!`);
+    } else {
+        tips.push(`이 기법은 목표가를 정해두지 않고, 손절선(${priceWon(g.stop, usd)} 부근)만 지키면서 <b>${exitSignalName}</b> 신호가 뜰 때까지 들고 가는 게 정석이에요!`);
+    }
     return { mood, title, body, tips };
 }
 
@@ -1629,9 +1791,11 @@ document.addEventListener('click', (e) => {
     else if (act === 'quit') { stopTimer(); renderList(); }
     else if (act === 'retry') startPlay(RES.tech.id, RES.mode === 'real' ? { real: true, entryDate: P.realEntryDate, skipTutorial: true } : { skipTutorial: true });
     else if (act === 'tut-next') tutNext();
+    else if (act === 'tut-prev') tutPrev();
     else if (act === 'tut-skip') tutSkip();
     else if (act === 'retry-inplay') retryInPlay();
     else if (act === 'buy-info-next') buyInfoNext();
+    else if (act === 'buy-info-prev') buyInfoPrev();
     else if (act === 'confirm-ratio') confirmRatio();
 });
 document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('tech-card')) { e.preventDefault(); renderIntro(e.target.dataset.id); } });
@@ -1655,24 +1819,16 @@ $('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collap
     const t = new URLSearchParams(location.search).get('t');
     if (t && TECH[t]) renderIntro(t); else renderList();
 })();
-window.__P = { P, TECH, getData, startPlay, tick, buy, sell, finish, showResult, renderIntro, openModeModal, closeModeModal, renderList, tutNext, tutSkip, showGameOver, showBuyInfo, buyInfoNext, confirmRatio, retryInPlay, handleLineDrag, currentGuide, drawPlay, chartPlay, RES: () => RES, guideFor, simulate };
+window.__P = { P, TECH, getData, startPlay, tick, buy, sell, finish, showResult, renderIntro, openModeModal, closeModeModal, renderList, tutNext, tutPrev, tutSkip, showGameOver, showBuyInfo, buyInfoNext, buyInfoPrev, confirmRatio, retryInPlay, handleLineDrag, currentGuide, drawPlay, chartPlay, RES: () => RES, guideFor, simulate };
 
-        // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
+        // ===== 우측 상단 가상머니 표시 / 로그아웃 (디자인 전용) =====
         (function () {
-            const wrap = document.getElementById('headerProfile');
-            if (!wrap) return;
-            const btn = document.getElementById('headerProfileBtn');
-            function closeProfileMenu() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-            function toggleProfileMenu() {
-                const willOpen = !wrap.classList.contains('open');
-                wrap.classList.toggle('open', willOpen);
-                btn.setAttribute('aria-expanded', String(willOpen));
-            }
-            btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProfileMenu(); });
-            document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeProfileMenu(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProfileMenu(); });
+            try {
+                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
+                const amt = document.getElementById('headerBalanceAmt');
+                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
+            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
             window.headerLogout = function () {
-                closeProfileMenu();
                 alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
             };
         })();

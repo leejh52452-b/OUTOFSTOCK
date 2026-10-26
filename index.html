@@ -184,6 +184,58 @@
         .login-links a { color: var(--text-secondary); text-decoration: none; }
         .login-links a:hover { text-decoration: underline; }
 
+        /* 로그인 후 상태 카드 (디자인 시안) */
+        .login-done-head { display: flex; align-items: center; gap: 14px; }
+        .login-done-avatar {
+            width: 76px; height: 76px; border-radius: 18px; background: var(--hover-bg); border: 1px solid var(--card-border);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08); padding: 9px; flex-shrink: 0; object-fit: contain;
+        }
+        .login-done-avatar.stable { background: #eaf1ff; border-color: #d3e3ff; }
+        .login-done-avatar.neutral { background: #fffaea; border-color: #f3e6a8; }
+        .login-done-avatar.aggressive { background: #fdecec; border-color: #f7cfcb; }
+        .login-done-info { min-width: 0; }
+        .login-done-name { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+        .login-done-streak {
+            display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; padding: 4px 10px 4px 8px;
+            border-radius: 999px; background: #fff1de; color: #b4530a; font-size: 11.5px; font-weight: 800; white-space: nowrap;
+        }
+        .login-done-streak svg { width: 13px; height: 13px; stroke: #e2740f; flex-shrink: 0; }
+        .login-done-wallet {
+            margin-top: 16px; padding: 14px 16px; border-radius: 12px;
+            background: linear-gradient(135deg, #211d52, #3730a3); box-shadow: 0 8px 20px rgba(55, 48, 163, 0.22);
+        }
+        .login-done-wallet-top { display: flex; align-items: center; gap: 6px; }
+        .login-done-wallet-top svg { width: 13px; height: 13px; stroke: #c7d2fe; flex-shrink: 0; }
+        .login-done-wallet-label { font-size: 11px; font-weight: 700; color: #c7d2fe; letter-spacing: 0.1px; }
+        .login-done-wallet-amt { margin-top: 4px; font-size: 23px; font-weight: 800; color: #fde68a; letter-spacing: -0.4px; }
+        .login-done-actions { margin-top: 10px; }
+        .login-done-btn {
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px;
+            border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); color: var(--text-primary);
+            font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none;
+        }
+        .login-done-btn:hover { border-color: var(--accent-blue); background: var(--hover-bg); color: var(--accent-blue); }
+        .login-done-btn.primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+        .login-done-btn.primary:hover { filter: brightness(1.08); }
+        .login-done-btn:disabled { cursor: default; opacity: 0.6; filter: none; }
+        .login-done-reward { font-size: 10.5px; font-weight: 700; opacity: 0.85; }
+        .login-done-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .login-done-stat {
+            display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 10px;
+            background: var(--item-bg); border: 1px solid var(--card-border);
+        }
+        .login-done-stat-ico {
+            width: 30px; height: 30px; border-radius: 8px; background: var(--hover-bg); color: var(--accent-blue);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .login-done-stat-ico svg { width: 15px; height: 15px; stroke: currentColor; }
+        .login-done-stat-body { min-width: 0; }
+        .login-done-stat-num { font-size: 15px; font-weight: 800; color: var(--text-primary); line-height: 1.1; }
+        .login-done-stat-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; margin-top: 1px; white-space: nowrap; }
+        .login-done-logout { text-align: center; margin-top: 10px; }
+        .login-done-logout a { font-size: 11.5px; color: var(--text-muted); text-decoration: none; }
+        .login-done-logout a:hover { text-decoration: underline; color: var(--text-secondary); }
+
         /* 양봉이의 1분 용어 학습 */
         .word-card {
             background-color: var(--card-bg); border: 1px solid var(--card-border);
@@ -350,36 +402,27 @@
         .auth-switch a:hover { text-decoration: underline; }
 
         /* 반응형 */
-        /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
-        .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
-        .header-profile-btn {
-            display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--card-border);
-            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit; color: var(--text-primary);
+        /* 우측 상단 영역 (마이페이지 / 가상머니 / 로그아웃) */
+        .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .header-balance {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+            background: linear-gradient(135deg, #fff7e3, #ffedbd); border: 1px solid #f0d888; color: #8a5f09;
+            font-size: 12.5px; font-weight: 800; white-space: nowrap;
         }
-        .header-profile-btn:hover, .header-profile-btn.active { border-color: var(--accent-blue); background-color: var(--hover-bg); }
-        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; padding: 4px; flex-shrink: 0; overflow: hidden; }
-        .header-avatar img { width: 100%; height: 100%; object-fit: contain; }
-        .header-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
-        .header-chevron { width: 14px; height: 14px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; }
-        .header-profile.open .header-chevron { transform: rotate(180deg); }
-        .header-dropdown {
-            position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; background-color: var(--card-bg);
-            border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
-            padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 500;
+        .header-balance svg { width: 15px; height: 15px; stroke: #b9800f; flex-shrink: 0; }
+        .header-btn {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit;
+            color: var(--text-primary); font-size: 12.5px; font-weight: 700; text-decoration: none; white-space: nowrap;
         }
-        .header-profile.open .header-dropdown { display: flex; }
-        .header-dropdown a, .header-dropdown button {
-            display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px;
-            background: none; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600;
-            font-family: inherit; cursor: pointer; text-align: left;
-        }
-        .header-dropdown a:hover, .header-dropdown button:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
-        .header-dropdown svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
-        .header-dropdown button.danger:hover { background-color: #fee2e2; color: #b91c1c; }
-        .header-dropdown hr { border: none; border-top: 1px solid var(--card-border); margin: 4px 2px; }
-        @media (max-width: 480px) {
-            .header-name { display: none; }
-            .header-profile-btn { padding: 6px; }
+        .header-btn svg { width: 15px; height: 15px; stroke: currentColor; flex-shrink: 0; }
+        .header-btn-mypage:hover { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-btn-logout { color: var(--text-muted); }
+        .header-btn-logout:hover { border-color: #fca5a5; background-color: #fee2e2; color: #b91c1c; }
+        @media (max-width: 560px) {
+            .header-btn-label { display: none; }
+            .header-btn { padding: 7px; }
+            .header-balance { padding: 6px 10px; font-size: 11.5px; }
         }
 
         @media (max-width: 1100px) {
@@ -456,23 +499,19 @@
                 <input type="text" placeholder="종목명 또는 종목코드 검색">
             </div>
 
-            <div class="header-profile" id="headerProfile">
-                <button class="header-profile-btn" type="button" id="headerProfileBtn" aria-haspopup="true" aria-expanded="false">
-                    <span class="header-avatar"><img src="assets/logo-mark.png" alt=""></span>
-                    <span class="header-name">김입문</span>
-                    <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-                <div class="header-dropdown" role="menu">
-                    <a href="mypage.html" role="menuitem">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
-                        마이페이지
-                    </a>
-                    <hr>
-                    <button type="button" class="danger" role="menuitem" onclick="headerLogout()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        로그아웃
-                    </button>
+            <div class="header-actions" id="headerProfile">
+                <div class="header-balance" title="가상머니 잔액">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+                    <span id="headerBalanceAmt">1,000,000</span>원
                 </div>
+                <a href="mypage.html" class="header-btn header-btn-mypage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                    <span class="header-btn-label">마이페이지</span>
+                </a>
+                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span class="header-btn-label">로그아웃</span>
+                </button>
             </div>
         </header>
 
@@ -603,18 +642,55 @@
 
                 <div class="right-column">
                     <div class="card login-card">
-                        <div class="login-header-row">
-                            <img class="login-logo" src="assets/logo.png" alt="OUTOFSTOCK">
-                        </div>
-                        <form class="login-form" onsubmit="event.preventDefault();">
-                            <div class="input-group"><input type="text" placeholder="아이디 또는 이메일"></div>
-                            <div class="input-group"><input type="password" placeholder="비밀번호"></div>
-                            <div class="login-options">
-                                <label style="cursor: pointer;"><input type="checkbox"> 로그인 유지</label>
+                        <div id="loginFormView">
+                            <div class="login-header-row">
+                                <img class="login-logo" src="assets/logo.png" alt="OUTOFSTOCK">
                             </div>
-                            <button class="btn-login">로그인</button>
-                        </form>
-                        <div class="login-links"><a href="#" onclick="openSignup(event)">회원가입</a><span>|</span><a href="#">비밀번호 찾기</a></div>
+                            <form class="login-form" onsubmit="doMockLogin(event);">
+                                <div class="input-group"><input type="text" placeholder="아이디 또는 이메일"></div>
+                                <div class="input-group"><input type="password" placeholder="비밀번호"></div>
+                                <div class="login-options">
+                                    <label style="cursor: pointer;"><input type="checkbox"> 로그인 유지</label>
+                                </div>
+                                <button class="btn-login">로그인</button>
+                            </form>
+                            <div class="login-links"><a href="#" onclick="openSignup(event)">회원가입</a><span>|</span><a href="#">비밀번호 찾기</a></div>
+                        </div>
+
+                        <!-- 로그인 후 상태 (디자인 시안 — 실제 로그인 연동 전까지는 목업 데이터예요) -->
+                        <div id="loginDoneView" hidden>
+                            <div class="login-done-head">
+                                <img class="login-done-avatar" id="loginDoneImg" src="assets/risk-aggressive.png" alt="">
+                                <div class="login-done-info">
+                                    <div class="login-done-name"><strong id="loginDoneId">1234</strong>님!</div>
+                                    <span class="login-done-streak">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                                        연속 출석 <strong id="loginDoneStreak">3</strong>일
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="login-done-wallet">
+                                <div class="login-done-wallet-top">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg>
+                                    <span class="login-done-wallet-label">내 지갑 (가상머니)</span>
+                                </div>
+                                <div class="login-done-wallet-amt"><span id="loginDoneBalance">1,000,000</span>원</div>
+                            </div>
+                            <div class="login-done-actions">
+                                <button type="button" class="login-done-btn primary" id="btnAttendance" onclick="doAttendanceCheck()">출석 체크 <span class="login-done-reward">+500원</span></button>
+                            </div>
+                            <div class="login-done-stats">
+                                <div class="login-done-stat">
+                                    <span class="login-done-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+                                    <div class="login-done-stat-body"><div class="login-done-stat-num">2</div><div class="login-done-stat-label">친구 요청</div></div>
+                                </div>
+                                <div class="login-done-stat">
+                                    <span class="login-done-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+                                    <div class="login-done-stat-body"><div class="login-done-stat-num">5</div><div class="login-done-stat-label">안 읽은 메시지</div></div>
+                                </div>
+                            </div>
+                            <div class="login-done-logout"><a href="#" onclick="doMockLogout(event)">로그아웃</a></div>
+                        </div>
                     </div>
 
                     <a class="word-card" href="learn.html?term=골든크로스">
@@ -1164,23 +1240,94 @@
                     `<li class="news-item"><a href="${esc(n.url || 'news.html')}" title="${esc(n.title)}">${esc(n.title)}</a><div class="news-meta">${esc(n.source)} · ${timeAgo(n.publishedAt)}</div></li>`).join('');
             } catch (e) { /* 실패해도 기본 문구 유지 */ }
         })();
-        // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
+        // ===== 우측 상단 가상머니 표시 (디자인 전용) =====
         (function () {
-            const wrap = document.getElementById('headerProfile');
-            if (!wrap) return;
-            const btn = document.getElementById('headerProfileBtn');
-            function closeProfileMenu() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-            function toggleProfileMenu() {
-                const willOpen = !wrap.classList.contains('open');
-                wrap.classList.toggle('open', willOpen);
-                btn.setAttribute('aria-expanded', String(willOpen));
+            try {
+                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
+                const amt = document.getElementById('headerBalanceAmt');
+                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
+            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
+        })();
+
+        // ===== 홈 로그인 카드: 로그인 전/후 상태 전환 (디자인 전용 — 실제 로그인은 아니에요) =====
+        (function () {
+            const formView = document.getElementById('loginFormView');
+            const doneView = document.getElementById('loginDoneView');
+            if (!formView || !doneView) return;
+
+            function getBalance() {
+                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
+                return Number.isFinite(v) ? v : 1000000;
             }
-            btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProfileMenu(); });
-            document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeProfileMenu(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProfileMenu(); });
+            function setBalance(v) {
+                try { localStorage.setItem('outofstock_balance', String(v)); } catch (e) { /* 무시 */ }
+                const headerAmt = document.getElementById('headerBalanceAmt');
+                if (headerAmt) headerAmt.textContent = v.toLocaleString('ko-KR');
+                document.getElementById('loginDoneBalance').textContent = v.toLocaleString('ko-KR');
+            }
+            function getStreak() {
+                const v = parseInt(localStorage.getItem('outofstock_streak'), 10);
+                return Number.isFinite(v) ? v : 3;
+            }
+            function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+            function renderLoginDone(id) {
+                let saved = null;
+                try { saved = JSON.parse(localStorage.getItem('outofstock_risk_profile')); } catch (e) { saved = null; }
+                const type = (saved && RISK_PROFILES[saved.type]) ? saved.type : 'aggressive';
+                const p = RISK_PROFILES[type];
+
+                document.getElementById('loginDoneId').textContent = id || '1234';
+                const imgEl = document.getElementById('loginDoneImg');
+                imgEl.src = p.img;
+                imgEl.alt = p.name + ' 양봉이';
+                imgEl.className = 'login-done-avatar ' + type;
+                document.getElementById('loginDoneStreak').textContent = getStreak();
+                document.getElementById('loginDoneBalance').textContent = getBalance().toLocaleString('ko-KR');
+
+                const lastAtt = localStorage.getItem('outofstock_last_attendance');
+                const btnAtt = document.getElementById('btnAttendance');
+                if (lastAtt === todayStr()) {
+                    btnAtt.disabled = true;
+                    btnAtt.innerHTML = '오늘 출석 완료 ✓';
+                } else {
+                    btnAtt.disabled = false;
+                    btnAtt.innerHTML = '출석 체크 <span class="login-done-reward">+500원</span>';
+                }
+            }
+
+            window.doMockLogin = function (e) {
+                if (e && e.preventDefault) e.preventDefault();
+                const idInput = document.querySelector('#loginFormView input[type="text"]');
+                const id = (idInput && idInput.value.trim()) || '1234';
+                renderLoginDone(id);
+                formView.hidden = true;
+                doneView.hidden = false;
+            };
+
+            window.doAttendanceCheck = function () {
+                if (localStorage.getItem('outofstock_last_attendance') === todayStr()) return;
+                try {
+                    localStorage.setItem('outofstock_last_attendance', todayStr());
+                    localStorage.setItem('outofstock_streak', String(getStreak() + 1));
+                } catch (e) { /* 무시 */ }
+                setBalance(getBalance() + 500);
+                document.getElementById('loginDoneStreak').textContent = getStreak();
+                const btnAtt = document.getElementById('btnAttendance');
+                btnAtt.disabled = true;
+                btnAtt.innerHTML = '오늘 출석 완료 ✓';
+            };
+
+            window.doMockLogout = function (e) {
+                if (e && e.preventDefault) e.preventDefault();
+                doneView.hidden = true;
+                formView.hidden = false;
+            };
+
+            // 헤더 우측 로그아웃 버튼을 눌러도 홈 로그인 카드가 로그인 전 상태로 돌아가게 함
             window.headerLogout = function () {
-                closeProfileMenu();
                 alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
+                if (!doneView.hidden) window.doMockLogout();
             };
         })();
 

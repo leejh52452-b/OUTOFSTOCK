@@ -145,7 +145,7 @@
         .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .page-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
         .page-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
-        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+        .dashboard-grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
         .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 18px 20px; min-width: 0; }
 
@@ -157,21 +157,119 @@
         .draft-banner svg.ico { color: #b45309; flex-shrink: 0; }
         .draft-banner b { font-weight: 800; }
 
-        /* 프로필 헤더 */
-        .profile-hero { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-        .profile-avatar { width: 68px; height: 68px; border-radius: 50%; background: var(--hover-bg); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--card-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 10px; }
-        .profile-avatar img { width: 100%; height: 100%; object-fit: contain; }
-        .profile-main { flex: 1; min-width: 180px; }
-        .profile-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        /* 프로필 헤더 (좌측 사이드바 카드) */
+        .profile-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+        .profile-avatar-big {
+            width: 108px; height: 108px; border-radius: 22px; background: var(--hover-bg);
+            border: 1px solid var(--card-border); box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            padding: 13px; object-fit: contain;
+        }
+        .profile-avatar-big.stable { background: #eaf1ff; border-color: #d3e3ff; }
+        .profile-avatar-big.neutral { background: #fffaea; border-color: #f3e6a8; }
+        .profile-avatar-big.aggressive { background: #fdecec; border-color: #f7cfcb; }
+        .profile-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
         .profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
-        .profile-email { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; }
-        .profile-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .profile-email { font-size: 12px; color: var(--text-secondary); }
+        .profile-meta { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
         .profile-meta b { color: var(--text-secondary); font-weight: 700; }
-        .profile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .profile-actions { display: flex; gap: 8px; width: 100%; margin-top: 2px; }
+        .profile-actions .btn { flex: 1; }
+
+        /* 내 지갑 · 가상머니 (좌측 사이드바 카드) */
+        .wallet-card { padding: 16px 18px; border-radius: 12px; background: linear-gradient(135deg, #211d52, #3730a3); box-shadow: 0 8px 20px rgba(55, 48, 163, 0.22); }
+        .wallet-top { display: flex; align-items: center; gap: 6px; }
+        .wallet-top svg { width: 13px; height: 13px; stroke: #c7d2fe; flex-shrink: 0; }
+        .wallet-label { font-size: 11px; font-weight: 700; color: #c7d2fe; letter-spacing: 0.1px; }
+        .wallet-amt { margin-top: 6px; font-size: 25px; font-weight: 800; color: #fde68a; letter-spacing: -0.4px; }
+        .wallet-sub { margin-top: 4px; font-size: 11px; color: #c7d2fe; font-weight: 600; }
+        .wallet-card .btn.primary { margin-top: 14px; width: 100%; background: #fff; color: #3730a3; border-color: #fff; }
+        .wallet-card .btn.primary:hover { background: #eef2ff; filter: none; color: #3730a3; }
+        .wallet-foot { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.16); text-align: center; }
+        .wallet-foot a { font-size: 11.5px; color: #c7d2fecc; text-decoration: none; font-weight: 600; }
+        .wallet-foot a:hover { color: #fff; text-decoration: underline; }
+
+        /* 우측 상단 요약 스탯 */
+        .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 12px; }
+        .stat-tile { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+        .stat-tile-label { font-size: 11.5px; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
+        .stat-tile-val { margin-top: 7px; font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+        .stat-tile-val .stat-unit { font-size: 12.5px; font-weight: 700; color: var(--text-muted); margin-left: 2px; }
+
+        /* 탭형 기록 카드 (학습 로그 / 실습 이력 / 관심 종목 / 접속 기록 / 비밀번호 변경) */
+        .mytabs-card { max-width: 760px; padding: 0; overflow: hidden; }
+        .mytabs-bar { display: flex; gap: 2px; padding: 8px 10px 0; border-bottom: 1px solid var(--card-border); overflow-x: auto; }
+        .mytab {
+            display: flex; align-items: center; gap: 6px; padding: 10px 12px; border: none; background: none;
+            color: var(--text-muted); font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer;
+            border-bottom: 2px solid transparent; white-space: nowrap; flex-shrink: 0;
+        }
+        .mytab svg { width: 14px; height: 14px; stroke: currentColor; flex-shrink: 0; }
+        .mytab:hover { color: var(--text-secondary); }
+        .mytab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+        .mytabs-body { padding: 18px 20px; }
+        .mytab-panel { min-width: 0; }
+
+        /* 내 활동 (지갑 거래 로그) */
+        .activity-list { display: flex; flex-direction: column; }
+        .activity-row { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-top: 1px solid var(--card-border); }
+        .activity-row:first-child { border-top: none; }
+        .activity-date { font-size: 11px; color: var(--text-muted); font-weight: 600; white-space: nowrap; width: 74px; flex-shrink: 0; }
+        .activity-body { min-width: 0; flex: 1; }
+        .activity-label { font-size: 13px; font-weight: 700; }
+        .activity-sub { font-size: 11.5px; color: var(--text-muted); margin-left: 4px; font-weight: 600; }
+        .activity-amt { font-size: 13.5px; font-weight: 800; color: var(--accent-red); white-space: nowrap; }
+        .activity-foot { text-align: center; margin-top: 12px; font-size: 11.5px; color: var(--text-muted); }
+
+        /* 친구 · 채팅 사이드바 카드 */
+        .friend-teaser { display: block; padding: 0; overflow: hidden; text-decoration: none; color: inherit; cursor: pointer; }
+        .friend-teaser:hover { border-color: var(--accent-blue); }
+        .friend-teaser-img { width: 100%; height: auto; display: block; }
+        .friend-teaser-body { display: flex; align-items: center; gap: 8px; padding: 14px; }
+        .friend-teaser-title { font-size: 15px; font-weight: 800; }
+        .friend-teaser-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+        .friend-teaser-stat {
+            display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-secondary);
+            background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 4px 10px;
+        }
+        .friend-teaser-stat b { color: var(--accent-blue); font-weight: 800; font-size: 13px; }
+        .friend-teaser-arrow { width: 18px; height: 18px; stroke: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+
+        /* 친구 · 채팅 모달 (디자인 시안 — 작은 폼 형태) */
+        .social-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .social-overlay[hidden] { display: none; }
+        .social-modal { position: relative; width: 100%; max-width: 440px; max-height: 86vh; overflow-y: auto; background-color: var(--card-bg); border-radius: 16px; padding: 22px 20px; box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3); }
+        .social-close { position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .social-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .social-close svg { width: 16px; height: 16px; }
+        .social-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-right: 24px; }
+        .social-header-img { width: 64px; height: auto; flex-shrink: 0; border-radius: 8px; }
+        .social-title { font-size: 15.5px; font-weight: 800; }
+        .social-subtitle { font-size: 11px; color: var(--text-secondary); line-height: 1.45; margin-top: 3px; }
+        .social-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--card-border); margin-bottom: 14px; overflow-x: auto; }
+        .social-tab { padding: 8px 10px; border: none; background: none; color: var(--text-muted); font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+        .social-tab:hover { color: var(--text-secondary); }
+        .social-tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+        .social-empty { text-align: center; padding: 30px 10px; font-size: 12.5px; color: var(--text-muted); line-height: 1.7; }
+        .social-link-inline { background: none; border: none; color: var(--accent-blue); font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 0; }
+        .social-link-inline:hover { text-decoration: underline; }
+        .social-req-group { margin-bottom: 18px; }
+        .social-req-group:last-child { margin-bottom: 0; }
+        .social-req-head { font-size: 12.5px; font-weight: 800; }
+        .social-req-head .num { color: var(--accent-blue); }
+        .social-req-empty { padding: 14px 2px; font-size: 12px; color: var(--text-muted); }
+        .social-search { position: relative; margin-bottom: 12px; }
+        .social-search input { width: 100%; padding: 9px 12px 9px 34px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--item-bg); font-size: 12.5px; font-family: inherit; outline: none; color: var(--text-primary); }
+        .social-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--text-muted); }
+        .social-user-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px; border-top: 1px solid var(--card-border); }
+        .social-user-row:first-child { border-top: none; }
+        .social-user-name { font-size: 13px; font-weight: 700; }
+        .social-req-btn { padding: 6px 11px; border: 1px solid var(--accent-blue); border-radius: 6px; background: #fff; color: var(--accent-blue); font-size: 11.5px; font-weight: 700; font-family: inherit; cursor: pointer; }
+        .social-req-btn:hover { background: var(--hover-bg); }
 
         /* 투자 성향 */
-        .persona-body { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-        .persona-body img { width: 84px; height: auto; flex-shrink: 0; }
+        .persona-body { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+        .persona-body img { width: 64px; height: auto; flex-shrink: 0; }
+        .persona-body .btn { margin-top: 4px; }
         .persona-type { font-size: 19px; font-weight: 800; letter-spacing: -0.4px; }
         .persona-type.stable { color: var(--accent-blue); }
         .persona-type.neutral { color: var(--badge-mid-text); }
@@ -254,36 +352,27 @@
         .pw-notice.show { display: flex; }
         .pw-notice svg.ico { width: 14px; height: 14px; margin-top: 1px; flex-shrink: 0; }
 
-        /* 우측 상단 프로필 박스 (마이페이지 / 로그아웃) */
-        .header-profile { position: relative; margin-left: auto; flex-shrink: 0; }
-        .header-profile-btn {
-            display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--card-border);
-            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit; color: var(--text-primary);
+        /* 우측 상단 영역 (마이페이지 / 가상머니 / 로그아웃) */
+        .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .header-balance {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+            background: linear-gradient(135deg, #fff7e3, #ffedbd); border: 1px solid #f0d888; color: #8a5f09;
+            font-size: 12.5px; font-weight: 800; white-space: nowrap;
         }
-        .header-profile-btn:hover, .header-profile-btn.active { border-color: var(--accent-blue); background-color: var(--hover-bg); }
-        .header-avatar { width: 28px; height: 28px; border-radius: 50%; background-color: var(--hover-bg); display: flex; align-items: center; justify-content: center; padding: 4px; flex-shrink: 0; overflow: hidden; }
-        .header-avatar img { width: 100%; height: 100%; object-fit: contain; }
-        .header-name { font-size: 12.5px; font-weight: 700; white-space: nowrap; }
-        .header-chevron { width: 14px; height: 14px; stroke: var(--text-muted); flex-shrink: 0; transition: transform 0.15s ease; }
-        .header-profile.open .header-chevron { transform: rotate(180deg); }
-        .header-dropdown {
-            position: absolute; top: calc(100% + 8px); right: 0; min-width: 172px; background-color: var(--card-bg);
-            border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
-            padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 500;
+        .header-balance svg { width: 15px; height: 15px; stroke: #b9800f; flex-shrink: 0; }
+        .header-btn {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit;
+            color: var(--text-primary); font-size: 12.5px; font-weight: 700; text-decoration: none; white-space: nowrap;
         }
-        .header-profile.open .header-dropdown { display: flex; }
-        .header-dropdown a, .header-dropdown button {
-            display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; border-radius: 7px;
-            background: none; color: var(--text-primary); text-decoration: none; font-size: 13px; font-weight: 600;
-            font-family: inherit; cursor: pointer; text-align: left;
-        }
-        .header-dropdown a:hover, .header-dropdown button:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
-        .header-dropdown svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
-        .header-dropdown button.danger:hover { background-color: #fee2e2; color: #b91c1c; }
-        .header-dropdown hr { border: none; border-top: 1px solid var(--card-border); margin: 4px 2px; }
-        @media (max-width: 480px) {
-            .header-name { display: none; }
-            .header-profile-btn { padding: 6px; }
+        .header-btn svg { width: 15px; height: 15px; stroke: currentColor; flex-shrink: 0; }
+        .header-btn-mypage:hover { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-btn-logout { color: var(--text-muted); }
+        .header-btn-logout:hover { border-color: #fca5a5; background-color: #fee2e2; color: #b91c1c; }
+        @media (max-width: 560px) {
+            .header-btn-label { display: none; }
+            .header-btn { padding: 7px; }
+            .header-balance { padding: 6px 10px; font-size: 11.5px; }
         }
 
         @media (max-width: 1100px) {
@@ -293,10 +382,9 @@
         @media (max-width: 760px) {
             .content-container { padding: 16px; }
             .card { padding: 15px 14px; }
-            .profile-hero { text-align: center; justify-content: center; }
-            .profile-meta { justify-content: center; }
-            .profile-actions { width: 100%; justify-content: center; }
-            .persona-body { justify-content: center; text-align: center; }
+            .profile-hero { align-items: center; text-align: center; }
+            .profile-meta { align-items: center; }
+            .persona-body { align-items: center; text-align: center; }
         }
     </style>
 </head>
@@ -362,23 +450,19 @@
                 <input type="text" placeholder="종목명 또는 종목코드 검색">
             </div>
 
-            <div class="header-profile" id="headerProfile">
-                <button class="header-profile-btn active" type="button" id="headerProfileBtn" aria-haspopup="true" aria-expanded="false">
-                    <span class="header-avatar"><img src="assets/logo-mark.png" alt=""></span>
-                    <span class="header-name">김입문</span>
-                    <svg class="header-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                </button>
-                <div class="header-dropdown" role="menu">
-                    <a href="mypage.html" role="menuitem">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
-                        마이페이지
-                    </a>
-                    <hr>
-                    <button type="button" class="danger" role="menuitem" onclick="headerLogout()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        로그아웃
-                    </button>
+            <div class="header-actions" id="headerProfile">
+                <div class="header-balance" title="가상머니 잔액">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+                    <span id="headerBalanceAmt">1,000,000</span>원
                 </div>
+                <a href="mypage.html" class="header-btn header-btn-mypage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                    <span class="header-btn-label">마이페이지</span>
+                </a>
+                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span class="header-btn-label">로그아웃</span>
+                </button>
             </div>
         </header>
 
@@ -394,37 +478,72 @@
                 <span><b>디자인 시안이에요.</b> 아래 기록은 백엔드 연동 전 화면 확인용 예시 데이터이고, 실제 내 기록은 아니에요.</span>
             </div>
 
-            <div class="card profile-hero">
-                <div class="profile-avatar"><img src="assets/logo-mark.png" alt=""></div>
-                <div class="profile-main">
-                    <div class="profile-name-row"><span class="profile-name">김입문</span><span class="chip">일반 회원</span></div>
-                    <div class="profile-email">test@outofstock.io</div>
-                    <div class="profile-meta"><span>가입일 <b>2026.03.02</b></span><span>최근 접속 <b id="lastSeen"></b></span></div>
-                </div>
-                <div class="profile-actions">
-                    <button class="btn sm" type="button" data-act="edit-profile"><svg class="ico"><use href="#i-edit"/></svg>프로필 수정</button>
-                    <button class="btn sm danger" type="button" data-act="logout"><svg class="ico"><use href="#i-log-out"/></svg>로그아웃</button>
-                </div>
-            </div>
-
             <div class="dashboard-grid">
                 <div class="left-column">
+                    <div class="card profile-hero">
+                        <img class="profile-avatar-big" id="profileAvatarImg" src="assets/risk-aggressive.png" alt="">
+                        <div class="profile-name-row"><span class="profile-name">김입문</span><span class="chip">일반 회원</span></div>
+                        <div class="profile-email">test@outofstock.io</div>
+                        <div class="profile-meta"><span>가입 <b>2026.03.02</b></span><span>최근 접속 <b id="lastSeen"></b></span></div>
+                        <div class="profile-actions">
+                            <button class="btn sm" type="button" data-act="edit-profile"><svg class="ico"><use href="#i-edit"/></svg>프로필 수정</button>
+                            <button class="btn sm danger" type="button" data-act="logout"><svg class="ico"><use href="#i-log-out"/></svg>로그아웃</button>
+                        </div>
+                    </div>
+                    <a class="card friend-teaser" href="#" onclick="openFriendModal(event)">
+                        <img class="friend-teaser-img" src="images/friend.png" alt="친구 · 채팅">
+                        <div class="friend-teaser-body">
+                            <div class="friend-teaser-text">
+                                <div class="friend-teaser-title">친구 · 채팅</div>
+                                <div class="friend-teaser-stats">
+                                    <span class="friend-teaser-stat">친구 <b>0</b>명</span>
+                                    <span class="friend-teaser-stat">안 읽은 메시지 <b>0</b>개</span>
+                                </div>
+                            </div>
+                            <svg class="friend-teaser-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                    </a>
                     <div class="card" id="secPersona"></div>
-                    <div class="card" id="secLearn"></div>
-                    <div class="card" id="secPractice"></div>
-                    <div class="card" id="secWatch"></div>
+                    <div class="card" id="secWallet"></div>
                 </div>
                 <div class="right-column">
-                    <div class="card" id="secAccess"></div>
-                    <div class="card" id="secPw"></div>
+                    <div class="stat-row" id="statRow"></div>
+                    <div class="card mytabs-card">
+                        <div class="mytabs-bar" id="mytabsBar"></div>
+                        <div class="mytabs-body">
+                            <div id="secActivity" class="mytab-panel"></div>
+                            <div id="secLearn" class="mytab-panel" hidden></div>
+                            <div id="secPractice" class="mytab-panel" hidden></div>
+                            <div id="secWatch" class="mytab-panel" hidden></div>
+                            <div id="secAccess" class="mytab-panel" hidden></div>
+                            <div id="secPw" class="mytab-panel" hidden></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 친구 · 채팅 (디자인 시안 — 기능은 백엔드에서 이미 구현돼 있고, 여기서는 작은 모달 디자인만 보여줘요) -->
+    <div class="social-overlay" id="socialOverlay" hidden onclick="if (event.target === this) closeFriendModal();">
+        <div class="social-modal" role="dialog" aria-modal="true" aria-label="친구 · 채팅">
+            <button class="social-close" type="button" onclick="closeFriendModal()" aria-label="닫기"><svg class="ico"><use href="#i-x"/></svg></button>
+            <div class="social-header">
+                <img src="images/friend.png" alt="" class="social-header-img">
+                <div>
+                    <div class="social-title">친구 · 채팅</div>
+                    <div class="social-subtitle">친구 요청을 보내고 상대가 수락하면 친구가 돼요. 친구끼리 대화·송금을 할 수 있어요.</div>
+                </div>
+            </div>
+            <div class="social-tabs" id="socialTabs"></div>
+            <div class="social-body" id="socialBody"></div>
         </div>
     </div>
 
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <defs>
             <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
             <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
             <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
             <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
@@ -440,6 +559,8 @@
             <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
             <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
             <symbol id="i-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+            <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></symbol>
+            <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
         </defs>
     </svg>
 
@@ -477,6 +598,10 @@ const MOCK_PERSONA = { type: 'neutral', score: 14, analyzedAt: '2026.09.20' };
 
 function renderPersona() {
     const p = RISK_PROFILE[MOCK_PERSONA.type];
+    const avatarImg = $('#profileAvatarImg');
+    avatarImg.src = p.img;
+    avatarImg.alt = p.name + ' 양봉이';
+    avatarImg.className = 'profile-avatar-big ' + p.cls;
     $('#secPersona').innerHTML = head('target', '투자 성향', '') + `
         <div class="persona-body">
             <img src="${p.img}" alt="${p.name} 양봉이">
@@ -489,6 +614,22 @@ function renderPersona() {
         </div>`;
 }
 
+// ---------- 내 지갑 · 가상머니 (디자인만 — index.html 로그인 카드와 동일한 outofstock_balance 값을 보여줌) ----------
+function getBalance() {
+    const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
+    return Number.isFinite(v) ? v : 1000000;
+}
+function renderWallet() {
+    $('#secWallet').innerHTML = `
+        <div class="wallet-card">
+            <div class="wallet-top">${ico('wallet')}<span class="wallet-label">내 지갑 · 가상머니</span></div>
+            <div class="wallet-amt">${getBalance().toLocaleString('ko-KR')}원</div>
+            <div class="wallet-sub">출석 체크 등으로 적립된 연습용 가상머니예요</div>
+            <button class="btn primary" type="button" data-act="transfer">${ico('send')}송금</button>
+            <div class="wallet-foot"><a href="#" data-act="delete-account">회원 탈퇴</a></div>
+        </div>`;
+}
+
 // ---------- 2) 학습 로그 (예시) ----------
 const MOCK_LEARN_NAMES = ['골든크로스', 'RSI', '손절매 (손절)', '분산투자', 'PER', '시가총액', 'ETF', '배당금'];
 function mockDate(daysAgo) { const d = new Date(); d.setDate(d.getDate() - daysAgo); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')}`; }
@@ -496,7 +637,7 @@ function mockDate(daysAgo) { const d = new Date(); d.setDate(d.getDate() - daysA
 function renderLearn() {
     const byName = new Map((typeof TERMS !== 'undefined' ? TERMS : []).map((t) => [t.name, t]));
     const rows = MOCK_LEARN_NAMES.map((name, i) => ({ term: byName.get(name) || { name }, learnedAt: mockDate(i * 2 + 1) }));
-    $('#secLearn').innerHTML = head('book', '학습 로그', '예시 데이터') + `
+    $('#secLearn').innerHTML = `
         <div class="log-summary"><span class="chip">누적 학습 <b class="num">${rows.length}</b>개</span><span class="chip">전체 용어 <b class="num">${typeof TERMS !== 'undefined' ? TERMS.length : 116}</b>개</span></div>
         <div class="log-list" style="margin-top:10px">
             ${rows.map((r) => `
@@ -515,7 +656,7 @@ const MOCK_PRACTICE = [
     { name: 'RSI 과매도 반등 실습', icon: 'activity', tries: 2, completed: 1, inProgress: 1, bestReturn: 9.4, href: 'practice.html?t=rsi' }
 ];
 function renderPractice() {
-    $('#secPractice').innerHTML = head('activity', '실습 이력', '예시 데이터') + `
+    $('#secPractice').innerHTML = `
         <div class="practice-stat-grid">
             ${MOCK_PRACTICE.map((p) => {
                 const pct = p.tries ? Math.round((p.completed / p.tries) * 100) : 0;
@@ -541,7 +682,7 @@ let MOCK_WATCH = [
 ];
 function renderWatch() {
     const box = $('#secWatch');
-    box.innerHTML = head('star', '관심 종목', '예시 데이터') + `
+    box.innerHTML = `
         <div class="watch-list" id="watchList">
             ${MOCK_WATCH.length ? MOCK_WATCH.map((s) => `
             <div class="watch-item" data-code="${esc(s.code)}">
@@ -568,7 +709,7 @@ const MOCK_ACCESS = [
     { type: 'login', at: '09.21 13:30', device: 'Safari · iPhone' }
 ];
 function renderAccess() {
-    $('#secAccess').innerHTML = head('clock', '접속 로그', '예시 데이터') + `
+    $('#secAccess').innerHTML = `
         <div style="overflow-x:auto"><table class="access-table">
             <thead><tr><th>구분</th><th>일시</th><th>기기</th></tr></thead>
             <tbody>
@@ -583,7 +724,7 @@ function renderAccess() {
 
 // ---------- 6) 비밀번호 변경 (디자인만 — 실제 변경 없음) ----------
 function renderPw() {
-    $('#secPw').innerHTML = head('lock', '비밀번호 변경', '') + `
+    $('#secPw').innerHTML = `
         <form class="pw-form" id="pwForm" novalidate>
             <div class="pw-field">
                 <label for="pwCur">현재 비밀번호</label>
@@ -619,13 +760,140 @@ function checkPw() {
     return !!cur && strongEnough && n1 === n2 && !!n2;
 }
 
+// ---------- 요약 스탯 (학습한 용어 / 실습 완료 / 관심 종목 / 퀴즈 완료 / 총 출석) ----------
+function getLearnedCount() {
+    try {
+        const arr = JSON.parse(localStorage.getItem('outofstock_learned_terms'));
+        if (Array.isArray(arr) && arr.length) return arr.length;
+    } catch (e) { /* 무시 */ }
+    return MOCK_LEARN_NAMES.length;
+}
+function getAttendanceDays() {
+    const v = parseInt(localStorage.getItem('outofstock_streak'), 10);
+    return Number.isFinite(v) ? v : 3;
+}
+function getQuizCompletedCount() {
+    const MOCK_QUIZ_BASE = 2;
+    try {
+        const s = JSON.parse(localStorage.getItem('outofstock_daily_quiz'));
+        const today = new Date().toISOString().slice(0, 10);
+        if (s && s.date === today && s.done) return MOCK_QUIZ_BASE + 1;
+    } catch (e) { /* 무시 */ }
+    return MOCK_QUIZ_BASE;
+}
+function renderStats() {
+    const termsTotal = typeof TERMS !== 'undefined' ? TERMS.length : 169;
+    const practiceCompleted = MOCK_PRACTICE.reduce((sum, p) => sum + p.completed, 0);
+    const stats = [
+        { label: '학습한 용어', val: getLearnedCount(), unit: `/ ${termsTotal}` },
+        { label: '실습 완료', val: practiceCompleted, unit: '회' },
+        { label: '관심 종목', val: MOCK_WATCH.length, unit: '개' },
+        { label: '퀴즈 완료', val: getQuizCompletedCount(), unit: '회' },
+        { label: '총 출석', val: getAttendanceDays(), unit: '일' }
+    ];
+    $('#statRow').innerHTML = stats.map((s) => `
+        <div class="stat-tile">
+            <div class="stat-tile-label">${s.label}</div>
+            <div class="stat-tile-val">${s.val}<span class="stat-unit">${s.unit}</span></div>
+        </div>`).join('');
+}
+
+// ---------- 내 활동 (지갑 거래 로그, 예시) ----------
+const MOCK_ACTIVITY = [
+    { at: '10.26 09:33', label: '출석 보상', sub: '연속 1일', amount: 500 },
+    { at: '10.26 09:23', label: '가입 환영금', sub: '가입 환영 가상머니', amount: 1000000 }
+];
+function renderActivity() {
+    $('#secActivity').innerHTML = `
+        <div class="activity-list">
+            ${MOCK_ACTIVITY.map((a) => `
+            <div class="activity-row">
+                <span class="activity-date">${a.at}</span>
+                <span class="chip">지갑</span>
+                <span class="activity-body"><span class="activity-label">${esc(a.label)}</span><span class="activity-sub">${esc(a.sub)}</span></span>
+                <span class="activity-amt">+${a.amount.toLocaleString('ko-KR')}원</span>
+            </div>`).join('')}
+        </div>
+        <div class="activity-foot">최근 ${MOCK_ACTIVITY.length}건 · 전체 ${MOCK_ACTIVITY.length}건</div>`;
+}
+
+// ---------- 기록 탭 (내 활동 / 학습 로그 / 실습 이력 / 관심 종목 / 접속 기록 / 비밀번호 변경) ----------
+const MY_TABS = [
+    { id: 'secActivity', label: '내 활동', icon: 'wallet' },
+    { id: 'secLearn', label: '학습 로그', icon: 'book' },
+    { id: 'secPractice', label: '실습 이력', icon: 'activity' },
+    { id: 'secWatch', label: '관심 종목', icon: 'star' },
+    { id: 'secAccess', label: '접속 기록', icon: 'clock' },
+    { id: 'secPw', label: '비밀번호 변경', icon: 'lock' }
+];
+function renderTabBar() {
+    $('#mytabsBar').innerHTML = MY_TABS.map((t, i) => `<button type="button" class="mytab${i === 0 ? ' active' : ''}" data-tab="${t.id}">${ico(t.icon)}${t.label}</button>`).join('');
+}
+function switchTab(id) {
+    MY_TABS.forEach((t) => { document.getElementById(t.id).hidden = t.id !== id; });
+    $$('.mytab').forEach((b) => b.classList.toggle('active', b.dataset.tab === id));
+}
+
+// ---------- 친구 · 채팅 (디자인 시안 — 작은 모달, 백엔드 기능은 이미 구현돼 있다고 가정) ----------
+const SOCIAL_TABS = [
+    { id: 'friends', label: '친구' },
+    { id: 'requests', label: '친구 요청' },
+    { id: 'find', label: '사용자 찾기' },
+    { id: 'chat', label: '채팅' }
+];
+const MOCK_FIND_USERS = ['12341234', '123412341234', '123@123.123', '123@123.1234'];
+
+function openFriendModal(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    $('#socialTabs').innerHTML = SOCIAL_TABS.map((t, i) => `<button type="button" class="social-tab${i === 0 ? ' active' : ''}" data-social-tab="${t.id}">${t.label}</button>`).join('');
+    switchSocialTab('friends');
+    $('#socialOverlay').hidden = false;
+    document.body.style.overflow = 'hidden';
+}
+function closeFriendModal() {
+    $('#socialOverlay').hidden = true;
+    document.body.style.overflow = '';
+}
+function switchSocialTab(id) {
+    $$('.social-tab').forEach((b) => b.classList.toggle('active', b.dataset.socialTab === id));
+    const body = $('#socialBody');
+    if (id === 'friends') {
+        body.innerHTML = `<div class="social-empty">아직 친구가 없어요.<br><button type="button" class="social-link-inline" data-social-tab="find">사용자 찾기</button>에서 친구 요청을 보내 보세요.</div>`;
+    } else if (id === 'requests') {
+        body.innerHTML = `
+            <div class="social-req-group">
+                <div class="social-req-head">받은 요청 <span class="num">0</span></div>
+                <div class="social-req-empty">받은 친구 요청이 없어요.</div>
+            </div>
+            <div class="social-req-group">
+                <div class="social-req-head">보낸 요청 <span class="num">0</span></div>
+                <div class="social-req-empty">보낸 친구 요청이 없어요.</div>
+            </div>`;
+    } else if (id === 'find') {
+        body.innerHTML = `
+            <div class="social-search">${ico('search')}<input type="text" placeholder="아이디로 검색" disabled></div>
+            ${MOCK_FIND_USERS.map((u) => `
+            <div class="social-user-row">
+                <span class="social-user-name">${esc(u)}</span>
+                <button type="button" class="social-req-btn" data-act="friend-request">친구 요청</button>
+            </div>`).join('')}`;
+    } else if (id === 'chat') {
+        body.innerHTML = `<div class="social-empty">아직 대화가 없어요. 친구 목록에서 <b>[대화]</b>를 눌러 시작해 보세요.</div>`;
+    }
+}
+
 // ---------- 공통 ----------
 function render() {
     $('#lastSeen').textContent = (function () { const d = new Date(); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; })();
-    renderPersona(); renderLearn(); renderPractice(); renderWatch(); renderAccess(); renderPw();
+    renderPersona(); renderWallet(); renderStats(); renderTabBar();
+    renderActivity(); renderLearn(); renderPractice(); renderWatch(); renderAccess(); renderPw();
 }
 
 document.addEventListener('click', (e) => {
+    const tabEl = e.target.closest('[data-tab]');
+    if (tabEl) { switchTab(tabEl.dataset.tab); return; }
+    const socialTabEl = e.target.closest('[data-social-tab]');
+    if (socialTabEl) { switchSocialTab(socialTabEl.dataset.socialTab); return; }
     const el = e.target.closest('[data-act]'); if (!el) return;
     const act = el.dataset.act;
     if (act === 'unwatch') unwatch(el.dataset.code);
@@ -635,6 +903,12 @@ document.addEventListener('click', (e) => {
         el.innerHTML = show ? ico('eye-off') : ico('eye');
     } else if (act === 'logout') alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
     else if (act === 'edit-profile') alert('디자인 시안이에요. 프로필 수정 화면은 백엔드 연동 후 추가할 예정이에요.');
+    else if (act === 'transfer') { e.preventDefault(); alert('디자인 시안이에요. 백엔드 연동 후 실제로 송금되도록 연결할 예정이에요.'); }
+    else if (act === 'delete-account') { e.preventDefault(); alert('디자인 시안이에요. 백엔드 연동 후 실제로 탈퇴가 처리되도록 연결할 예정이에요.'); }
+    else if (act === 'friend-request') alert('디자인 시안이에요. 실제 친구 요청 전송은 백엔드 화면에 이미 연결돼 있어요.');
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('#socialOverlay').hidden) closeFriendModal();
 });
 document.addEventListener('submit', (e) => {
     if (e.target.id !== 'pwForm') return;
@@ -654,22 +928,14 @@ if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
 render();
 window.__M = { render, unwatch, checkPw, MOCK_WATCH: () => MOCK_WATCH };
 
-        // ===== 우측 상단 프로필 박스 (디자인 전용 — 로그아웃은 실제로 동작하지 않아요) =====
+        // ===== 우측 상단 가상머니 표시 / 로그아웃 (디자인 전용) =====
         (function () {
-            const wrap = document.getElementById('headerProfile');
-            if (!wrap) return;
-            const btn = document.getElementById('headerProfileBtn');
-            function closeProfileMenu() { wrap.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-            function toggleProfileMenu() {
-                const willOpen = !wrap.classList.contains('open');
-                wrap.classList.toggle('open', willOpen);
-                btn.setAttribute('aria-expanded', String(willOpen));
-            }
-            btn.addEventListener('click', (e) => { e.stopPropagation(); toggleProfileMenu(); });
-            document.addEventListener('click', (e) => { if (!wrap.contains(e.target)) closeProfileMenu(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProfileMenu(); });
+            try {
+                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
+                const amt = document.getElementById('headerBalanceAmt');
+                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
+            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
             window.headerLogout = function () {
-                closeProfileMenu();
                 alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
             };
         })();
