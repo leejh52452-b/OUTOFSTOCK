@@ -302,6 +302,7 @@
         .quiz-status img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
         .quiz-status b { display: block; font-size: 13px; }
         .quiz-status span { display: block; font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+        .quiz-status .quiz-earn, .quiz-result .r-score .quiz-earn { display: inline; font-size: inherit; color: var(--accent-red); font-weight: 800; }
         .quiz-status.done { background: #f0fdf4; border-color: #86efac; }
         .quiz-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .quiz-overlay[hidden] { display: none; }
@@ -768,32 +769,55 @@ function renderCats() {
 //  - 하루 5문제(상황 3 + 심화 2), 날짜가 같으면 같은 문제
 //  - 보기를 고르면 바로 정답·해설 표시(답은 못 바꿈), 결과 화면은 맞은 개수만
 //  - 답을 고를 때마다 저장: 중간에 닫아도 푼 문제는 그대로 잠기고, 다음에 남은 문제부터 이어서 풀기
-//  - localStorage(outofstock_daily_quiz)에 { date, answers(안 푼 문제는 null), done }로 저장
-const QKEY = 'outofstock_daily_quiz', QUIZ_N = 5;
+//  - localStorage(outofstock_daily_quiz)에 { date, answers(안 푼 문제는 null), done, rewarded }로 저장
+//  - 정답 1문제당 10만 원 가상머니 지급(제출 시 1회만): outofstock_balance 갱신 + outofstock_activity_log에 기록
+const QKEY = 'outofstock_daily_quiz', QUIZ_N = 5, QUIZ_REWARD_PER_CORRECT = 100000;
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const dateLabel = (s) => { const [y, m, d] = s.split('-').map(Number); return `${m}월 ${d}일 (${'일월화수목금토'[new Date(y, m - 1, d).getDay()]})`; };
-const quiz = { date: '', items: [], answers: [], done: false, view: 'q', draft: [], cur: 0 };
+const quiz = { date: '', items: [], answers: [], done: false, rewarded: false, view: 'q', draft: [], cur: 0 };
 function loadQuiz() {
-    quiz.date = todayStr(); quiz.items = buildDailyQuiz(quiz.date); quiz.answers = []; quiz.done = false; quiz.draft = Array(QUIZ_N).fill(null);
+    quiz.date = todayStr(); quiz.items = buildDailyQuiz(quiz.date); quiz.answers = []; quiz.done = false; quiz.rewarded = false; quiz.draft = Array(QUIZ_N).fill(null);
     try {
         const s = JSON.parse(localStorage.getItem(QKEY));
         const valid = s && s.date === quiz.date && Array.isArray(s.answers) && s.answers.length === QUIZ_N
             && s.answers.every((a) => a === null || (Number.isInteger(a) && a >= 0 && a < 4));
-        if (valid && s.done && !s.answers.includes(null)) { quiz.answers = s.answers; quiz.done = true; }
+        if (valid && s.done && !s.answers.includes(null)) { quiz.answers = s.answers; quiz.done = true; quiz.rewarded = !!s.rewarded; }
         else if (valid) quiz.draft = s.answers;  // 풀던 중 → 이어서
     } catch (e) { /* 저장된 기록이 없거나 읽을 수 없으면 새로 시작 */ }
 }
-const saveQuiz = () => { try { localStorage.setItem(QKEY, JSON.stringify({ date: quiz.date, answers: quiz.done ? quiz.answers : quiz.draft, done: quiz.done })); } catch (e) { /* 저장 실패해도 진행 */ } };
+const saveQuiz = () => { try { localStorage.setItem(QKEY, JSON.stringify({ date: quiz.date, answers: quiz.done ? quiz.answers : quiz.draft, done: quiz.done, rewarded: quiz.rewarded })); } catch (e) { /* 저장 실패해도 진행 */ } };
 const quizSolved = () => quiz.draft.filter((a) => a !== null).length;
 const quizScore = () => quiz.answers.filter((a, i) => a === quiz.items[i].answer).length;
+const quizEarned = () => quizScore() * QUIZ_REWARD_PER_CORRECT;
 const ensureToday = () => { if (quiz.date !== todayStr()) loadQuiz(); };
+
+// 가상머니 지급 + 헤더 표시 갱신 + 마이페이지 "내 활동" 기록용 로그 저장 (outofstock_balance / outofstock_activity_log는 다른 페이지와 공유)
+function addBalance(delta) {
+    try {
+        const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
+        const next = (Number.isFinite(v) ? v : 1000000) + delta;
+        localStorage.setItem('outofstock_balance', String(next));
+        const amt = document.getElementById('headerBalanceAmt');
+        if (amt) amt.textContent = next.toLocaleString('ko-KR');
+        return next;
+    } catch (e) { return null; }
+}
+function addActivityEntry(label, sub, amount) {
+    try {
+        const log = JSON.parse(localStorage.getItem('outofstock_activity_log')) || [];
+        const d = new Date();
+        const at = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+        log.unshift({ at, label, sub, amount });
+        localStorage.setItem('outofstock_activity_log', JSON.stringify(log.slice(0, 50)));
+    } catch (e) { /* 저장 실패해도 진행 */ }
+}
 
 function renderQuizCard() {
     ensureToday();
     const sc = quizScore(), solved = quizSolved();
-    const [cls, img, title, desc] = quiz.done ? ['done', 'happy', '오늘의 퀴즈 완료!', `${QUIZ_N}문제 중 ${sc}문제 정답<br>내일 새 퀴즈가 열려요`]
+    const [cls, img, title, desc] = quiz.done ? ['done', 'happy', '오늘의 퀴즈 완료!', `${QUIZ_N}문제 중 ${sc}문제 정답 · <b class="quiz-earn">+${quizEarned().toLocaleString('ko-KR')}원</b> 획득<br>내일 새 퀴즈가 열려요`]
         : solved ? ['', 'study', `${QUIZ_N}문제 중 ${solved}문제 풀었어요`, '남은 문제부터 이어서 풀 수 있어요']
-        : ['', 'study', `오늘의 ${QUIZ_N}문제가 준비됐어요`, ''];
+        : ['', 'study', `오늘의 ${QUIZ_N}문제가 준비됐어요`, `정답 1문제당 <b class="quiz-earn">10만 원</b> 가상머니를 드려요`];
     const btn = quiz.done ? `${ico('award')}결과 보기` : solved ? `${ico('target')}이어서 풀기` : `${ico('target')}퀴즈 시작하기`;
     $('#quizCard').innerHTML = `
         <div class="card-header"><div class="card-title">${ico('quiz')}Daily Stock Quiz</div><span class="q-date">${dateLabel(quiz.date)}</span></div>
@@ -832,6 +856,7 @@ function quizResultHTML(already) {
         <img src="assets/${good ? 'happy' : 'sad'}.png" alt="${good ? '신난 양봉이' : '아쉬워하는 양봉이'}">
         <div class="r-title">${title}</div>
         <div class="r-score">${QUIZ_N}문제 중 <b class="num">${sc}</b>문제 정답</div>
+        <div class="r-score">가상머니 <b class="num quiz-earn">+${quizEarned().toLocaleString('ko-KR')}원</b> 획득!</div>
         ${already ? '<div class="r-score">내일 새로운 퀴즈가 열려요.</div>' : ''}
         <div class="quiz-actions" style="width:100%"><button class="btn primary" type="button" data-act="quiz-close">닫기</button></div>
     </div>`;
@@ -868,7 +893,16 @@ function moveQuiz() {
 }
 function submitQuiz() {
     if (quiz.view !== 'q' || quiz.draft.some((a) => a === null)) return;
-    quiz.answers = quiz.draft.slice(); quiz.done = true; saveQuiz();
+    quiz.answers = quiz.draft.slice(); quiz.done = true;
+    if (!quiz.rewarded) {
+        quiz.rewarded = true;
+        const earned = quizEarned();
+        if (earned > 0) {
+            addBalance(earned);
+            addActivityEntry('퀴즈 보상', `오늘의 퀴즈 ${quizScore()}문제 정답`, earned);
+        }
+    }
+    saveQuiz();
     quiz.view = 'result'; renderQuizBody(); renderQuizCard();
 }
 

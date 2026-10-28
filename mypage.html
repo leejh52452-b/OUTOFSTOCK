@@ -798,23 +798,32 @@ function renderStats() {
         </div>`).join('');
 }
 
-// ---------- 내 활동 (지갑 거래 로그, 예시) ----------
+// ---------- 내 활동 (지갑 거래 로그) ----------
+// 예시로 깔아두는 기본 기록(가입 환영금 등) + 실제로 쌓이는 기록(퀴즈 보상 등, outofstock_activity_log)을 합쳐서 보여줌
 const MOCK_ACTIVITY = [
     { at: '10.26 09:33', label: '출석 보상', sub: '연속 1일', amount: 500 },
     { at: '10.26 09:23', label: '가입 환영금', sub: '가입 환영 가상머니', amount: 1000000 }
 ];
+function getActivityLog() {
+    try {
+        const log = JSON.parse(localStorage.getItem('outofstock_activity_log'));
+        if (Array.isArray(log)) return log;
+    } catch (e) { /* 무시 */ }
+    return [];
+}
 function renderActivity() {
+    const rows = [...getActivityLog(), ...MOCK_ACTIVITY];
     $('#secActivity').innerHTML = `
         <div class="activity-list">
-            ${MOCK_ACTIVITY.map((a) => `
+            ${rows.map((a) => `
             <div class="activity-row">
-                <span class="activity-date">${a.at}</span>
+                <span class="activity-date">${esc(a.at)}</span>
                 <span class="chip">지갑</span>
                 <span class="activity-body"><span class="activity-label">${esc(a.label)}</span><span class="activity-sub">${esc(a.sub)}</span></span>
                 <span class="activity-amt">+${a.amount.toLocaleString('ko-KR')}원</span>
             </div>`).join('')}
         </div>
-        <div class="activity-foot">최근 ${MOCK_ACTIVITY.length}건 · 전체 ${MOCK_ACTIVITY.length}건</div>`;
+        <div class="activity-foot">최근 ${rows.length}건 · 전체 ${rows.length}건</div>`;
 }
 
 // ---------- 기록 탭 (내 활동 / 학습 로그 / 실습 이력 / 관심 종목 / 접속 기록 / 비밀번호 변경) ----------
