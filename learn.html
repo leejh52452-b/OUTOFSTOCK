@@ -231,7 +231,6 @@
         .term-card.learned { border-color: #86efac; background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 46%); }
         .term-card .term-name { font-size: 22px; }
         .term-card .analogy p { font-size: 14px; }
-        .term-card .term-explain { font-size: 16px; }
         .term-card.flash { animation: flash 1.6s ease-out 1; border-color: var(--accent-blue); }
         @keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(55, 48, 163, .55); } 100% { box-shadow: 0 0 0 14px rgba(55, 48, 163, 0); } }
         .term-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
@@ -259,14 +258,19 @@
         .img-viewer-close svg.ico { width: 15px; height: 15px; stroke: #fff; }
         .img-viewer img { width: min(94vw, 1600px); max-height: calc(100vh - 110px); object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45); background: #fff; }
         body.viewer-open { overflow: hidden; }
-        .explain-label { display: flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #c7d2fe; }
-        .explain-label svg.ico { width: 18px; height: 18px; color: var(--accent-blue); flex-shrink: 0; }
-        .term-explain { font-size: 15px; font-weight: 500; color: #1e293b; line-height: 1.9; }
-        .caution { display: flex; gap: 10px; align-items: flex-start; background: #ffedd5; border: 2px solid #fb923c; border-radius: 10px; padding: 14px 16px; }
-        .caution > svg.ico { width: 22px; height: 22px; flex-shrink: 0; margin-top: 1px; color: #ea580c; }
-        .caution-label { display: inline-block; font-size: 13px; font-weight: 800; color: #fff; background: #ea580c; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
-        .caution p { font-size: 15px; font-weight: 700; line-height: 1.8; color: #7c2d12; }
-        .term-card .caution p { font-size: 15.5px; }
+        /* 쉬운 개념 풀이 · 주의: 문장 단위 목록 (풀이는 점, 주의는 ! 표시) */
+        .explain { max-width: 680px; }
+        .explain-label, .caution-label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; }
+        .explain-label svg.ico, .caution-label svg.ico { width: 15px; height: 15px; flex-shrink: 0; }
+        .explain-list, .caution-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; word-break: keep-all; letter-spacing: -0.2px; }
+        .explain-list { gap: 6px; }
+        .explain-list li { position: relative; padding-left: 16px; font-size: 15.5px; color: #4e5968; line-height: 1.7; }
+        .explain-list li::before { content: ''; position: absolute; left: 3px; top: 0.72em; width: 5px; height: 5px; border-radius: 50%; background: #818cf8; }
+        .caution { background: #fff4e6; border-radius: 14px; padding: 16px 18px; }
+        .caution-label { font-size: 14px; color: #e8590c; }
+        .caution-list { gap: 8px; }
+        .caution-list li { position: relative; padding-left: 26px; font-size: 15px; color: #6b4a2f; line-height: 1.65; }
+        .caution-list li::before { content: '!'; position: absolute; left: 0; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #e8590c; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
         .term-foot { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 2px; }
         .foot-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
         .foot-label { font-size: 11px; color: var(--text-muted); font-weight: 700; margin-left: 2px; }
@@ -569,6 +573,8 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const ico = (n) => `<svg class="ico"><use href="#i-${n}"/></svg>`;
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// 문장 끝(. ! ?)이나 줄바꿈에서 나눠요 — 글자는 그대로, 줄만 나눔
+const sentences = (s) => String(s || '').split(/\n|(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
 const norm = (s) => String(s).toLowerCase().replace(/[\s\/·()\-&+]/g, '');
 
 const CHO = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
@@ -684,8 +690,8 @@ function detailHTML(t, q, isIni) {
             <div><div class="analogy-label">양봉이의 한 줄 비유</div><p>${esc(t.analogy)}</p></div>
         </div>
         ${termImageHTML(t)}
-        <div><div class="explain-label">${ico('book')}쉬운 개념 풀이</div><p class="term-explain">${esc(t.explain).replace(/\n/g, '<br>')}</p></div>
-        ${t.caution ? `<div class="caution">${ico('alert')}<div><div class="caution-label">주의</div><p>${esc(t.caution)}</p></div></div>` : ''}        <div class="term-foot">
+        <div class="explain"><div class="explain-label">${ico('book')}쉬운 개념 풀이</div><ul class="explain-list">${sentences(t.explain).map((s) => `<li>${esc(s)}</li>`).join('')}</ul></div>
+        ${t.caution ? `<div class="caution"><div class="caution-label">${ico('alert')}주의</div><ul class="caution-list">${sentences(t.caution).map((s) => `<li>${esc(s)}</li>`).join('')}</ul></div>` : ''}       <div class="term-foot">
             <div class="foot-tags">
                 <button class="chip" type="button" data-act="cat" data-cat="${esc(t.cat)}">${ico(CAT_ICON[t.cat])}${esc(t.cat)}</button>
                 ${rel.length ? `<span class="foot-label">연관 용어</span>` + rel.map((r) => `<button class="chip" type="button" data-act="jump" data-id="${esc(r.id)}">${ico('link')}${esc(r.name)}</button>`).join('') : ''}
