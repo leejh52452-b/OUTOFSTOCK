@@ -758,7 +758,7 @@ function renderOrder() {
     const max = buy ? Math.floor(s.cash / price) : p.shares, trade = canTrade();
     let off = '';
     if (CL.phase === 'pre') off = `장 시작 전이에요. 오늘 09:00에 거래가 열려요.`;
-    else if (CL.phase === 'closed') off = CL.wd === 4 ? '장마감 · 이번 시즌 거래가 끝났어요. 주말에 결과가 발표돼요.' : '장마감 · 거래가 불가능해요. 내일 09:00에 다시 열려요.';
+    else if (CL.phase === 'closed') off = CL.wd === 4 ? '장마감 · 이번 시즌 거래가 끝났어요.<br>주말에 결과가 발표돼요.' : '장마감 · 거래가 불가능해요.<br>내일 09:00에 다시 열려요.';
     $('#orderCard').innerHTML = `
         <div class="card-title">주문 · ${w.meta.name}</div>
         <div class="tabs"><button class="tab buy ${buy ? 'on' : ''}" data-side="buy">매수</button><button class="tab sell ${!buy ? 'on' : ''}" data-side="sell">매도</button></div>
@@ -769,7 +769,7 @@ function renderOrder() {
         <div class="kv"><span>${buy ? '보유 현금' : '보유 수량'}</span><b>${buy ? won(s.cash) : num(p.shares) + '주'}</b></div>
         <div class="help err" id="qtyHelp"></div>
         <button class="btn-main ${orderSide}" id="orderBtn" ${trade ? '' : 'disabled'}>${buy ? '매수' : '매도'} 주문</button>
-        <p class="note">주문은 현재가(지금 봉의 종가)로 바로 체결돼요. 현금은 ${STOCKS}개 종목이 함께 써요.</p>
+        <p class="note">주문은 현재가(지금 봉의 종가)로 바로 체결돼요.</p>
         ${off ? `<div class="market-off">${off}</div>` : ''}`;
     const inp = $('#qtyInput');
     const calc = () => {
@@ -809,7 +809,7 @@ function renderReturn() {
     $('#returnCard').innerHTML = `
         <div class="card-title">내 수익률</div>
         <div class="ret-big"><b class="${dirCls(r)}">${pct(r)}</b><span class="${dirCls(pl)}" style="font-weight:700">${pl > 0 ? '+' : ''}${won(pl)}</span></div>
-        <div class="ret-sub">참가금 ${won(s.entry)} → 평가금액 <b>${won(total)}</b> · ${joined}</div>
+        <div class="ret-sub">참가금 ${won(s.entry)} → 평가금액 <b>${won(total)}</b><br>${joined}</div>
         <div class="ret-grid">
             <div class="ret-cell"><span>현금</span><b>${won(s.cash)}</b></div>
             <div class="ret-cell"><span>주식 평가액</span><b>${won(stockVal)}</b></div>
