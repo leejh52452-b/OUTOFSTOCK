@@ -495,7 +495,7 @@ const mmss = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)), m = Math.fl
 
 // ---------- 시즌 데이터 (stock_data_generator/virtual_stock_generator.py 가 만든 data/seasons/season_XX.js) ----------
 // <script>로 읽어서 HTML을 더블클릭(file://)으로 열어도 동작. 필요한 시즌만 그때그때 불러옴
-const seasonFile = (id) => `data/seasons/season_${p2(id)}.js`;
+const seasonFile = (id) => `data/season_${p2(id)}.js`;
 function seasonOK(id) {
     const d = (window.SEASON_DATA || {})[id];
     return !!d && Array.isArray(d.stocks) && d.stocks.length === STOCKS &&
