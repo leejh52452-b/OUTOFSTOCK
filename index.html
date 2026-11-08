@@ -119,7 +119,8 @@
 
         .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
         .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; }
-        .recommend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .recommend-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.45fr); gap: 16px; }
+        .recommend-grid > .card { display: flex; flex-direction: column; }
         .card {
             background-color: var(--card-bg); border: 1px solid var(--card-border);
             border-radius: 8px; padding: 16px 18px;
@@ -139,24 +140,52 @@
         .stock-name { font-weight: 600; font-size: 13px; }
         .stock-tag { font-size: 11px; color: var(--text-secondary); }
 
-        /* 한 달 전 추천 종목 시뮬레이션 (양봉이 웃음/울음) */
-        .simulation-card {
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-            gap: 8px; padding: 14px; height: calc(100% - 30px); justify-content: center;
-            background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px;
+
+        /* 양봉이의 투자원칙 (그림 전체가 보이도록 자르지 않음) */
+        .principle-box {
+            margin-top: auto; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border);
+            background: #fdfbf6;
         }
+        .top-stocks-list + .principle-box { margin-top: 14px; }
+        .principle-img { width: 100%; height: 128px; object-fit: contain; background: #fdfbf6; }
+        .principle-text { padding: 10px 12px 12px; }
+        .principle-title { font-size: 13.5px; font-weight: 800; color: var(--text-primary); }
+        .principle-desc { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+
+        /* 한 달 전 양봉이 바구니 결과 (5종목 × 20% 분산) */
+        .basket-body {
+            flex: 1; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 14px;
+            background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px;
+        }
+        .basket-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; justify-content: center; }
         .yangbong-img-box {
-            width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; padding: 6px;
+            width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; padding: 6px;
         }
         .yangbong-img-box img { width: 100%; height: 100%; object-fit: contain; }
         .sim-date { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
-        .sim-pick { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
-        .sim-pick strong { color: var(--accent-blue); font-weight: 800; }
         .sim-result-row { display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .sim-result-label { font-size: 14px; font-weight: 800; color: var(--text-primary); }
-        .sim-result-rate { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-        .sim-message { font-size: 13px; font-weight: 700; color: var(--text-primary); }
-        .sim-btn-group { display: flex; gap: 6px; margin-top: 4px; }
+        .sim-result-rate { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .sim-message { font-size: 12.5px; font-weight: 700; color: var(--text-secondary); line-height: 1.45; }
+        .basket-list-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .basket-list-title { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); display: flex; justify-content: space-between; }
+        .basket-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+        .basket-row {
+            display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px;
+            background: var(--card-bg); border: 1px solid var(--card-border); font-size: 12.5px;
+        }
+        .basket-row .w { font-size: 10.5px; font-weight: 700; color: var(--text-muted); width: 30px; flex-shrink: 0; }
+        .basket-row .n { flex: 1; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .basket-row .r { font-weight: 800; font-variant-numeric: tabular-nums; }
+        .basket-row.index-row { background: transparent; border-style: dashed; color: var(--text-secondary); }
+        .basket-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+        .basket-stat { border: 1px solid var(--card-border); border-radius: 8px; padding: 9px 10px; background: var(--card-bg); }
+        .basket-stat-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; }
+        .basket-stat-value { font-size: 18px; font-weight: 800; margin-top: 2px; letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
+        .basket-stat-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
+        .basket-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .basket-caption { font-size: 10.5px; color: var(--text-muted); }
+        .sim-btn-group { display: flex; gap: 6px; }
         .sim-btn {
             border: 1px solid var(--card-border); background-color: var(--card-bg);
             padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
@@ -420,6 +449,7 @@
         .header-btn-logout { color: var(--text-muted); }
         .header-btn-logout:hover { border-color: #fca5a5; background-color: #fee2e2; color: #b91c1c; }
         @media (max-width: 560px) {
+            .basket-stats { grid-template-columns: 1fr; }
             .header-btn-label { display: none; }
             .header-btn { padding: 7px; }
             .header-balance { padding: 6px 10px; font-size: 11.5px; }
@@ -432,6 +462,8 @@
         @media (max-width: 760px) {
             .indices-bar { grid-template-columns: repeat(2, 1fr); }
             .recommend-grid, .practice-grid { grid-template-columns: 1fr; }
+            .basket-body { grid-template-columns: 1fr; }
+            .basket-stat-value { font-size: 15px; }
             .content-container { padding: 16px; }
             .survey-modal { padding: 22px 18px; max-height: 92vh; }
         }
@@ -549,64 +581,55 @@
                 <div class="left-column">
                     <div class="recommend-grid">
                         <div class="card">
-                            <div class="card-header"><div class="card-title">오늘의 추천 종목 Top 5</div></div>
-                            <ul class="top-stocks-list">
-                                <li class="top-stock-item">
-                                    <span class="rank-num">1</span>
-                                    <div class="stock-info">
-                                        <span class="stock-name">SK하이닉스</span>
-                                        <span class="stock-tag">골든크로스 유력</span>
-                                    </div>
-                                    <span class="index-change up">+2.04%</span>
-                                </li>
-                                <li class="top-stock-item">
-                                    <span class="rank-num">2</span>
-                                    <div class="stock-info">
-                                        <span class="stock-name">LG에너지솔루션</span>
-                                        <span class="stock-tag">RSI 과매도 반등</span>
-                                    </div>
-                                    <span class="index-change up">+0.40%</span>
-                                </li>
-                                <li class="top-stock-item">
-                                    <span class="rank-num">3</span>
-                                    <div class="stock-info">
-                                        <span class="stock-name">NAVER</span>
-                                        <span class="stock-tag">박스권 하단 지지</span>
-                                    </div>
-                                    <span class="index-change down">-0.76%</span>
-                                </li>
-                                <li class="top-stock-item">
-                                    <span class="rank-num">4</span>
-                                    <div class="stock-info">
-                                        <span class="stock-name">HD현대일렉트릭</span>
-                                        <span class="stock-tag">거래량 돌파 신호</span>
-                                    </div>
-                                    <span class="index-change up">+3.10%</span>
-                                </li>
-                                <li class="top-stock-item">
-                                    <span class="rank-num">5</span>
-                                    <div class="stock-info">
-                                        <span class="stock-name">한미반도체</span>
-                                        <span class="stock-tag">주요 이평선 지지</span>
-                                    </div>
-                                    <span class="index-change down">-0.90%</span>
-                                </li>
-                            </ul>
+                            <div class="card-header"><div class="card-title">이번 주 양봉이가 고른 5종목!</div></div>
+                            <ul class="top-stocks-list" id="weeklyPicks"></ul>
+                            <div class="principle-box">
+                                <img class="principle-img" src="assets/yangbong-cards.jpg" alt="투자 카드 5장을 앞에 두고 고민하는 양봉이">
+                                <div class="principle-text">
+                                    <div class="principle-title">양봉이의 투자원칙!</div>
+                                    <div class="principle-desc">양봉이는 리스크를 줄이기 위해 5종목을 분산투자해요!</div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="card">
-                            <div class="card-header"><div class="card-title">한 달 전 추천 종목 투자 결과는?</div></div>
-                            <div class="simulation-card">
-                                <div class="sim-date" id="simDate"></div>
-                                <div class="sim-pick" id="simPick"></div>
-                                <div class="yangbong-img-box art-plate">
-                                    <img id="yangbongImg" src="assets/happy.png" alt="웃고 있는 양봉이">
+                            <div class="card-header"><div class="card-title">한 달 전 양봉이 바구니 결과는?</div></div>
+                            <div class="basket-body">
+                                <div class="basket-hero">
+                                    <div class="sim-date" id="simDate"></div>
+                                    <div class="yangbong-img-box art-plate">
+                                        <img id="yangbongImg" src="assets/happy.png" alt="웃고 있는 양봉이">
+                                    </div>
+                                    <div class="sim-result-row">
+                                        <span class="sim-result-label" id="simResultLabel">바구니 결과는!!</span>
+                                        <span class="sim-result-rate up" id="simResultRate"></span>
+                                    </div>
+                                    <div class="sim-message" id="simMessage"></div>
                                 </div>
-                                <div class="sim-result-row">
-                                    <span class="sim-result-label" id="simResultLabel">결과는!!</span>
-                                    <span class="sim-result-rate up" id="simResultRate">+14.2%</span>
+                                <div class="basket-list-wrap">
+                                    <div class="basket-list-title"><span>담았던 5종목</span><span>30일 수익</span></div>
+                                    <ul class="basket-list" id="basketList"></ul>
                                 </div>
-                                <div class="sim-message" id="simMessage">"도움이 될 수 있어 기뻐요!!"</div>
+                            </div>
+                            <div class="basket-stats">
+                                <div class="basket-stat">
+                                    <div class="basket-stat-label">양봉이 승률</div>
+                                    <div class="basket-stat-value" id="statWin"></div>
+                                    <div class="basket-stat-sub" id="statWinSub"></div>
+                                </div>
+                                <div class="basket-stat">
+                                    <div class="basket-stat-label">누적 수익</div>
+                                    <div class="basket-stat-value up" id="statTotal"></div>
+                                    <div class="basket-stat-sub">매주 100만 원씩 담았다면</div>
+                                </div>
+                                <div class="basket-stat">
+                                    <div class="basket-stat-label">한 달 평균 수익</div>
+                                    <div class="basket-stat-value up" id="statAvg"></div>
+                                    <div class="basket-stat-sub">바구니 1개 기준</div>
+                                </div>
+                            </div>
+                            <div class="basket-foot">
+                                <span class="basket-caption" id="statCaption"></span>
                                 <div class="sim-btn-group">
                                     <button class="sim-btn active" id="btnProfit" onclick="toggleSimResult(true)">수익 보기</button>
                                     <button class="sim-btn" id="btnLoss" onclick="toggleSimResult(false)">손실 보기</button>
@@ -815,39 +838,130 @@
             element.classList.add('active');
         }
 
-        // 한 달 전 추천 종목 시뮬레이션: 수익이면 웃는 양봉이, 손실이면 우는 양봉이
-        // (백엔드 연동 시 stock / rate 값만 API 응답으로 교체)
-        const SIM = {
-            profit: { stock: 'SK하이닉스', rate: '+14.2%', label: '결과는!!', msg: '"도움이 될 수 있어 기뻐요!!"', img: 'assets/happy.png', alt: '웃고 있는 양봉이', cls: 'up' },
-            loss:   { stock: '한미반도체', rate: '-8.5%',  label: '결과는..', msg: '"죄송합니다.."',            img: 'assets/sad.png',   alt: '울고 있는 양봉이', cls: 'down' }
-        };
+        // ===== 양봉이 주간 추천 (5종목 × 20% 분산) =====
+        // 규칙: 코스피 시총 상위 200 중 ① 최근 60일 주가 흔들림 하위 30% ② 200일선 위(장기 상승 흐름)
+        //       → 큰 회사 순으로 고르되 5종목 모두 다른 업종. 매주 월요일 시가 매수 → 30일 뒤 종가로 채점
+        // 서버에 GET /api/yangbong/weekly 가 있으면 그 값을 쓰고 (yangbong_recommend/README.md),
+        // 없으면(파일로 열었을 때 등) 아래 예시 값을 보여준다 — backtest 프로그램으로 계산한 실제 값
+        let WEEKLY_PICKS = ['셀트리온', '메리츠금융지주', 'HMM', 'KT&G', '코웨이'];   // 2026-10-23 금요일 데이터 기준
 
-        // 오늘 기준 30일 전 날짜 (예: 2026.08.22)
-        function daysAgoText(n) {
-            const d = new Date();
-            d.setDate(d.getDate() - n);
-            const p = v => String(v).padStart(2, '0');
-            return d.getFullYear() + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate());
+        const BASKET = {
+            profit: {
+                buy: '2026.09.21', sell: '10.21', kospi: -17.33,
+                stocks: [['KB금융', -8.2], ['HMM', 11.4], ['KT&G', 12.9], ['DB손해보험', -0.2], ['대한항공', -6.5]]
+            },
+            loss: {
+                buy: '2026.09.28', sell: '10.28', kospi: -14.81,
+                stocks: [['KB금융', -9.9], ['HMM', 6.2], ['KT&G', 7.9], ['대한항공', -16.9], ['코웨이', 1.8]]
+            }
+        };
+        // 2022.01 ~ 2026.09 매주 같은 규칙으로 고른 바구니 247개 (과거 시뮬레이션)
+        let BASKET_STATS = { weeks: 247, wins: 136, avg: 1.51, total: 374, caption: '승률·수익: 2022~2026 과거 시뮬레이션 (바구니 247개)' };
+
+        const fmtPct = v => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+        const clsOf = v => v > 0 ? 'up' : (v < 0 ? 'down' : '');
+
+        function renderWeeklyPicks() {
+            const ul = document.getElementById('weeklyPicks');
+            ul.innerHTML = '';
+            WEEKLY_PICKS.forEach((name, i) => {
+                const li = document.createElement('li');
+                li.className = 'top-stock-item';
+                li.innerHTML = '<span class="rank-num"></span><div class="stock-info"><span class="stock-name"></span></div>';
+                li.querySelector('.rank-num').textContent = i + 1;
+                li.querySelector('.stock-name').textContent = name;
+                ul.appendChild(li);
+            });
         }
 
+        function renderBasketStats() {
+            const s = BASKET_STATS;
+            document.getElementById('statWin').textContent = Math.round(s.wins / s.weeks * 100) + '%';
+            document.getElementById('statWinSub').textContent = s.weeks + '주 중 ' + s.wins + '주 수익';
+            document.getElementById('statTotal').textContent = '+' + s.total + '만 원';
+            document.getElementById('statAvg').textContent = fmtPct(s.avg);
+            document.getElementById('statCaption').textContent = s.caption;
+        }
+
+        // 수익 보기 / 손실 보기: 실제 과거 바구니 두 개 (API 연결 전 예시)
         function toggleSimResult(isProfit) {
-            const r = isProfit ? SIM.profit : SIM.loss;
             document.getElementById('btnProfit').classList.toggle('active', isProfit);
             document.getElementById('btnLoss').classList.toggle('active', !isProfit);
-            document.getElementById('simDate').textContent = daysAgoText(30) + ' (30일 전)';
-            document.getElementById('simPick').innerHTML = '30일 전 양봉이는 <strong></strong> 종목을 골랐어요!';
-            document.querySelector('#simPick strong').textContent = r.stock;
-            const img = document.getElementById('yangbongImg');
-            img.src = r.img;
-            img.alt = r.alt;
-            document.getElementById('simResultLabel').textContent = r.label;
-            const rate = document.getElementById('simResultRate');
-            rate.textContent = r.rate;
-            rate.className = 'sim-result-rate ' + r.cls;
-            document.getElementById('simMessage').textContent = r.msg;
+            renderBasket(isProfit ? BASKET.profit : BASKET.loss);
         }
 
+        // 바구니 하나 그리기 (바구니가 +면 웃는 양봉이, −면 우는 양봉이)
+        function renderBasket(b) {
+            const total = b.stocks.reduce((s, x) => s + x[1], 0) / b.stocks.length;   // 20%씩 → 단순 평균
+            const ups = b.stocks.filter(x => x[1] > 0).length;
+            const up = total > 0;
+            document.getElementById('simDate').textContent = b.buy + ' 매수 → ' + b.sell + ' 매도';
+            const img = document.getElementById('yangbongImg');
+            img.src = up ? 'assets/happy.png' : 'assets/sad.png';
+            img.alt = up ? '웃고 있는 양봉이' : '울고 있는 양봉이';
+            document.getElementById('simResultLabel').textContent = up ? '바구니 결과는!!' : '바구니 결과는..';
+            const rate = document.getElementById('simResultRate');
+            rate.textContent = fmtPct(total);
+            rate.className = 'sim-result-rate ' + clsOf(total);
+            document.getElementById('simMessage').textContent = total > 0
+                ? '5종목 중 ' + ups + '종목이 올라서 바구니가 수익을 냈어요!'
+                : '이번 달은 손실이에요. 그래도 ' + ups + '종목은 올라서 손실을 줄여 줬어요.';
+            const ul = document.getElementById('basketList');
+            ul.innerHTML = '';
+            b.stocks.forEach(([name, r]) => {
+                const li = document.createElement('li');
+                li.className = 'basket-row';
+                li.innerHTML = '<span class="w">20%</span><span class="n"></span><span class="r"></span>';
+                li.querySelector('.n').textContent = name;
+                const rEl = li.querySelector('.r');
+                rEl.textContent = fmtPct(r);
+                rEl.classList.add(clsOf(r) || 'flat');
+                ul.appendChild(li);
+            });
+            const idx = document.createElement('li');
+            idx.className = 'basket-row index-row';
+            idx.innerHTML = '<span class="w"></span><span class="n">같은 기간 코스피</span><span class="r"></span>';
+            const iEl = idx.querySelector('.r');
+            iEl.textContent = fmtPct(b.kospi);
+            iEl.classList.add(clsOf(b.kospi) || 'flat');
+            ul.appendChild(idx);
+        }
+
+        // 서버 API 값으로 바꾸기 (수익률은 소수로 옴: 0.05 = +5%)
+        async function loadYangbongWeekly() {
+            try {
+                const res = await fetch('/api/yangbong/weekly', { cache: 'no-store' });
+                if (!res.ok) return;
+                const d = await res.json();
+                const pct = v => v == null ? 0 : v * 100;
+                const dot = s => s.replaceAll('-', '.');
+                if (d.picks && d.picks.length) {
+                    WEEKLY_PICKS = d.picks.map(p => p.name);
+                    renderWeeklyPicks();
+                }
+                if (d.stats && d.stats.weeks) {
+                    BASKET_STATS = {
+                        weeks: d.stats.weeks, wins: d.stats.wins, avg: pct(d.stats.avg_return),
+                        total: Math.round(d.stats.total_won / 10000),
+                        caption: '승률·수익: ' + dot(d.stats.since) + '부터 매주 바구니 ' + d.stats.weeks + '개 (2022~2026 과거 시뮬레이션 포함)'
+                    };
+                    renderBasketStats();
+                }
+                if (d.last_basket) {
+                    const lb = d.last_basket;
+                    renderBasket({
+                        buy: dot(lb.buy_date), sell: dot(lb.sell_date).slice(5), kospi: pct(lb.kospi_return),
+                        stocks: lb.stocks.filter(s => s.return != null).map(s => [s.name, pct(s.return)])
+                    });
+                    document.querySelector('.sim-btn-group').style.display = 'none';   // 실제 결과가 있으면 예시 버튼 숨김
+                }
+            } catch (e) { /* API가 없으면 예시 값 유지 */ }
+        }
+
+        renderWeeklyPicks();
+        renderBasketStats();
         toggleSimResult(true);
+        loadYangbongWeekly();
 
         // ===== 투자 성향 분석 설문 =====
         // OUTOFSTOCK_투자성향설문.docx 기준: 5개 영역 × 4문항 = 20문항 은행에서
