@@ -322,6 +322,38 @@
         .news-more { font-size: 12px; font-weight: 700; color: var(--accent-blue); text-decoration: none; }
         .news-more:hover { text-decoration: underline; }
 
+        /* 첫 접속 투자 유의 안내 (30일 동안 안 보기) */
+        .notice-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+            z-index: 2100; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .notice-overlay[hidden] { display: none; }
+        .notice-modal {
+            width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; text-align: center;
+            background-color: var(--card-bg); border-radius: 18px; padding: 26px 26px 22px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+        }
+        .notice-img { width: 200px; height: auto; margin: 0 auto 6px; }
+        .notice-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent-red); }
+        .notice-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .notice-list { list-style: none; text-align: left; margin: 18px 0 20px; display: flex; flex-direction: column; gap: 10px; }
+        .notice-list li {
+            display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px;
+            background: #fff5f5; border: 1px solid #fecaca; font-size: 14.5px; font-weight: 700; line-height: 1.55; color: var(--text-primary);
+        }
+        .notice-num {
+            flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-red); color: #fff;
+            font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px;
+        }
+        .notice-actions { display: flex; flex-direction: column; gap: 8px; }
+        .notice-btn {
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 14.5px; font-weight: 800; cursor: pointer;
+            border: 1px solid var(--accent-blue); background: var(--accent-blue); color: #fff;
+        }
+        .notice-btn:hover { filter: brightness(1.1); }
+        .notice-btn.ghost { background: var(--card-bg); color: var(--text-secondary); border-color: var(--card-border); font-weight: 700; }
+        .notice-btn.ghost:hover { filter: none; border-color: var(--accent-blue); color: var(--accent-blue); }
+
         /* 투자 성향 분석 설문 모달 */
         .survey-overlay {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
@@ -766,6 +798,23 @@
     </div>
 
     <!-- 투자 성향 분석 설문 모달 -->
+    <!-- 첫 접속 투자 유의 안내: '확인했습니다'는 이번 방문 동안, '30일 동안 안 보기'는 30일 동안 다시 안 뜸 -->
+    <div class="notice-overlay" id="noticeOverlay" hidden>
+        <div class="notice-modal" role="alertdialog" aria-modal="true" aria-labelledby="noticeTitle">
+            <img class="notice-img" src="assets/yangbong-warning.jpg" alt="경고 표지판을 든 양봉이">
+            <div class="notice-title" id="noticeTitle">잠깐! 투자 전에 꼭 확인해 주세요</div>
+            <div class="notice-sub">OUTOFSTOCK은 주식 공부를 돕는 학습 서비스예요.</div>
+            <ol class="notice-list">
+                <li><span class="notice-num">1</span><span>추천 주식은 보조 참고 자료이므로, 실제 투자 책임은 본인에게 있습니다.</span></li>
+                <li><span class="notice-num">2</span><span>매매기법의 승률은 100%가 아닙니다. 매매기법의 사용과 책임은 본인에게 있습니다.</span></li>
+            </ol>
+            <div class="notice-actions">
+                <button type="button" class="notice-btn" id="noticeConfirm" onclick="closeNotice(false)">확인했습니다</button>
+                <button type="button" class="notice-btn ghost" onclick="closeNotice(true)">30일 동안 안 보기</button>
+            </div>
+        </div>
+    </div>
+
     <div class="survey-overlay" id="surveyOverlay" hidden onclick="if (event.target === this) closeSurvey();">
         <div class="survey-modal" role="dialog" aria-modal="true" aria-label="투자 성향 분석">
             <button class="survey-close" onclick="closeSurvey()" aria-label="닫기">
@@ -1348,6 +1397,29 @@
 
         // 다른 페이지(실습하기 등)의 사이드바에서 '투자 성향 분석'을 눌러 넘어온 경우 설문을 바로 연다
         if (location.hash === '#survey') openSurvey();
+
+        // ===== 첫 접속 투자 유의 안내 =====
+        // '확인했습니다' → 이번 방문(탭을 닫기 전)까지 안 뜸 / '30일 동안 안 보기' → 30일 뒤까지 안 뜸
+        const NOTICE_HIDE_UNTIL = 'outofstock_notice_hide_until';
+        const NOTICE_SEEN = 'outofstock_notice_seen';
+        function shouldShowNotice() {
+            try {
+                if (sessionStorage.getItem(NOTICE_SEEN)) return false;
+                const until = parseInt(localStorage.getItem(NOTICE_HIDE_UNTIL), 10);
+                return !(Number.isFinite(until) && Date.now() < until);
+            } catch (e) { return true; }
+        }
+        function closeNotice(hide30) {
+            try {
+                sessionStorage.setItem(NOTICE_SEEN, '1');
+                if (hide30) localStorage.setItem(NOTICE_HIDE_UNTIL, String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+            } catch (e) { /* 저장 실패해도 닫기는 됨 */ }
+            document.getElementById('noticeOverlay').hidden = true;
+        }
+        if (shouldShowNotice()) {
+            document.getElementById('noticeOverlay').hidden = false;
+            document.getElementById('noticeConfirm').focus();
+        }
 
         // 주요 뉴스: 뉴스 데이터(assets/news-api.js)의 최신 기사로 채운다. 불러오지 못하면 위의 기본 문구를 그대로 둔다.
         (async function renderHomeNews() {
