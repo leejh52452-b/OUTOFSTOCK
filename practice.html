@@ -266,6 +266,8 @@
         }
         .mode-ticker b { color: var(--accent-blue); font-weight: 800; }
         .real-case-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        .real-group + .real-group { margin-top: 14px; }
+        .real-group .mode-ticker { margin-bottom: 8px; }
         .real-case {
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%;
             padding: 14px 8px; border: 1px solid var(--card-border); border-radius: 9px; background: var(--item-bg);
@@ -653,8 +655,7 @@
             </div>
             <div class="mode-section" id="modeRealSection">
                 <div class="mode-section-title"><svg class="ico"><use href="#i-activity"/></svg>과거 데이터로 실전연습하기</div>
-                <div class="mode-ticker" id="modeTicker">종목 <b>SOXL</b></div>
-                <div class="real-case-list" id="modeRealCaseList"></div>
+                <div id="modeRealCaseList"></div>
             </div>
         </div>
     </div>
@@ -1397,16 +1398,19 @@ function openModeModal(id) {
     $('#modeStartPractice').dataset.id = id;
     const picks = REAL_PICKS[id] || [];
     $('#modeRealSection').hidden = picks.length === 0;
-    const tickers = [...new Set(picks.map(p => p.ticker || 'SOXL'))];
-    $('#modeTicker').innerHTML = '종목 ' + tickers.map(tk => `<b>${REAL_SETS[tk].name}</b>`).join(' · ');
-    $('#modeRealCaseList').innerHTML = picks.map(p => {
-        const tk = p.ticker || 'SOXL';
-        return `
-        <button class="real-case" type="button" data-act="start-real" data-id="${id}" data-ticker="${tk}" data-entry="${p.entryDate}">
-            <span class="rc-label">${tickers.length > 1 ? REAL_SETS[tk].name + ' · ' : ''}${p.label}</span>
-            <span class="rc-range num">${realWindowLabel(tk, p.entryDate)}</span>
-        </button>`;
-    }).join('');
+    // 종목별로 묶어서 '종목 ○○' 아래에 그 종목의 구간 버튼을 둔다 (구간이 1개여도 같은 모양)
+    const groups = {};
+    picks.forEach(p => { const tk = p.ticker || 'SOXL'; (groups[tk] = groups[tk] || []).push(p); });
+    $('#modeRealCaseList').innerHTML = Object.entries(groups).map(([tk, ps]) => `
+        <div class="real-group">
+            <div class="mode-ticker">종목 <b>${REAL_SETS[tk].name}</b></div>
+            <div class="real-case-list">${ps.map(p => `
+                <button class="real-case" type="button" data-act="start-real" data-id="${id}" data-ticker="${tk}" data-entry="${p.entryDate}">
+                    <span class="rc-label">${p.label}</span>
+                    <span class="rc-range num">${realWindowLabel(tk, p.entryDate)}</span>
+                </button>`).join('')}
+            </div>
+        </div>`).join('');
     modeReturnFocus = document.activeElement;
     $('#modeOverlay').hidden = false;
     $('.mode-modal-close').focus();
