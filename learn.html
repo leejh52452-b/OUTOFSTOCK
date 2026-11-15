@@ -12,7 +12,7 @@
             --card-border: #cbd5e1;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
             --accent-blue: #3730a3;
             --accent-green: #16a34a;
             --accent-red: #dc2626;
@@ -62,7 +62,9 @@
         .toggle-btn:hover { background-color: var(--hover-bg); }
         .logo { display: flex; align-items: center; min-width: 0; }
         .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
-        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .nav-menu { list-style: none; padding: 16px 10px; }
         .nav-item { margin-bottom: 4px; }
         .nav-link {
@@ -144,7 +146,7 @@
         .seg + .seg { border-left: 1px solid var(--card-border); }
         .seg:hover { color: var(--accent-blue); }
         .seg.active { background: var(--hover-bg); color: var(--accent-blue); }
-        .seg .cnt { font-size: 11px; font-weight: 700; opacity: .75; }
+        .seg .cnt { font-size: 11px; font-weight: 700; }   /* 시안 opacity .75 — 흐린 숫자가 대비 4.5:1 미만(접근성)이라 뺌 */
 
         .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .page-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
@@ -267,7 +269,7 @@
         .explain-list li { position: relative; padding-left: 16px; font-size: 15.5px; color: #4e5968; line-height: 1.7; }
         .explain-list li::before { content: ''; position: absolute; left: 3px; top: 0.72em; width: 5px; height: 5px; border-radius: 50%; background: #818cf8; }
         .caution { background: #fff4e6; border-radius: 14px; padding: 16px 18px; }
-        .caution-label { font-size: 14px; color: #e8590c; }
+        .caution-label { font-size: 14px; color: #c2410c; }   /* 시안 #e8590c — 바탕 #fff4e6 대비 3.3:1 → 한 단계 진한 주황(4.8:1, KWCAG 1.3.3) */
         .caution-list { gap: 8px; }
         .caution-list li { position: relative; padding-left: 26px; font-size: 15px; color: #6b4a2f; line-height: 1.65; }
         .caution-list li::before { content: '!'; position: absolute; left: 0; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #e8590c; color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
@@ -431,7 +433,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="stocks.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                     <span class="nav-text">실시간 종목</span>
                 </a>
@@ -448,6 +450,12 @@
                     <span class="nav-text">뉴스</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
         </ul>
     </aside>
 
@@ -460,7 +468,7 @@
                 <div class="search-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
-                <input type="text" placeholder="종목명 또는 종목코드 검색">
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
             </div>
 
             <div class="header-actions" id="headerProfile">
@@ -472,7 +480,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
                     <span class="header-btn-label">마이페이지</span>
                 </a>
-                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="header-btn-label">로그아웃</span>
                 </button>
@@ -501,7 +509,7 @@
                                 <input id="q" type="search" placeholder="궁금한 주식 용어나 기법을 검색해보세요! (예: 골든크로스, RSI)" autocomplete="off" aria-label="용어 검색">
                                 <button class="search-clear" id="qClear" type="button" aria-label="검색어 지우기" hidden><svg class="ico"><use href="#i-x"/></svg></button>
                             </div>
-                            <div class="seg-group" id="levelTabs" role="tablist" aria-label="난이도">
+                            <div class="seg-group" id="levelTabs" role="group" aria-label="난이도">
                                 <button class="seg active" type="button" data-act="level" data-level="all">전체 <span class="cnt num" data-cnt="all"></span></button>
                                 <button class="seg" type="button" data-act="level" data-level="basic">초급 <span class="cnt num" data-cnt="basic"></span></button>
                                 <button class="seg" type="button" data-act="level" data-level="mid">중급 <span class="cnt num" data-cnt="mid"></span></button>
@@ -565,6 +573,7 @@
         </div>
     </div>
 
+    <script src="assets/oos/runtime.js"></script>
     <script src="assets/terms.js"></script>
     <script src="assets/daily-quiz.js"></script>
     <script src="assets/term-images.js"></script>
@@ -572,7 +581,8 @@
 // ============================================================
 //  학습하기 화면 로직 (프론트 전용)
 //  - 초성(ㄱㄴㄷ…/A-Z) 필터, 검색(초성 검색 지원), 난이도·주제 필터
-//  - '이해했어요' 표시는 localStorage에 저장 (outofstock_learned_terms)
+//  - '이해했어요' 표시: 로그인하면 계정에 저장(서버 /learn/progress — 기기를 바꿔도 그대로),
+//    로그인 전에는 이 브라우저(localStorage outofstock_learned_terms)에 — 로그인하면 계정으로 옮겨진다(assets/oos/runtime.js)
 //  - 딥링크: learn.html?term=골든크로스  /  learn.html?q=RSI
 // ============================================================
 const $ = (s, r = document) => r.querySelector(s);
@@ -622,9 +632,21 @@ const LKEY = 'outofstock_learned_terms';
 const state = { q: '', level: 'all', initial: 'all', cat: null, sel: null };
 let shown = [];  // 지금 목록에 보이는 순서 (키보드 이동용)
 let learned = new Set();
-try { learned = new Set(JSON.parse(localStorage.getItem(LKEY)) || []); } catch (e) { learned = new Set(); }
-learned = new Set([...learned].filter((id) => TERMS.some((t) => t.id === id)));
-const saveLearned = () => { try { localStorage.setItem(LKEY, JSON.stringify([...learned])); } catch (e) { /* 저장 실패해도 진행 */ } };
+function loadLocalLearned() {
+    const arr = OOS.readJSON(LKEY);
+    learned = new Set((Array.isArray(arr) ? arr : []).filter((id) => TERMS.some((t) => t.id === id)));
+}
+if (!OOS.loggedIn()) loadLocalLearned();
+const saveLearned = () => { if (!OOS.loggedIn()) OOS.writeJSON(LKEY, [...learned]); };   // 로그인 상태면 서버가 원본(브라우저에 남기지 않음)
+// [백엔드 연동] 로그인 상태 — 계정에 저장된 '이해했어요' 목록을 받아 온다
+async function loadServerLearned() {
+    if (!OOS.loggedIn()) return;
+    try {
+        const d = await OOS.api('/learn/progress');
+        learned = new Set((d.done || []).filter((id) => TERMS.some((t) => t.id === id)));
+    } catch (e) { return; }
+    renderProgress(); render();
+}
 
 // ---- 검색 ----
 function matchQuery(t, q, isIni) {
@@ -722,7 +744,7 @@ function render() {
     const lvCnt = { all: base.length, basic: 0, mid: 0 };
     base.forEach((t) => lvCnt[t.level]++);
     $$('[data-cnt]').forEach((el) => { el.textContent = lvCnt[el.dataset.cnt]; });
-    $$('#levelTabs .seg').forEach((b) => b.classList.toggle('active', b.dataset.level === state.level));
+    $$('#levelTabs .seg').forEach((b) => { const on = b.dataset.level === state.level; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); });
 
     const byLevel = base.filter((t) => state.level === 'all' || t.level === state.level);
     const iniCnt = {}; byLevel.forEach((t) => { iniCnt[t.initial] = (iniCnt[t.initial] || 0) + 1; });
@@ -781,55 +803,55 @@ function renderCats() {
 //  - 하루 5문제(상황 3 + 심화 2), 날짜가 같으면 같은 문제
 //  - 보기를 고르면 바로 정답·해설 표시(답은 못 바꿈), 결과 화면은 맞은 개수만
 //  - 답을 고를 때마다 저장: 중간에 닫아도 푼 문제는 그대로 잠기고, 다음에 남은 문제부터 이어서 풀기
-//  - localStorage(outofstock_daily_quiz)에 { date, answers(안 푼 문제는 null), done, rewarded }로 저장
-//  - 정답 1문제당 10만 원 가상머니 지급(제출 시 1회만): outofstock_balance 갱신 + outofstock_activity_log에 기록
-const QKEY = 'outofstock_daily_quiz', QUIZ_N = 5, QUIZ_REWARD_PER_CORRECT = 100000;
+//  - localStorage(outofstock_daily_quiz)에 { date, answers(안 푼 문제는 null), done }로 저장(풀던 중인 답 = 이 브라우저)
+//  - [백엔드 연동] 로그인 상태에서 다 풀면 서버가 같은 문제은행·같은 날짜 공식으로 문제를 다시 만들어 채점하고 계정에 남긴다
+//    (/learn/quiz — 점수는 화면이 보내지 않는다). 다른 기기에서 이미 풀었으면 그 결과를 보여 준다(하루 한 번).
+//  - 정답 1문제당 10만 원 가상머니(팀 시안 10-28) — [백엔드 연동] 서버가 채점한 점수로 지갑·원장에 지급(한국 날짜 하루 1번).
+//    화면은 서버가 실제로 넣은 금액(reward)만 보여 주고, 브라우저에 잔액을 쓰지 않는다. 로그인 전에 풀면 로그인할 때 지급된다.
+const QKEY = 'outofstock_daily_quiz', QUIZ_N = 5, QUIZ_REWARD_PER_CORRECT = 100000;   // 보상 단가: 서버 값(reward_per_correct)이 우선
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const dateLabel = (s) => { const [y, m, d] = s.split('-').map(Number); return `${m}월 ${d}일 (${'일월화수목금토'[new Date(y, m - 1, d).getDay()]})`; };
-const quiz = { date: '', items: [], answers: [], done: false, rewarded: false, view: 'q', draft: [], cur: 0 };
+// reward: undefined(모름) · null(지급 중) · -1(보내지 못함) · 숫자(서버가 넣은 금액) / skipped: 그날 보상을 이미 받은 경우 서버 안내
+const quiz = { date: '', items: [], answers: [], done: false, view: 'q', draft: [], cur: 0, per: QUIZ_REWARD_PER_CORRECT, reward: undefined, skipped: '' };
 function loadQuiz() {
-    quiz.date = todayStr(); quiz.items = buildDailyQuiz(quiz.date); quiz.answers = []; quiz.done = false; quiz.rewarded = false; quiz.draft = Array(QUIZ_N).fill(null);
+    quiz.date = todayStr(); quiz.items = buildDailyQuiz(quiz.date); quiz.answers = []; quiz.done = false; quiz.draft = Array(QUIZ_N).fill(null);
+    quiz.reward = undefined; quiz.skipped = '';
     try {
         const s = JSON.parse(localStorage.getItem(QKEY));
         const valid = s && s.date === quiz.date && Array.isArray(s.answers) && s.answers.length === QUIZ_N
             && s.answers.every((a) => a === null || (Number.isInteger(a) && a >= 0 && a < 4));
-        if (valid && s.done && !s.answers.includes(null)) { quiz.answers = s.answers; quiz.done = true; quiz.rewarded = !!s.rewarded; }
+        if (valid && s.done && !s.answers.includes(null)) { quiz.answers = s.answers; quiz.done = true; }
         else if (valid) quiz.draft = s.answers;  // 풀던 중 → 이어서
     } catch (e) { /* 저장된 기록이 없거나 읽을 수 없으면 새로 시작 */ }
 }
-const saveQuiz = () => { try { localStorage.setItem(QKEY, JSON.stringify({ date: quiz.date, answers: quiz.done ? quiz.answers : quiz.draft, done: quiz.done, rewarded: quiz.rewarded })); } catch (e) { /* 저장 실패해도 진행 */ } };
+const saveQuiz = () => { try { localStorage.setItem(QKEY, JSON.stringify({ date: quiz.date, answers: quiz.done ? quiz.answers : quiz.draft, done: quiz.done })); } catch (e) { /* 저장 실패해도 진행 */ } };
 const quizSolved = () => quiz.draft.filter((a) => a !== null).length;
 const quizScore = () => quiz.answers.filter((a, i) => a === quiz.items[i].answer).length;
-const quizEarned = () => quizScore() * QUIZ_REWARD_PER_CORRECT;
+const quizEarned = () => quizScore() * quiz.per;
 const ensureToday = () => { if (quiz.date !== todayStr()) loadQuiz(); };
-
-// 가상머니 지급 + 헤더 표시 갱신 + 마이페이지 "내 활동" 기록용 로그 저장 (outofstock_balance / outofstock_activity_log는 다른 페이지와 공유)
-function addBalance(delta) {
-    try {
-        const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-        const next = (Number.isFinite(v) ? v : 1000000) + delta;
-        localStorage.setItem('outofstock_balance', String(next));
-        const amt = document.getElementById('headerBalanceAmt');
-        if (amt) amt.textContent = next.toLocaleString('ko-KR');
-        return next;
-    } catch (e) { return null; }
+const wonTxt = (n) => Number(n || 0).toLocaleString('ko-KR');
+const perLabel = (n) => (n % 10000 === 0 ? `${n / 10000}만 원` : `${wonTxt(n)}원`);
+// 보상 문구 { card, result } — 로그인: 서버가 실제로 넣은 금액 · 로그인 전: 로그인하면 받을 금액 · 우리 서버 없이 연 시안: 시안 그대로
+function rewardInfo() {
+    if (!quiz.per) return null;                                  // 서버에서 보상을 끈 운영(QUIZ_REWARD_PER_CORRECT=0)
+    const amt = (n) => `<b class="num quiz-earn">+${wonTxt(n)}원</b>`, same = (t) => ({ card: t, result: t });
+    if (!OOS.online) return { card: `${amt(quizEarned())} 획득`, result: `가상머니 ${amt(quizEarned())} 획득!` };
+    if (!OOS.loggedIn()) return { card: `로그인하면 ${amt(quizEarned())}`, result: `로그인하면 가상머니 ${amt(quizEarned())}을 받아요` };
+    if (quiz.reward === undefined) return null;
+    if (quiz.reward === null) return same('가상머니 지급 중…');
+    if (quiz.reward < 0) return same('보상을 아직 보내지 못했어요 — 화면을 다시 열면 다시 보내요');
+    if (quiz.skipped) return same(esc(quiz.skipped));
+    return { card: `${amt(quiz.reward)} 획득`, result: `가상머니 ${amt(quiz.reward)} 획득!` };
 }
-function addActivityEntry(label, sub, amount) {
-    try {
-        const log = JSON.parse(localStorage.getItem('outofstock_activity_log')) || [];
-        const d = new Date();
-        const at = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-        log.unshift({ at, label, sub, amount });
-        localStorage.setItem('outofstock_activity_log', JSON.stringify(log.slice(0, 50)));
-    } catch (e) { /* 저장 실패해도 진행 */ }
-}
+function refreshQuizView() { renderQuizCard(); if (!$('#quizOverlay').hidden && quiz.view !== 'q') renderQuizBody(); }
 
 function renderQuizCard() {
     ensureToday();
     const sc = quizScore(), solved = quizSolved();
-    const [cls, img, title, desc] = quiz.done ? ['done', 'happy', '오늘의 퀴즈 완료!', `${QUIZ_N}문제 중 ${sc}문제 정답 · <b class="quiz-earn">+${quizEarned().toLocaleString('ko-KR')}원</b> 획득<br>내일 새 퀴즈가 열려요`]
+    const rw = quiz.done ? rewardInfo() : null, guest = OOS.online && !OOS.loggedIn();
+    const [cls, img, title, desc] = quiz.done ? ['done', 'happy', '오늘의 퀴즈 완료!', `${QUIZ_N}문제 중 ${sc}문제 정답${rw ? ` · ${rw.card}` : ''}<br>내일 새 퀴즈가 열려요`]
         : solved ? ['', 'study', `${QUIZ_N}문제 중 ${solved}문제 풀었어요`, '남은 문제부터 이어서 풀 수 있어요']
-        : ['', 'study', `오늘의 ${QUIZ_N}문제가 준비됐어요`, `정답 1문제당 <b class="quiz-earn">10만 원</b> 가상머니를 드려요`];
+        : ['', 'study', `오늘의 ${QUIZ_N}문제가 준비됐어요`, quiz.per ? `${guest ? '로그인하면 ' : ''}정답 1문제당 <b class="quiz-earn">${perLabel(quiz.per)}</b> 가상머니를 드려요` : ''];
     const btn = quiz.done ? `${ico('award')}결과 보기` : solved ? `${ico('target')}이어서 풀기` : `${ico('target')}퀴즈 시작하기`;
     $('#quizCard').innerHTML = `
         <div class="card-header"><div class="card-title">${ico('quiz')}Daily Stock Quiz</div><span class="q-date">${dateLabel(quiz.date)}</span></div>
@@ -862,13 +884,13 @@ function quizQuestionHTML() {
 }
 // 결과: 맞은 개수만 보여줘요
 function quizResultHTML(already) {
-    const sc = quizScore(), good = sc >= 4;
+    const sc = quizScore(), good = sc >= 4, rw = rewardInfo();
     const title = already ? '오늘의 퀴즈는 이미 완료했어요!' : sc === QUIZ_N ? '만점이에요! 대단해요!' : good ? '잘했어요! 거의 다 맞혔어요' : '수고했어요! 내일 또 도전해 봐요';
     return `<div class="quiz-result">
         <img src="assets/${good ? 'happy' : 'sad'}.png" alt="${good ? '신난 양봉이' : '아쉬워하는 양봉이'}">
         <div class="r-title">${title}</div>
         <div class="r-score">${QUIZ_N}문제 중 <b class="num">${sc}</b>문제 정답</div>
-        <div class="r-score">가상머니 <b class="num quiz-earn">+${quizEarned().toLocaleString('ko-KR')}원</b> 획득!</div>
+        ${rw ? `<div class="r-score">${rw.result}</div>` : ''}
         ${already ? '<div class="r-score">내일 새로운 퀴즈가 열려요.</div>' : ''}
         <div class="quiz-actions" style="width:100%"><button class="btn primary" type="button" data-act="quiz-close">닫기</button></div>
     </div>`;
@@ -905,17 +927,39 @@ function moveQuiz() {
 }
 function submitQuiz() {
     if (quiz.view !== 'q' || quiz.draft.some((a) => a === null)) return;
-    quiz.answers = quiz.draft.slice(); quiz.done = true;
-    if (!quiz.rewarded) {
-        quiz.rewarded = true;
-        const earned = quizEarned();
-        if (earned > 0) {
-            addBalance(earned);
-            addActivityEntry('퀴즈 보상', `오늘의 퀴즈 ${quizScore()}문제 정답`, earned);
-        }
-    }
-    saveQuiz();
+    quiz.answers = quiz.draft.slice(); quiz.done = true; saveQuiz();
+    if (OOS.loggedIn()) quiz.reward = null;                 // 지급 중 — 서버 답을 받으면 실제 금액으로
     quiz.view = 'result'; renderQuizBody(); renderQuizCard();
+    sendQuiz();
+}
+// [백엔드 연동] 서버 채점·기록·보상. 보내지 못하면 이 브라우저에 남겨 두고, 화면을 다시 열 때(loadServerQuiz)·다음 로그인 때 다시 보낸다.
+function sendQuiz() {
+    if (!OOS.loggedIn() || !quiz.done) return;
+    OOS.once('quiz', async () => {
+        try { applyServerQuiz(await OOS.api('/learn/quiz', { method: 'POST', body: { date: quiz.date, answers: quiz.answers } })); OOS.removeKeys([QKEY]); }
+        catch (e) {
+            if (e.status === 400 || e.status === 409) { OOS.removeKeys([QKEY]); loadServerQuiz(); }
+            else { quiz.reward = -1; refreshQuizView(); }
+        }
+    });
+}
+// 서버에 남은 오늘 퀴즈(다른 기기에서 푼 것 포함)를 화면 상태로
+function applyServerQuiz(d) {
+    if (!d || d.date !== quiz.date) return;
+    if (Number.isFinite(d.reward_per_correct)) quiz.per = d.reward_per_correct;
+    if (!d.done || !Array.isArray(d.answers) || d.answers.length !== QUIZ_N) { renderQuizCard(); return; }
+    quiz.answers = d.answers.slice(); quiz.draft = d.answers.slice(); quiz.done = true;
+    quiz.reward = Number(d.reward) || 0; quiz.skipped = d.reward_skipped || '';
+    if (d.balance != null) OOS.setBalance(d.balance);           // 헤더 잔액 바로(실시간 알림도 곧 온다)
+    if (!$('#quizOverlay').hidden) { if (quiz.view === 'q') quiz.view = 'already'; renderQuizBody(); }
+    renderQuizCard();
+}
+async function loadServerQuiz() {
+    if (!OOS.loggedIn()) return;
+    let d;
+    try { d = await OOS.api('/learn/quiz?date=' + encodeURIComponent(quiz.date)); } catch (e) { return; }  // 서버에 못 닿으면 이 브라우저 기록 그대로
+    applyServerQuiz(d);
+    if (d && !d.done && quiz.done) { quiz.reward = null; refreshQuizView(); sendQuiz(); }   // 여기서 다 풀었는데 서버에 없음(전송 실패) → 다시
 }
 
 // ---- 동작 ----
@@ -953,7 +997,22 @@ function jumpTo(id) {
 }
 function toggleLearned(id) {
     learned.has(id) ? learned.delete(id) : learned.add(id); saveLearned();
-    const done = learned.has(id), card = $('#termDetail .term-card');
+    const done = learned.has(id);
+    showLearned(id, done);
+    if (OOS.loggedIn()) {                                  // [백엔드 연동] 계정에 저장 — 실패하면 화면을 되돌린다
+        // 같은 용어를 빠르게 여러 번 눌러도 누른 순서대로 저장(앞 요청이 끝난 뒤 다음 요청)
+        const run = () => OOS.api('/learn/progress', { method: 'POST', body: { term: id, done } }).catch((e) => {
+            if (learned.has(id) === done) { done ? learned.delete(id) : learned.add(id); showLearned(id, !done); }
+            OOS.notice(e.message || '학습 표시를 저장하지 못했어요', true);
+        });
+        const next = (savingLearned.get(id) || Promise.resolve()).then(run);
+        savingLearned.set(id, next);
+        next.finally(() => { if (savingLearned.get(id) === next) savingLearned.delete(id); });
+    }
+}
+const savingLearned = new Map();
+function showLearned(id, done) {
+    const card = $('#termDetail .term-card');
     if (card && card.dataset.id === id) { card.classList.toggle('learned', done); const b = $('.learn-btn', card); b.classList.toggle('done', done); b.innerHTML = learnLabel(done); }
     const row = findRow(id), chk = row && $('svg.ico', row);
     if (row && done && !chk) row.insertAdjacentHTML('beforeend', ico('check'));
@@ -980,7 +1039,7 @@ document.addEventListener('click', (e) => {
     else if (act === 'quiz-pick') pickQuiz(Number(el.dataset.k));
     else if (act === 'quiz-next') moveQuiz();
     else if (act === 'quiz-submit') submitQuiz();
-    else if (act === 'reset-progress') { if (confirm('학습 기록을 모두 지울까요?')) { learned.clear(); saveLearned(); renderProgress(); render(); } }
+    else if (act === 'reset-progress') { if (confirm('학습 기록을 모두 지울까요?')) resetProgress(); }
 });
 $('#termList').addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
@@ -999,8 +1058,23 @@ document.addEventListener('change', (e) => { if (e.target.id === 'catSel') { sta
 document.addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; if (!$('#imgViewer').hidden) closeViewer(); else closeQuiz(); });
 $('#imgViewer').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeViewer(); });
 
+function resetProgress() {
+    const before = new Set(learned);
+    learned.clear(); saveLearned(); renderProgress(); render();
+    if (OOS.loggedIn()) OOS.api('/learn/progress/reset', { method: 'POST' }).catch((e) => {
+        learned = before; renderProgress(); render(); OOS.notice(e.message || '학습 기록을 지우지 못했어요', true);
+    });
+}
+// 다른 탭에서 로그인·로그아웃 → 그 계정(또는 이 브라우저)의 기록으로 다시 그림
+OOS.on('session', () => {
+    if (OOS.loggedIn()) { learned = new Set(); loadServerLearned(); loadQuiz(); loadServerQuiz(); }
+    else { loadLocalLearned(); loadQuiz(); }
+    renderProgress(); renderQuizCard(); render();
+});
+
 // ---- 시작 ----
 loadQuiz(); renderProgress(); renderQuizCard(); render();
+loadServerLearned(); loadServerQuiz();
 (function initFromUrl() {
     const p = new URLSearchParams(location.search), term = p.get('term'), q = p.get('q');
     if (term) { const t = resolve(term) || TERMS.find((x) => x.keys.some((k) => k.includes(norm(term)))); if (t) { jumpTo(t.id); return; } }
@@ -1008,17 +1082,7 @@ loadQuiz(); renderProgress(); renderQuizCard(); render();
 })();
 window.__L = { TERMS, state, render, jumpTo, selectTerm, resolve, toggleLearned, learned: () => [...learned] };
 
-        // ===== 우측 상단 가상머니 표시 / 로그아웃 (디자인 전용) =====
-        (function () {
-            try {
-                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-                const amt = document.getElementById('headerBalanceAmt');
-                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
-            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
-            window.headerLogout = function () {
-                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
-            };
-        })();
+// 우측 상단 잔액·로그인/로그아웃은 공용 런타임(assets/oos/runtime.js)이 채운다
 
     </script>
 </body>

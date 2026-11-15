@@ -12,7 +12,7 @@
             --card-border: #cbd5e1;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
             --accent-blue: #3730a3;
             --accent-green: #16a34a;
             --accent-red: #dc2626;
@@ -62,7 +62,9 @@
         .toggle-btn:hover { background-color: var(--hover-bg); }
         .logo { display: flex; align-items: center; min-width: 0; }
         .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
-        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .nav-menu { list-style: none; padding: 16px 10px; }
         .nav-item { margin-bottom: 4px; }
         .nav-link {
@@ -458,7 +460,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="stocks.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                     <span class="nav-text">실시간 종목</span>
                 </a>
@@ -475,6 +477,12 @@
                     <span class="nav-text">뉴스</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
         </ul>
     </aside>
 
@@ -487,7 +495,7 @@
                 <div class="search-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
-                <input type="text" placeholder="종목명 또는 종목코드 검색">
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
             </div>
 
             <div class="header-actions" id="headerProfile">
@@ -499,7 +507,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
                     <span class="header-btn-label">마이페이지</span>
                 </a>
-                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="header-btn-label">로그아웃</span>
                 </button>
@@ -640,7 +648,7 @@
     </div>
 
     <!-- 실습 방식 선택 모달 -->
-    <div class="mode-overlay" id="modeOverlay" hidden onclick="if (event.target === this) closeModeModal();">
+    <div class="mode-overlay" id="modeOverlay" hidden data-on-self="closeModeModal()">
         <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeModalTitle">
             <button class="mode-modal-close" type="button" data-act="close-mode" aria-label="닫기">
                 <svg class="ico"><use href="#i-x"/></svg>
@@ -693,6 +701,7 @@
         </defs>
     </svg>
 
+    <script src="assets/oos/runtime.js"></script>
     <script src="assets/soxl-real.js"></script>
     <script src="assets/real-stocks-kr.js"></script>
     <script>
@@ -1027,15 +1036,38 @@ function simulate(c, b, s, exitPrice) {
     return { qty: q, final, ret: final / START_CASH - 1 };
 }
 
-// ---------- 기록 (localStorage) ----------
+// ---------- 기록 ----------
+//  로그인 전: 이 브라우저(localStorage outofstock_practice_records — 로그아웃하면 지움)
+//  [백엔드 연동] 로그인 후: 계정에 한 판씩 저장(/practice/records) — 마이페이지 '실습 이력'과 같은 기록.
+//   매매 계산은 이 화면(브라우저)에서 하므로 서버는 값의 범위·종류만 확인해 기록한다(보상과 무관 — 가상머니 없음).
 const REC_KEY = 'outofstock_practice_records';
-function loadRecords() { try { return JSON.parse(localStorage.getItem(REC_KEY)) || {}; } catch (e) { return {}; } }
+let serverRecords = null;                                    // 로그인 상태: 서버 집계 { 기법: { tries, best, realTries, realBest } }
+function loadRecords() {
+    if (OOS.loggedIn()) return serverRecords || {};
+    const r = OOS.readJSON(REC_KEY);
+    return r && typeof r === 'object' ? r : {};
+}
+function fromServer(summary) {
+    const out = {};
+    Object.entries(summary || {}).forEach(([k, v]) => { out[k] = { tries: v.tries || 0, best: v.best, realTries: v.real_tries || 0, realBest: v.real_best }; });
+    return out;
+}
+async function loadServerRecords() {
+    if (!OOS.loggedIn()) { serverRecords = null; return; }
+    try { serverRecords = fromServer((await OOS.api('/practice/records?limit=1')).summary); } catch (e) { return; }
+    if (!$('#view-list').hidden) renderList();
+}
 function saveRecord(id, ret, traded, mode) {
     const r = loadRecords(); const cur = r[id] || { tries: 0, best: null, realTries: 0, realBest: null };
     if (mode === 'real') { cur.realTries = (cur.realTries || 0) + 1; if (traded && (cur.realBest === null || ret > cur.realBest)) cur.realBest = ret; }
     else { cur.tries += 1; if (traded && (cur.best === null || ret > cur.best)) cur.best = ret; }
     r[id] = cur;
-    try { localStorage.setItem(REC_KEY, JSON.stringify(r)); } catch (e) { /* 저장 실패해도 진행 */ }
+    if (!OOS.loggedIn()) { OOS.writeJSON(REC_KEY, r); return; }
+    serverRecords = r;                                       // 화면은 바로 반영, 서버 집계로 다시 맞춘다
+    OOS.api('/practice/records', { method: 'POST', body: { tech: id, mode: mode === 'real' ? 'real' : 'practice', traded: !!traded,
+        ret: traded && isFinite(ret) ? Number(ret.toFixed(6)) : null, entry_date: mode === 'real' ? P.realEntryDate : null } })
+        .then((d) => { if (d && d.summary) serverRecords = fromServer(d.summary); })
+        .catch((e) => OOS.notice('실습 기록을 계정에 저장하지 못했어요 — ' + (e.message || ''), true));
 }
 
 // ---------- 일러스트 (SVG) ----------
@@ -1302,7 +1334,8 @@ function renderList() {
     const rec = loadRecords();
     $('#techGrid').innerHTML = Object.values(TECH).map(t => {
         const r = rec[t.id];
-        return `<div class="card tech-card" data-act="open" data-id="${t.id}" tabindex="0" role="button" aria-label="${t.name}">
+        return `<div class="card tech-card" data-act="open" data-id="${t.id}">`   // 카드 안에 버튼이 있어 카드 자체는 버튼 역할을 하지 않는다(중첩 버튼 금지 — 키보드는 안쪽 버튼으로)
+            + `
             <div class="tech-top">
                 <div class="tech-top-left"><div class="tech-icon">${ico(t.icon)}</div><span class="badge ${t.levelClass}">난이도 ${t.level}</span></div>
                 ${t.exitMode === 'ratio' ? `<span class="chip">${ico('scale')}손익비 ${t.ratioText}</span>` : ''}
@@ -1909,20 +1942,14 @@ $('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collap
 (function init() {
     const t = new URLSearchParams(location.search).get('t');
     if (t && TECH[t]) renderIntro(t); else renderList();
+    loadServerRecords();
 })();
+// 다른 탭에서 로그인·로그아웃 → 그 계정(또는 이 브라우저)의 기록으로
+OOS.on('session', () => { serverRecords = null; if (!$('#view-list').hidden) renderList(); loadServerRecords(); });
 window.__P = { P, TECH, getData, startPlay, tick, buy, sell, finish, showResult, renderIntro, openModeModal, closeModeModal, renderList, tutNext, tutPrev, tutSkip, showGameOver, showBuyInfo, buyInfoNext, buyInfoPrev, confirmRatio, retryInPlay, handleLineDrag, currentGuide, drawPlay, chartPlay, RES: () => RES, guideFor, simulate };
 
-        // ===== 우측 상단 가상머니 표시 / 로그아웃 (디자인 전용) =====
-        (function () {
-            try {
-                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-                const amt = document.getElementById('headerBalanceAmt');
-                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
-            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
-            window.headerLogout = function () {
-                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
-            };
-        })();
+// 우측 상단 잔액·로그인/로그아웃은 공용 런타임(assets/oos/runtime.js)이 채운다
+OOS.actions({ closeModeModal });
 
     </script>
 </body>

@@ -12,7 +12,7 @@
             --card-border: #cbd5e1;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
             --accent-blue: #3730a3;
             --accent-green: #16a34a;
             --accent-red: #dc2626;
@@ -44,7 +44,9 @@
         .toggle-btn:hover { background-color: var(--hover-bg); }
         .logo { display: flex; align-items: center; min-width: 0; }
         .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
-        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .nav-menu { list-style: none; padding: 16px 10px; }
         .nav-item { margin-bottom: 4px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; color: var(--text-secondary); text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; white-space: nowrap; }
@@ -189,6 +191,11 @@
         .scn { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; margin-left: 6px; background: var(--item-bg); color: var(--text-secondary); }
         .scn.bull { background: var(--up-soft); color: var(--up); } .scn.bear { background: var(--down-soft); color: var(--down); }
         .scn.crash_rebound { background: #fef3c7; color: #a16207; }
+        /* 접근성(연동 추가) — 연한 바탕 위 작은 글자 대비 4.5:1 이상(KWCAG 1.3.3): 선택한 종목 탭의 상승색·장세 칩·안 고른 매수 탭 */
+        .stock-tab.on .up { color: #c81e1e; }
+        .scn.bull { color: #b91c1c; } .scn.bear { color: #1d4ed8; } .scn.crash_rebound { color: #854d0e; }
+        .tab.buy:not(.on) { color: #a8322b; }
+        .join-guide { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }   /* 로그인 전 참가 안내(연동 추가) */
         .market-off { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: #fef2f2; color: #b91c1c; font-size: 12.5px; line-height: 1.5; }
 
         /* 수익률 카드 */
@@ -295,21 +302,27 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="invest.html" class="nav-link active">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="3" x2="7" y2="21"></line><rect x="4.5" y="7" width="5" height="8" rx="1"></rect><line x1="17" y1="3" x2="17" y2="21"></line><rect x="14.5" y="10" width="5" height="6" rx="1"></rect></svg>
-                    <span class="nav-text">모의투자</span>
+                <a href="stocks.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="nav-text">실시간 종목</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                    <span class="nav-text">실시간 종목</span>
+                <a href="invest.html" class="nav-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    <span class="nav-text">모의투자</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="news.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path><path d="M21 7h-4v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2V7z"></path><line x1="7" y1="8" x2="13" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line><line x1="7" y1="16" x2="11" y2="16"></line></svg>
                     <span class="nav-text">뉴스</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
                 </a>
             </li>
         </ul>
@@ -324,9 +337,10 @@
                 <div class="search-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
-                <input type="text" placeholder="종목명 또는 종목코드 검색">
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
             </div>
-            <div class="header-actions">
+
+            <div class="header-actions" id="headerProfile">
                 <div class="header-balance" title="가상머니 잔액">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
                     <span id="headerBalanceAmt">1,000,000</span>원
@@ -335,7 +349,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
                     <span class="header-btn-label">마이페이지</span>
                 </a>
-                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="header-btn-label">로그아웃</span>
                 </button>
@@ -352,7 +366,7 @@
             </div>
             <div class="notice">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <div>학습용 가상 종목 5개의 차트예요. 실제 주식시장의 가격이 아닌, 학습용으로 만든 가상 주가예요.<br>평일 장 시간(09:00–15:30)에 30분마다 가상 시장의 일봉이 하나씩 공개돼요. 월–금이 한 시즌이며, 주말에 결과가 발표돼요.</div>
+                <div>학습용 가상 종목 5개의 차트예요. 실제 주식시장의 가격이 아닌, 학습용으로 만든 가상 주가예요.<br>평일 장 시간(09:00–15:30)에 30분마다 가상 시장의 일봉이 하나씩 공개돼요. 월–금이 한 시즌이며, 주말에 결과가 발표돼요.<br>참가금은 가상머니에서 빠지고, 주말 정산 때 최종 평가금액이 가상머니로 돌아와요.</div>
             </div>
 
             <!-- 데이터 오류 -->
@@ -377,8 +391,8 @@
                             <div class="ind-row"><span class="ind-label">아래 패널<br>(최대 2개)</span><div class="chips js-panel"></div></div>
                             <div class="ind-row"><span class="ind-label">빠른 설정</span><div class="chips js-presets"></div></div>
                             <div class="chart-wrap" id="playWrap">
-                                <canvas id="playCanvas"></canvas>
-                                <div class="chart-tip" id="playTip" hidden></div>
+                                <canvas id="playCanvas" role="img" aria-label="선택한 가상 종목의 시즌 차트(봉·이동평균·보조지표)"></canvas>
+                                <div class="chart-tip" id="playTip" hidden aria-hidden="true"></div>
                             </div>
                             <div class="chart-foot">가상 주가는 한국거래소 통계정보를 분석해 얻은 시장 통계를 바탕으로 생성되었으며, 실제 종목·시세와 대응하지 않습니다.</div>
                         </div>
@@ -406,8 +420,8 @@
                             <div class="ind-row"><span class="ind-label">아래 패널<br>(최대 2개)</span><div class="chips js-panel"></div></div>
                             <div class="ind-row"><span class="ind-label">빠른 설정</span><div class="chips js-presets"></div></div>
                             <div class="chart-wrap" id="resWrap" style="height:420px">
-                                <canvas id="resCanvas"></canvas>
-                                <div class="chart-tip" id="resTip" hidden></div>
+                                <canvas id="resCanvas" role="img" aria-label="시즌 전체 차트(봉·이동평균·보조지표)"></canvas>
+                                <div class="chart-tip" id="resTip" hidden aria-hidden="true"></div>
                             </div>
                             <div class="chart-foot">가상 주가는 한국거래소 통계정보를 분석해 얻은 시장 통계를 바탕으로 생성되었으며, 실제 종목·시세와 대응하지 않습니다.</div>
                         </div>
@@ -423,14 +437,28 @@
         </div>
     </div>
 
-    <div class="toast" id="toast" hidden></div>
+    <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 
+    <script src="assets/oos/runtime.js"></script>
     <script src="assets/invest-chart.js"></script>
     <script>
 (function () {
 'use strict';
 const IC = window.InvestChart, { num, won, pct, dirCls, COLOR } = IC;
 const $ = (s) => document.querySelector(s);
+const esc = OOS.esc;
+
+// ============================================================
+// [백엔드 연동 — 팀 시안과 다른 점]
+// 우리 서버가 내보낸 화면(SRV)이면 시즌 차트·참가·주문·정산을 모두 서버(/vmarket/*)가 정한다.
+//   · 차트: GET /vmarket/season — 서버 시계로 '지금까지 공개된 봉'까지만 온다(미래 봉은 서버 밖으로 나가지 않는다).
+//     끝난 시즌만 전체 봉과 장세(시나리오)가 온다. 시즌 파일(data/season_XX.js)은 서버에 두지 않는다.
+//   · 참가·주문·정산: POST /vmarket/join · /vmarket/order(현재가 = 그 봉 종가, 서버가 정함) · /vmarket/settle
+//     참가금은 가상머니 지갑에서 빠지고, 주말 정산 금액이 지갑으로 돌아온다(원장 기록). 잔액은 공용 런타임이 헤더에 보여 준다.
+//   · 시계: 서버 시각(OOS.serverNow — 응답 Date 헤더로 맞춤)의 한국시간 — 다른 나라 시간대 브라우저에서도 같은 시즌·봉.
+// 파일로 열면(시안 모드) 팀 시안 그대로 — 팀 저장소 data/season_XX.js 를 읽고 이 브라우저에만 기록한다(가짜 잔액).
+// ============================================================
+const SRV = OOS.online;
 
 // ---------- 설정 ----------
 const HIST = 120;          // 시즌 시작 전 사전 봉 (이동평균 계산용, 처음부터 보임) = 생성기 WARMUP
@@ -441,9 +469,11 @@ const STOCKS = 5;          // 시즌마다 가상 종목 5개 (종목 A~E)
 const OPEN_MIN = 9 * 60, CLOSE_MIN = 15 * 60 + 30;
 const MIN_ENTRY = 1000000;
 const DAYS = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
-const EPOCH = new Date(2026, 10, 2);   // 시즌 1 = 2026-11-02(월) 주 → data/seasons/season_01.js
+const EPOCH = new Date(2026, 10, 2);   // 시즌 1 = 2026-11-02(월) 주
 const SCN = { bull: '상승장', bear: '하락장', sideways: '횡보장', crash_rebound: '급락 후 반등' };
-const STORE = 'outofstock_invest_v2', OLD_STORE = 'outofstock_invest', BAL = 'outofstock_balance', VIEWKEY = 'outofstock_invest_view';
+// 시안 모드 저장 키(이 브라우저에만) — 잔액은 공용 런타임이 지우는 예전 시안 잔액 키 대신 시안 전용 이름
+const STORE = 'outofstock_invest_v2', OLD_STORE = 'outofstock_invest', BAL = 'outofstock_invest_demo_balance', VIEWKEY = 'outofstock_invest_view';
+if (SRV) OOS.removeKeys([STORE, OLD_STORE, BAL]);   // 서버 화면: 예전 시안의 브라우저 기록(가짜 잔액·체결)은 쓰지 않는다
 
 // ---------- 용어 (한 줄 설명) ----------
 const TERMS = {
@@ -464,8 +494,10 @@ const PRESETS = [
     { label: '과열 보기 · 볼린저+RSI', ov: ['bb'], panels: ['volume', 'rsi'] }
 ];
 
-// ---------- 시간 ----------
-const now = () => new Date();
+// ---------- 시간(한국시간) ----------
+// 한국시간 벽시계를 Date 의 지역 필드에 담는다 — 아래 계산(getDay·getHours…)이 브라우저 시간대와 무관하게 서버와 같은 시즌·봉을 센다
+const nowMs = () => (SRV && OOS.serverNow ? OOS.serverNow() : Date.now());
+const now = () => { const t = new Date(nowMs() + 9 * 3600e3); return new Date(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), t.getUTCHours(), t.getUTCMinutes(), t.getUTCSeconds()); };
 const p2 = (v) => String(v).padStart(2, '0');
 function mondayOf(d) { const m = new Date(d.getFullYear(), d.getMonth(), d.getDate()); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
 function seasonIdOf(d) { return Math.round((mondayOf(d) - EPOCH) / (7 * 864e5)) + 1; }
@@ -493,34 +525,49 @@ function fmtDur(ms) {
 }
 const mmss = (ms) => { const s = Math.max(0, Math.floor(ms / 1000)), m = Math.floor(s / 60); return (m ? m + '분 ' : '') + (s % 60) + '초'; };
 
-// ---------- 시즌 데이터 (stock_data_generator/virtual_stock_generator.py 가 만든 data/seasons/season_XX.js) ----------
-// <script>로 읽어서 HTML을 더블클릭(file://)으로 열어도 동작. 필요한 시즌만 그때그때 불러옴
-const seasonFile = (id) => `data/season_${p2(id)}.js`;
+// ---------- 시즌 데이터 ----------
+// DATA[id] = { stocks: [{ name, scenario?, c: [{o,h,l,c,v}] }], revealed } — 서버 모드는 공개된 봉까지만, 시안 모드는 파일 전체
+const DATA = {};
 function seasonOK(id) {
-    const d = (window.SEASON_DATA || {})[id];
-    return !!d && Array.isArray(d.stocks) && d.stocks.length === STOCKS &&
-        d.stocks.every(s => s.warmup === HIST && Array.isArray(s.candles) && s.candles.length === HIST + SEASON);
+    const d = DATA[id];
+    return !!d && d.stocks.length === STOCKS && d.stocks.every(s => s.c.length >= HIST && s.c.length <= HIST + SEASON);
 }
+const seasonFile = (id) => `data/season_${p2(id)}.js`;
 const loading = {};
-function loadSeason(id) {
+// 시안 모드: 팀 저장소의 시즌 파일을 스크립트 태그로 읽는다(HTML 을 더블클릭(file://)으로 열어도 동작)
+function loadSeasonFile(id) {
     if (id < 1) return Promise.resolve(false);
     if (seasonOK(id)) return Promise.resolve(true);
     if (!loading[id]) loading[id] = new Promise(res => {
+        const ok = () => {
+            const d = (window.SEASON_DATA || {})[id];
+            if (!(d && Array.isArray(d.stocks) && d.stocks.length === STOCKS && d.stocks.every(s => s.warmup === HIST && Array.isArray(s.candles) && s.candles.length === HIST + SEASON))) return false;
+            DATA[id] = { stocks: d.stocks.map(s => ({ name: s.name, scenario: s.scenario, c: s.candles })), revealed: SEASON };
+            return true;
+        };
         const sc = document.createElement('script');
         sc.src = seasonFile(id);
-        sc.onload = () => { if (!seasonOK(id)) console.warn(`${seasonFile(id)} 형식이 맞지 않아요 (종목 ${STOCKS}개, 봉 ${HIST + SEASON}개 필요).`); res(seasonOK(id)); };
+        sc.onload = () => { const r = ok(); if (!r) console.warn(`${seasonFile(id)} 형식이 맞지 않아요 (종목 ${STOCKS}개, 봉 ${HIST + SEASON}개 필요).`); res(r); };
         sc.onerror = () => res(false);
         document.head.appendChild(sc);
     });
     return loading[id];
 }
+// 서버 모드: 시즌 차트(공개된 봉까지만) — 봉 = [시가, 고가, 저가, 종가, 거래량]
+function takeSeason(d) {
+    if (!d || !d.available) { delete DATA[d && d.season]; return false; }
+    DATA[d.season] = {
+        revealed: d.revealed, ended: d.ended,
+        stocks: d.stocks.map(s => ({ name: s.name, scenario: s.scenario, c: s.candles.map(([o, h, l, c, v]) => ({ o, h, l, c, v })) }))
+    };
+    return true;
+}
 const winCache = {};
 function windowFor(id, k) {
     if (!seasonOK(id)) return null;
-    const key = id + '-' + k;
+    const meta = DATA[id].stocks[k], key = id + '-' + k + '-' + meta.c.length;
     if (winCache[key]) return winCache[key];
-    const meta = window.SEASON_DATA[id].stocks[k];
-    return (winCache[key] = { id, k, c: meta.candles, ind: IC.calcAll(meta.candles), meta });
+    return (winCache[key] = { id, k, c: meta.c, ind: IC.calcAll(meta.c), meta });
 }
 const stockName = (id, k) => { const w = windowFor(id, k); return w ? w.meta.name : '종목 ' + 'ABCDE'[k]; };
 const LABELS = Array.from({ length: HIST + SEASON }, (_, i) => {
@@ -530,19 +577,25 @@ const LABELS = Array.from({ length: HIST + SEASON }, (_, i) => {
 });
 const priceAt = (w, revealed) => w.c[HIST + revealed - 1].c;   // revealed=0 이면 사전 봉 마지막 종가
 
-// ---------- 저장소 ----------
-function loadDB() { try { const o = JSON.parse(localStorage.getItem(STORE)); if (o && o.seasons) return o; } catch (e) { /* 무시 */ } return { seasons: {} }; }
-function saveDB() { try { localStorage.setItem(STORE, JSON.stringify(DB)); } catch (e) { /* 저장 실패해도 진행 */ } }
-function getBal() { try { const v = parseInt(localStorage.getItem(BAL), 10); return Number.isFinite(v) ? v : 1000000; } catch (e) { return 1000000; } }
-function setBal(v) { try { localStorage.setItem(BAL, String(Math.round(v))); } catch (e) { /* 무시 */ } renderBal(); }
-function renderBal() { $('#headerBalanceAmt').textContent = getBal().toLocaleString('ko-KR'); }
+// ---------- 기록 ----------
+// 서버 모드: DB.seasons 는 서버 기록(/vmarket/me)을 화면 모양으로 담은 것 — 고치면 안 되고, 바뀐 값은 늘 서버 응답으로 받는다
+function loadDB() { if (SRV) return { seasons: {} }; try { const o = JSON.parse(localStorage.getItem(STORE)); if (o && o.seasons) return o; } catch (e) { /* 무시 */ } return { seasons: {} }; }
+function saveDB() { if (SRV) return; try { localStorage.setItem(STORE, JSON.stringify(DB)); } catch (e) { /* 저장 실패해도 진행 */ } }
+let SRV_BAL = null;                                  // 서버 모드: /vmarket/me 의 지갑 잔액(헤더는 공용 런타임이 따로 갱신)
+function getBal() {
+    if (SRV) return OOS.balance != null ? OOS.balance : (SRV_BAL || 0);
+    try { const v = parseInt(localStorage.getItem(BAL), 10); return Number.isFinite(v) ? v : 1000000; } catch (e) { return 1000000; }
+}
+function setBal(v) { if (SRV) return; try { localStorage.setItem(BAL, String(Math.round(v))); } catch (e) { /* 무시 */ } renderBal(); }
+function renderBal() { if (!SRV) $('#headerBalanceAmt').textContent = getBal().toLocaleString('ko-KR'); }
 function loadView() {
     try { const o = JSON.parse(localStorage.getItem(VIEWKEY)); if (o && o.ov && Array.isArray(o.panels)) return o; } catch (e) { /* 무시 */ }
     return { ov: { sma5: true, sma20: true }, panels: ['volume'], term: 'sma5', stock: 0 };
 }
 function saveView() { try { localStorage.setItem(VIEWKEY, JSON.stringify(VIEW)); } catch (e) { /* 무시 */ } }
-// 예전(종목 1개) 방식 기록: 시즌 번호 기준이 바뀌어 이어 쓸 수 없으니, 정산 안 된 참가금만 돌려주고 정리
+// 예전(종목 1개) 방식 기록: 시즌 번호 기준이 바뀌어 이어 쓸 수 없으니, 정산 안 된 참가금만 돌려주고 정리(시안 모드)
 function migrateOld() {
+    if (SRV) return 0;
     try {
         const old = JSON.parse(localStorage.getItem(OLD_STORE));
         localStorage.removeItem(OLD_STORE);
@@ -566,7 +619,7 @@ function toast(msg) {
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 4200);
 }
 
-// ---------- 체결 / 정산 ----------
+// ---------- 체결 / 정산(시안 모드 — 서버 모드는 서버가 한다) ----------
 // 현재 봉 종가(= 화면의 현재가)로 즉시 체결. 현금은 5종목이 함께 씀
 function executeTrade(s, k, type, qty, revealed) {
     const w = windowFor(s.id, k), idx = HIST + revealed - 1, price = w.c[idx].c, p = s.pos[k];
@@ -584,6 +637,7 @@ function executeTrade(s, k, type, qty, revealed) {
     return qty;
 }
 function settleEnded(cl) {
+    if (SRV) return;
     let done = null;
     Object.values(DB.seasons).forEach(s => {
         const ended = s.id < cl.id || (s.id === cl.id && cl.phase === 'weekend');
@@ -604,6 +658,59 @@ function settleEnded(cl) {
         done = s;
     });
     if (done) { saveDB(); if (!(done.id === cl.id && cl.phase === 'weekend')) toast(`지난 시즌 ${done.id} 정산 완료 · 수익률 ${pct(done.final / done.entry - 1)} · ${won(done.final)}이 잔액으로 돌아왔어요.`); }
+}
+
+// ---------- 서버 연동 ----------
+let syncing = null, syncRetry = 0, nextReady = null;
+function takeMe(me) {
+    DB = { seasons: {} };
+    (me.history || []).forEach(h => { DB.seasons[h.id] = { id: h.id, entry: h.entry, final: h.final, settled: true, trades: [], pos: [] }; });
+    if (me.current) DB.seasons[me.current.id] = me.current;
+    if (me.balance != null) SRV_BAL = me.balance;
+}
+// 시즌 차트 + (로그인했으면) 내 기록을 서버에서 — 끝난 시즌의 열린 참가가 있으면 정산을 요청(멱등)
+// quiet: 주기 확인 — 바뀐 것이 없으면 다시 그리지 않는다(입력 중인 수량이 지워지지 않게)
+const viewSig = () => { const s = CL && DB.seasons[CL.id], d = CL && DATA[CL.id];
+    return JSON.stringify([CL && [CL.id, CL.phase, CL.revealed], d && d.stocks[0].c.length, s && [s.cash, s.trades.length, s.settled], Object.keys(DB.seasons).length]); };
+function syncServer(quiet) {
+    if (syncing) return syncing;
+    const before = quiet === true ? viewSig() : null;
+    syncing = (async () => {
+        let d;
+        try { d = await OOS.api('/vmarket/season'); }
+        catch (e) {
+            if (e.status === 404) { CL = clockOf(now()); delete DATA[CL.id]; renderView(); return; }   // 첫 시즌 전
+            showError('모의투자 정보를 불러오지 못했어요 — 잠시 뒤 다시 시도해 주세요');
+            return;
+        }
+        takeSeason(d);
+        nextReady = !!d.next_ready;
+        CL = Object.assign({}, d.clock);
+        if (OOS.loggedIn()) {
+            try {
+                let me = await OOS.api('/vmarket/me');
+                if (me.unsettled && me.unsettled.length) {
+                    const r = await OOS.api('/vmarket/settle', { method: 'POST' });
+                    (r.settled || []).forEach(x => {
+                        if (x.balance != null) OOS.setBalance(x.balance);
+                        if (!(x.season === CL.id && CL.phase === 'weekend')) toast(`지난 시즌 ${x.season} 정산 완료 · ${won(x.final)}이 잔액으로 돌아왔어요.`);
+                    });
+                    me = await OOS.api('/vmarket/me');
+                }
+                takeMe(me);
+            } catch (e) { toast(e.message || '내 모의투자 기록을 불러오지 못했어요'); }
+        } else { DB = { seasons: {} }; }
+        if (before === null || before !== viewSig()) renderView();
+        // 서버와 내 시계가 봉 경계에서 엇갈렸으면(1~2초) 잠시 뒤 한 번 더 묻는다
+        const c2 = clockOf(now());
+        if ((c2.id !== CL.id || c2.revealed !== CL.revealed || c2.phase !== CL.phase) && syncRetry < 5) { syncRetry++; setTimeout(() => syncServer(), 2000); }
+        else syncRetry = 0;
+    })().finally(() => { syncing = null; });
+    return syncing;
+}
+function showError(msg) {
+    const e = $('#dataError'); e.hidden = false; e.textContent = msg;
+    $('#view-play').hidden = true; $('#view-weekend').hidden = true;
 }
 
 // ---------- 상단 상태 ----------
@@ -647,8 +754,8 @@ function renderStockTabs() {
     const s = DB.seasons[CL.id], weekend = CL.phase === 'weekend', idx = weekend ? HIST + SEASON - 1 : HIST + CL.revealed - 1;
     setAll('.js-stocks', Array.from({ length: STOCKS }, (_, k) => {
         const w = windowFor(CL.id, k), cur = w.c[idx].c, base = weekend ? w.c[HIST - 1].c : w.c[idx - 1].c, ch = cur / base - 1;
-        const own = !weekend && s && s.pos[k].shares > 0;
-        return `<button class="stock-tab ${k === sel() ? 'on' : ''}" data-stock="${k}"><b>${w.meta.name}${own ? '<i class="own">보유</i>' : ''}</b><span class="${dirCls(ch)}"><em>${weekend ? '시즌' : won(cur)}</em><em>${pct(ch)}</em></span></button>`;
+        const own = !weekend && s && s.pos[k] && s.pos[k].shares > 0;
+        return `<button class="stock-tab ${k === sel() ? 'on' : ''}" data-stock="${k}" aria-pressed="${k === sel()}"><b>${esc(w.meta.name)}${own ? '<i class="own">보유</i>' : ''}</b><span class="${dirCls(ch)}"><em>${weekend ? '시즌' : won(cur)}</em><em>${pct(ch)}</em></span></button>`;
     }).join(''));
     // 모바일(가로 스크롤)에서 선택한 종목 탭이 화면 밖에 있지 않게
     document.querySelectorAll('.js-stocks').forEach(row => {
@@ -659,7 +766,7 @@ function renderStockTabs() {
 }
 function chipHTML(key, on, group) {
     const t = TERMS[key];
-    return `<div class="chip ${on ? 'on' : ''} ${VIEW.term === key ? 'help-on' : ''}"><button class="chip-main" data-${group}="${key}"><i class="${t.box ? 'box' : ''}" style="background:${t.color}"></i>${t.name}</button><button class="chip-help" data-term="${key}" title="${t.name} 설명">?</button></div>`;
+    return `<div class="chip ${on ? 'on' : ''} ${VIEW.term === key ? 'help-on' : ''}"><button class="chip-main" data-${group}="${key}" aria-pressed="${!!on}"><i class="${t.box ? 'box' : ''}" style="background:${t.color}"></i>${t.name}</button><button class="chip-help" data-term="${key}" title="${t.name} 설명" aria-label="${t.name} 설명">?</button></div>`;
 }
 function renderChips() {
     // 진행 화면과 결과 화면이 같은 설정(VIEW)을 공유
@@ -670,7 +777,7 @@ function renderChips() {
     $('#termCard').innerHTML = `<div class="term-name"><i style="background:${t.color}"></i>${t.name}</div><p>${t.text}</p>`;
 }
 document.addEventListener('click', (e) => {
-    const b = e.target.closest('button'); if (!b) return;
+    const b = e.target.closest('button'); if (!b || !CL) return;
     if (b.dataset.stock) {
         VIEW.stock = +b.dataset.stock; saveView();
         if (CL.phase === 'weekend') { renderStockTabs(); drawRes(); } else renderPlay();
@@ -716,16 +823,24 @@ function renderPlay() {
 }
 
 function renderJoin() {
+    if (SRV && !OOS.loggedIn()) {                     // 서버 모드 · 로그인 전 — 차트는 보되 참가는 로그인 뒤
+        $('#joinCard').innerHTML = `
+            <div class="card-title">시즌 ${CL.id} 참가하기</div>
+            <p class="join-guide">로그인하면 가상머니 1,000,000원부터 이번 시즌에 참가할 수 있어요.<br>참가금은 주말 정산 때 최종 평가금액으로 돌아와요.</p>
+            <button class="btn-main" id="joinLogin" type="button">로그인하고 참가하기</button>`;
+        $('#joinLogin').addEventListener('click', () => OOS.goLogin());
+        return;
+    }
     const bal = getBal(), can = bal >= MIN_ENTRY;
     $('#joinCard').innerHTML = `
         <div class="card-title">시즌 ${CL.id} 참가하기</div>
         <label class="field-label" for="entryInput">참가금 (최소 1,000,000원 · 보유 ${won(bal)})</label>
         <input class="input" id="entryInput" type="number" inputmode="numeric" min="${MIN_ENTRY}" step="10000" placeholder="1000000" value="${can ? MIN_ENTRY : ''}">
-        <div class="help" id="entryHelp"></div>
+        <div class="help" id="entryHelp" aria-live="polite"></div>
         <div class="quick">
-            <button data-entry="1000000">100만</button><button data-entry="3000000">300만</button><button data-entry="5000000">500만</button><button data-entry="all">전액</button>
+            <button type="button" data-entry="1000000">100만</button><button type="button" data-entry="3000000">300만</button><button type="button" data-entry="5000000">500만</button><button type="button" data-entry="all">전액</button>
         </div>
-        <button class="btn-main" id="joinBtn">참가하고 시작하기</button>`;
+        <button class="btn-main" id="joinBtn" type="button">참가하고 시작하기</button>`;
     const inp = $('#entryInput');
     const check = () => {
         const v = Math.floor(+inp.value || 0), h = $('#entryHelp');
@@ -741,34 +856,49 @@ function renderJoin() {
     $('#joinCard').querySelectorAll('[data-entry]').forEach(b => b.addEventListener('click', () => {
         inp.value = b.dataset.entry === 'all' ? bal : Math.min(+b.dataset.entry, bal); check();
     }));
-    $('#joinBtn').addEventListener('click', () => {
+    $('#joinBtn').addEventListener('click', () => OOS.once('vmarket-join', async () => {
         const v = check(); if (!v) return;
         const c2 = clockOf(now()); if (c2.phase === 'weekend' || c2.id !== CL.id) { refresh(true); return; }
+        if (SRV) {
+            $('#joinBtn').disabled = true;
+            try {
+                const r = await OOS.api('/vmarket/join', { method: 'POST', body: { season: CL.id, entry: v } });
+                DB.seasons[CL.id] = r.current;
+                if (r.balance != null) OOS.setBalance(r.balance);
+                toast(`시즌 ${CL.id}에 ${won(v)}으로 참가했어요.`);
+                renderPlay();
+            } catch (e) {
+                const h = $('#entryHelp'); h.textContent = e.message || '참가하지 못했어요'; h.className = 'help err';
+                $('#joinBtn').disabled = false;
+                if (e.status === 409) syncServer();
+            }
+            return;
+        }
         DB.seasons[CL.id] = newSeason(CL.id, v, c2.revealed);
         saveDB(); setBal(getBal() - v);
         toast(`시즌 ${CL.id}에 ${won(v)}으로 참가했어요.`);
         renderPlay();
-    });
+    }));
     check();
 }
 
 function canTrade() { return CL.phase === 'open' && CL.revealed >= 1; }
 function renderOrder() {
     const k = sel(), s = DB.seasons[CL.id], p = s.pos[k], w = windowFor(CL.id, k), price = priceAt(w, CL.revealed), buy = orderSide === 'buy';
-    const max = buy ? Math.floor(s.cash / price) : p.shares, trade = canTrade();
+    const max = buy ? Math.floor(s.cash / price) : p.shares, trade = canTrade() && !s.settled;
     let off = '';
     if (CL.phase === 'pre') off = `장 시작 전이에요. 오늘 09:00에 거래가 열려요.`;
     else if (CL.phase === 'closed') off = CL.wd === 4 ? '장마감 · 이번 시즌 거래가 끝났어요.<br>주말에 결과가 발표돼요.' : '장마감 · 거래가 불가능해요.<br>내일 09:00에 다시 열려요.';
     $('#orderCard').innerHTML = `
-        <div class="card-title">주문 · ${w.meta.name}</div>
-        <div class="tabs"><button class="tab buy ${buy ? 'on' : ''}" data-side="buy">매수</button><button class="tab sell ${!buy ? 'on' : ''}" data-side="sell">매도</button></div>
+        <div class="card-title">주문 · ${esc(w.meta.name)}</div>
+        <div class="tabs"><button type="button" class="tab buy ${buy ? 'on' : ''}" data-side="buy" aria-pressed="${buy}">매수</button><button type="button" class="tab sell ${!buy ? 'on' : ''}" data-side="sell" aria-pressed="${!buy}">매도</button></div>
         <label class="field-label" for="qtyInput">수량 (최대 ${num(max)}주)</label>
         <input class="input" id="qtyInput" type="number" inputmode="numeric" min="1" max="${max}" value="${max > 0 ? Math.min(10, max) : ''}" ${trade ? '' : 'disabled'}>
-        <div class="ratio-row"><button data-r="0.25" ${trade ? '' : 'disabled'}>25%</button><button data-r="0.5" ${trade ? '' : 'disabled'}>50%</button><button data-r="1" ${trade ? '' : 'disabled'}>최대</button></div>
+        <div class="ratio-row"><button type="button" data-r="0.25" ${trade ? '' : 'disabled'}>25%</button><button type="button" data-r="0.5" ${trade ? '' : 'disabled'}>50%</button><button type="button" data-r="1" ${trade ? '' : 'disabled'}>최대</button></div>
         <div class="kv"><span>${buy ? '필요 금액' : '예상 금액'}</span><b id="needAmt">-</b></div>
         <div class="kv"><span>${buy ? '보유 현금' : '보유 수량'}</span><b>${buy ? won(s.cash) : num(p.shares) + '주'}</b></div>
-        <div class="help err" id="qtyHelp"></div>
-        <button class="btn-main ${orderSide}" id="orderBtn" ${trade ? '' : 'disabled'}>${buy ? '매수' : '매도'} 주문</button>
+        <div class="help err" id="qtyHelp" aria-live="polite"></div>
+        <button type="button" class="btn-main ${orderSide}" id="orderBtn" ${trade ? '' : 'disabled'}>${buy ? '매수' : '매도'} 주문</button>
         <p class="note">주문은 현재가(지금 봉의 종가)로 바로 체결돼요.</p>
         ${off ? `<div class="market-off">${off}</div>` : ''}`;
     const inp = $('#qtyInput');
@@ -784,12 +914,26 @@ function renderOrder() {
     inp.addEventListener('input', calc);
     $('#orderCard').querySelectorAll('[data-side]').forEach(b => b.addEventListener('click', () => { orderSide = b.dataset.side; renderOrder(); }));
     $('#orderCard').querySelectorAll('[data-r]').forEach(b => b.addEventListener('click', () => { inp.value = Math.max(Math.floor(max * +b.dataset.r), max > 0 ? 1 : 0); calc(); }));
-    $('#orderBtn').addEventListener('click', () => {
+    $('#orderBtn').addEventListener('click', () => OOS.once('vmarket-order', async () => {
         const q = calc(); if (!q) return;
         // 그 사이 새 봉이 나왔으면 가격이 바뀌었으니 화면부터 새로 고침
         const c2 = clockOf(now()); if (c2.id !== CL.id || c2.revealed !== CL.revealed || c2.phase !== 'open') { refresh(true); toast('새 봉이 나와 현재가가 바뀌었어요. 가격을 확인하고 다시 주문해 주세요.'); return; }
+        if (SRV) {
+            $('#orderBtn').disabled = true;
+            try {
+                const r = await OOS.api('/vmarket/order', { method: 'POST', headers: { 'Idempotency-Key': OOS.idemKey() },
+                    body: { season: CL.id, stock: k, side: orderSide, qty: q, bar: CL.revealed } });
+                DB.seasons[CL.id] = r.current;
+                if (r.filled) toast(`${r.filled.name} ${r.filled.side === 'buy' ? '매수' : '매도'} ${num(r.filled.qty)}주가 ${won(r.filled.price)}에 체결됐어요.`);
+                renderStockTabs(); renderOrder(); renderReturn(); drawPlay();
+            } catch (e) {
+                toast(e.message || '주문을 처리하지 못했어요');
+                if (e.status === 409) syncServer(); else calc();
+            }
+            return;
+        }
         if (executeTrade(s, k, orderSide, q, CL.revealed)) { saveDB(); renderStockTabs(); renderOrder(); renderReturn(); drawPlay(); }
-    });
+    }));
     calc();
 }
 
@@ -816,8 +960,8 @@ function renderReturn() {
             <div class="ret-cell"><span>평가손익</span><b class="${dirCls(unreal)}">${unreal > 0 ? '+' : ''}${won(unreal)}</b></div>
             <div class="ret-cell"><span>실현손익</span><b class="${dirCls(s.realized)}">${s.realized > 0 ? '+' : ''}${won(s.realized)}</b></div>
         </div>
-        ${holds.length ? `<ul class="hold-list">${holds.map(h => `<li><b>${h.name}</b><b class="${dirCls(h.u)}">${h.u > 0 ? '+' : ''}${won(h.u)}</b><small>${num(h.p.shares)}주 · 평균 ${won(h.p.avg)}</small><small class="${dirCls(h.u)}" style="text-align:right">${pct(h.px / h.p.avg - 1)}</small></li>`).join('')}</ul>` : ''}
-        ${trades.length ? `<ul class="trade-list">${trades.map(t => `<li><span class="${t.type === 'buy' ? 't-buy' : 't-sell'}">${stockName(s.id, t.k)} ${t.type === 'buy' ? '매수' : '매도'} ${num(t.qty)}주</span><span>${won(t.price)} · ${LABELS[t.i].split(' · ')[0]}</span></li>`).join('')}</ul>` : '<p class="muted">아직 체결된 거래가 없어요.</p>'}`;
+        ${holds.length ? `<ul class="hold-list">${holds.map(h => `<li><b>${esc(h.name)}</b><b class="${dirCls(h.u)}">${h.u > 0 ? '+' : ''}${won(h.u)}</b><small>${num(h.p.shares)}주 · 평균 ${won(h.p.avg)}</small><small class="${dirCls(h.u)}" style="text-align:right">${pct(h.px / h.p.avg - 1)}</small></li>`).join('')}</ul>` : ''}
+        ${trades.length ? `<ul class="trade-list">${trades.map(t => `<li><span class="${t.type === 'buy' ? 't-buy' : 't-sell'}">${esc(stockName(s.id, t.k))} ${t.type === 'buy' ? '매수' : '매도'} ${num(t.qty)}주</span><span>${won(t.price)} · ${LABELS[t.i].split(' · ')[0]}</span></li>`).join('')}</ul>` : '<p class="muted">아직 체결된 거래가 없어요.</p>'}`;
 }
 
 // 목록은 최신 3개 높이만큼만 보이고 나머지는 휠로 스크롤
@@ -845,6 +989,9 @@ function renderWeekend(d) {
             ['실현손익', `<span class="${dirCls(s.realized)}">${s.realized > 0 ? '+' : ''}${won(s.realized)}</span>`, '정산 매도 포함'],
             ['거래 횟수', (buys + sells) + '회', `매수 ${buys} · 매도 ${sells}${s.autoStocks ? ` · 정산 ${s.autoStocks}` : ''}`]
         ].map(([a, b, c]) => `<div class="card sum-card"><span>${a}</span><b>${b}</b>${c ? `<small>${c}</small>` : ''}</div>`).join('');
+    } else if (s && !s.settled) {                     // 서버 모드 — 정산 요청이 아직 끝나지 않음(곧 다시 묻는다)
+        $('#resultHero').innerHTML = `<img src="assets/study.png" alt=""><div><h2>시즌 ${CL.id} 정산 중이에요</h2><p>남은 주식을 마지막 종가로 정산하고 있어요. 잠시 뒤 결과가 보여요.</p></div>`;
+        $('#resultSum').innerHTML = '';
     } else {
         $('#resultHero').innerHTML = `<img src="assets/study.png" alt=""><div><h2>시즌 ${CL.id}이 끝났어요</h2><p>이번 시즌에는 참가하지 않았어요. ${ok ? `아래에서 이번 주 종목 ${STOCKS}개가 어떻게 움직였는지 확인하고, ` : ''}월요일 09:00에 열리는 다음 시즌에 참가해 보세요.</p></div>`;
         $('#resultSum').innerHTML = '';
@@ -854,14 +1001,17 @@ function renderWeekend(d) {
     if (ok) {
         $('#stockResCard').innerHTML = `<div class="card-title">종목별 결과</div><ul class="hist-list">${Array.from({ length: STOCKS }, (_, k) => {
             const w = windowFor(CL.id, k), m = w.meta, ch = w.c[HIST + SEASON - 1].c / w.c[HIST - 1].c - 1;
-            const p = s && s.pos[k], traded = s && s.trades.some(t => t.k === k);
-            const mine = traded ? `<small>내 실현손익 <span class="${dirCls(p.realized)}">${p.realized > 0 ? '+' : ''}${won(p.realized)}</span></small>` : '';
-            return `<li><div><b>${m.name}</b><span class="scn ${m.scenario}">${SCN[m.scenario] || m.scenario}</span>${mine}</div><b class="${dirCls(ch)}">${pct(ch)}</b></li>`;
+            const p = s && s.pos && s.pos[k], traded = s && s.trades.some(t => t.k === k);
+            const mine = traded && p ? `<small>내 실현손익 <span class="${dirCls(p.realized)}">${p.realized > 0 ? '+' : ''}${won(p.realized)}</span></small>` : '';
+            const scn = SCN[m.scenario] ? `<span class="scn ${m.scenario}">${SCN[m.scenario]}</span>` : '';
+            return `<li><div><b>${esc(m.name)}</b>${scn}${mine}</div><b class="${dirCls(ch)}">${pct(ch)}</b></li>`;
         }).join('')}</ul>`;
     }
     const nextId = CL.id + 1;
     $('#countdownCard').innerHTML = `<div class="card-title">다음 시즌</div><p class="muted" id="nextInfo">월요일 09:00에 시즌 ${nextId} 시작</p><span class="cd-label">남은 시간</span><b id="countdownVal">${fmtDur(nextOpen(d, CL) - d)}</b><p class="muted">참가금은 1,000,000원부터</p>`;
-    loadSeason(nextId).then(has => { const el = $('#nextInfo'); if (el && !has) el.textContent = `시즌 ${nextId} 데이터 준비 중 · 준비되면 월요일 09:00에 시작`; });
+    const noNext = () => { const el = $('#nextInfo'); if (el) el.textContent = `시즌 ${nextId} 데이터 준비 중 · 준비되면 월요일 09:00에 시작`; };
+    if (SRV) { if (nextReady === false) noNext(); }
+    else loadSeasonFile(nextId).then(has => { if (!has) noNext(); });
     if (settled.length) {
         const rs = settled.map(x => x.final / x.entry - 1), avg = rs.reduce((a, b) => a + b, 0) / rs.length, best = Math.max(...rs), wins = rs.filter(v => v > 0).length;
         $('#statsCard').innerHTML = `<div class="card-title">누적 기록</div>
@@ -874,14 +1024,14 @@ function renderWeekend(d) {
         $('#historyCard').hidden = false;
         $('#historyCard').innerHTML = `<div class="card-title">시즌 기록 <small class="count">${settled.length}개</small></div><ul class="hist-list scroll-list">${settled.map(x => { const r = x.final / x.entry - 1; return `<li><div>시즌 ${x.id}<small>${won(x.entry)} → ${won(x.final)}</small></div><b class="${dirCls(r)}">${pct(r)}</b></li>`; }).join('')}</ul>`;
     } else {
-        $('#statsCard').innerHTML = `<div class="card-title">누적 기록</div><p class="muted">아직 끝난 시즌 기록이 없어요.</p>`;
+        $('#statsCard').innerHTML = `<div class="card-title">누적 기록</div><p class="muted">${SRV && !OOS.loggedIn() ? '로그인하면 내 시즌 기록이 보여요.' : '아직 끝난 시즌 기록이 없어요.'}</p>`;
         $('#historyCard').hidden = true;
     }
     // 이번 시즌 거래내역 (최신순)
-    const trades = s ? s.trades.slice().reverse() : [];
+    const trades = s && s.trades ? s.trades.slice().reverse() : [];
     $('#tradeCard').hidden = !trades.length;
     if (trades.length) {
-        $('#tradeCard').innerHTML = `<div class="card-title">시즌 ${CL.id} 거래내역 <small class="count">${trades.length}건</small></div><ul class="hist-list scroll-list">${trades.map(t => `<li><div><span class="${t.type === 'buy' ? 'up' : 'down'}" style="font-weight:700">${stockName(CL.id, t.k)} ${t.auto ? '정산 매도' : t.type === 'buy' ? '매수' : '매도'} ${num(t.qty)}주</span><small>${LABELS[t.i].split(' · ')[0]}</small></div><b>${won(t.price)}</b></li>`).join('')}</ul>`;
+        $('#tradeCard').innerHTML = `<div class="card-title">시즌 ${CL.id} 거래내역 <small class="count">${trades.length}건</small></div><ul class="hist-list scroll-list">${trades.map(t => `<li><div><span class="${t.type === 'buy' ? 'up' : 'down'}" style="font-weight:700">${esc(stockName(CL.id, t.k))} ${t.auto ? '정산 매도' : t.type === 'buy' ? '매수' : '매도'} ${num(t.qty)}주</span><small>${LABELS[t.i].split(' · ')[0]}</small></div><b>${won(t.price)}</b></li>`).join('')}</ul>`;
     }
     limitRows();
     if (ok) { renderStockTabs(); renderChips(); drawRes(); }
@@ -894,10 +1044,18 @@ function drawRes() {
 }
 
 // ---------- 갱신 루프 ----------
-// 지금 시즌 + 아직 정산 안 된 지난 시즌 데이터를 먼저 불러옴
+// 시안 모드: 지금 시즌 + 아직 정산 안 된 지난 시즌 데이터를 먼저 불러옴
 function ensureData(id) {
     const ids = new Set([id].concat(Object.values(DB.seasons).filter(s => !s.settled).map(s => s.id)));
-    return Promise.all([...ids].map(loadSeason));
+    return Promise.all([...ids].map(loadSeasonFile));
+}
+function renderView() {
+    if (!CL) return;
+    settleEnded(CL);
+    $('#dataError').hidden = true;
+    $('#view-play').hidden = CL.phase === 'weekend';
+    $('#view-weekend').hidden = CL.phase !== 'weekend';
+    if (CL.phase === 'weekend') renderWeekend(now()); else renderPlay();
 }
 function refresh(force) {
     const d = now(), cl = clockOf(d);
@@ -908,6 +1066,10 @@ function refresh(force) {
         $('#nextCandle').textContent = cl.today < PER_DAY || cl.phase === 'pre' ? `다음 봉까지 ${mmss(nx - d)}` : '오늘 마지막 봉 · 15:30 장마감';
     } else $('#nextCandle').textContent = cl.phase === 'closed' ? '장마감 · 오늘 봉이 모두 나왔어요' : '';
     if (cl.phase === 'weekend') { const cv = $('#countdownVal'); if (cv) cv.textContent = fmtDur(nextOpen(d, cl) - d); }
+    if (SRV) {                                        // 새 봉·장 상태가 바뀌는 순간 서버에 다시 묻는다(공개된 봉은 서버가 정함)
+        if (force || key !== lastKey) { lastKey = key; syncServer(); }
+        return;
+    }
     // 시즌이 바뀌면(첫 실행·월요일) 데이터부터 불러오고 다시 그림
     if (readyFor !== cl.id) {
         if (loadingFor !== cl.id) { loadingFor = cl.id; ensureData(cl.id).then(() => { readyFor = cl.id; refresh(true); }); }
@@ -915,11 +1077,7 @@ function refresh(force) {
     }
     if (!force && key === lastKey) return;
     lastKey = key; CL = cl;
-    settleEnded(cl);
-    $('#dataError').hidden = true;
-    $('#view-play').hidden = cl.phase === 'weekend';
-    $('#view-weekend').hidden = cl.phase !== 'weekend';
-    if (cl.phase === 'weekend') renderWeekend(d); else renderPlay();
+    renderView();
 }
 
 // ---------- 시작 ----------
@@ -929,14 +1087,19 @@ refresh(true);
 if (refunded > 0) toast(`이전 방식 모의투자 참가금 ${won(refunded)}을 잔액으로 돌려드렸어요.`);
 setInterval(() => refresh(false), 1000);
 window.addEventListener('resize', () => { if (CL && CL.phase !== 'weekend') drawPlay(); });
+if (SRV) {
+    OOS.on('session', () => { lastKey = ''; refresh(true); });               // 로그인·로그아웃(다른 탭 포함) → 내 기록 다시
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });   // 잠든 탭이 깨어나면 다시 맞춤
+    setInterval(() => { if (!document.hidden) syncServer(true); }, 5 * 60 * 1000);                   // 5분마다 조용히 한 번 더(시계·기록 맞춤)
+}
+window.__VM = { DATA, DB: () => DB, CL: () => CL, syncServer, clockOf, now };
 })();
 
-// 사이드바 / 헤더 (practice.html 과 동일)
+// 사이드바(접기/펼치기) — 우측 상단 잔액·로그인/로그아웃은 공용 런타임(assets/oos/runtime.js)이 채운다
 (function () {
     const sidebar = document.getElementById('sidebar');
     if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
     document.getElementById('toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
-    window.headerLogout = function () { alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.'); };
 })();
     </script>
 </body>

@@ -12,7 +12,7 @@
             --card-border: #cbd5e1;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
             --accent-blue: #3730a3;
             --accent-green: #16a34a;
             --accent-red: #dc2626;
@@ -62,7 +62,9 @@
         .toggle-btn:hover { background-color: var(--hover-bg); }
         .logo { display: flex; align-items: center; min-width: 0; }
         .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
-        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .nav-menu { list-style: none; padding: 16px 10px; }
         .nav-item { margin-bottom: 4px; }
         .nav-link {
@@ -167,6 +169,21 @@
         .profile-avatar-big.stable { background: #eaf1ff; border-color: #d3e3ff; }
         .profile-avatar-big.neutral { background: #fffaea; border-color: #f3e6a8; }
         .profile-avatar-big.aggressive { background: #fdecec; border-color: #f7cfcb; }
+        /* [백엔드 연동] 꾸민 양봉이(양봉이 꾸미기에서 산 옷을 입은 모습) — 몸값 수저 등급마다 배경 */
+        .profile-avatar-big.av { padding: 5px; background: linear-gradient(180deg, #f7f4ee, #ece3d4); border-color: #e7e5e4; }
+        .profile-avatar-big.av.k-2 { background: linear-gradient(180deg, #fff8f0, #fcdcbc); border-color: #fed7aa; }
+        .profile-avatar-big.av.k-3 { background: linear-gradient(180deg, #ffffff, #dfe6ef); border-color: #cbd5e1; }
+        .profile-avatar-big.av.k-4 { background: radial-gradient(circle at 50% 40%, #fffdf2, #fde68a 58%, #f3c24a); border-color: #f3c24a; }
+        .profile-avatar-big.av.k-5 { background: radial-gradient(circle at 50% 38%, #f5feff, #bae6fd 52%, #a5b4fc); border-color: #67e8f9; }
+        .profile-avatar-big-link { position: relative; display: block; flex-shrink: 0; border-radius: 22px; text-decoration: none; }
+        .profile-avatar-big-link:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
+        .profile-avatar-big-link .av-edit {
+            position: absolute; right: -7px; bottom: -6px; display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px;
+            border-radius: 999px; background: var(--accent-blue); color: #fff; font-size: 10.5px; font-weight: 800; white-space: nowrap;
+            box-shadow: 0 3px 8px rgba(55, 48, 163, 0.3);
+        }
+        .profile-avatar-big-link .av-edit svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linejoin: round; flex-shrink: 0; }
+        .profile-avatar-big-link:hover .av-edit { filter: brightness(1.12); }
         .profile-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
         .profile-name { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
         .profile-email { font-size: 12px; color: var(--text-secondary); }
@@ -350,6 +367,31 @@
         .pw-hint.ok { color: #16a34a; }
         .pw-notice { display: none; align-items: flex-start; gap: 8px; margin-top: 2px; padding: 10px 12px; border-radius: 6px; background: var(--hover-bg); color: var(--accent-blue); font-size: 11.5px; line-height: 1.5; }
         .pw-notice.show { display: flex; }
+        .pw-notice.err { background: #fef2f2; color: #b91c1c; }
+
+        /* [백엔드 연동] 시안에 없던 상태 — 내 활동의 출금(−) · 관심 종목 검색 결과 · 친구 목록 버튼 묶음 · 1:1 대화 */
+        .activity-amt.minus { color: #2563eb; }
+        .watch-suggest { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .watch-suggest:empty { display: none; }
+        .watch-suggest .watch-item { width: 100%; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+        .watch-suggest .watch-item:hover { border-color: var(--accent-blue); }
+        .social-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .social-req-btn:disabled { opacity: .55; cursor: default; }
+        .social-room { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 2px; border: none; border-top: 1px solid var(--card-border); background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+        .social-room:first-child { border-top: none; }
+        .social-room:hover .social-user-name { color: var(--accent-blue); }
+        .social-room-body { flex: 1; min-width: 0; }
+        .social-room-last { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        .social-room-meta { text-align: right; font-size: 10.5px; color: var(--text-muted); white-space: nowrap; }
+        .social-unread { display: inline-block; min-width: 18px; padding: 1px 6px; margin-top: 3px; border-radius: 999px; background: var(--accent-red); color: #fff; font-size: 10.5px; font-weight: 800; text-align: center; }
+        .chat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+        .chat-box { display: flex; flex-direction: column; gap: 6px; max-height: 46vh; min-height: 140px; overflow-y: auto; padding: 8px 2px; border-top: 1px solid var(--card-border); border-bottom: 1px solid var(--card-border); }
+        .chat-msg { max-width: 78%; align-self: flex-start; padding: 8px 11px; border-radius: 12px; background: var(--item-bg); border: 1px solid var(--card-border); font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+        .chat-msg.mine { align-self: flex-end; background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+        .chat-time { display: block; margin-top: 3px; font-size: 10px; opacity: .7; }
+        .chat-form { display: flex; gap: 8px; margin-top: 10px; }
+        .chat-form input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--item-bg); font-size: 12.5px; font-family: inherit; color: var(--text-primary); outline: none; }
+        .chat-form input:focus { border-color: var(--accent-blue); background: #fff; }
         .pw-notice svg.ico { width: 14px; height: 14px; margin-top: 1px; flex-shrink: 0; }
 
         /* 우측 상단 영역 (마이페이지 / 가상머니 / 로그아웃) */
@@ -424,7 +466,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="stocks.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                     <span class="nav-text">실시간 종목</span>
                 </a>
@@ -441,6 +483,12 @@
                     <span class="nav-text">뉴스</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
         </ul>
     </aside>
 
@@ -453,7 +501,7 @@
                 <div class="search-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
-                <input type="text" placeholder="종목명 또는 종목코드 검색">
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
             </div>
 
             <div class="header-actions" id="headerProfile">
@@ -465,7 +513,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
                     <span class="header-btn-label">마이페이지</span>
                 </a>
-                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="header-btn-label">로그아웃</span>
                 </button>
@@ -480,30 +528,33 @@
                 </div>
             </div>
 
-            <div class="draft-banner"><svg class="ico"><use href="#i-info"/></svg>
+            <div class="draft-banner" id="draftBanner"><svg class="ico"><use href="#i-info"/></svg>
                 <span><b>디자인 시안이에요.</b> 아래 기록은 백엔드 연동 전 화면 확인용 예시 데이터이고, 실제 내 기록은 아니에요.</span>
             </div>
 
             <div class="dashboard-grid">
                 <div class="left-column">
                     <div class="card profile-hero">
-                        <img class="profile-avatar-big" id="profileAvatarImg" src="assets/risk-aggressive.png" alt="">
-                        <div class="profile-name-row"><span class="profile-name">김입문</span><span class="chip">일반 회원</span></div>
-                        <div class="profile-email">test@outofstock.io</div>
-                        <div class="profile-meta"><span>가입 <b>2026.03.02</b></span><span>최근 접속 <b id="lastSeen"></b></span></div>
+                        <a class="profile-avatar-big-link" href="avatar.html" title="양봉이 꾸미기">
+                            <img class="profile-avatar-big" id="profileAvatarImg" src="assets/risk-aggressive.png" alt="">
+                            <span class="av-edit"><svg viewBox="0 0 24 24"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>꾸미기</span>
+                        </a>
+                        <div class="profile-name-row"><span class="profile-name" id="profileName">김입문</span><span class="chip">일반 회원</span><span class="chip" id="profileSpoon" hidden></span></div>
+                        <div class="profile-email" id="profileEmail">test@outofstock.io</div>
+                        <div class="profile-meta"><span>가입 <b id="joinedAt">2026.03.02</b></span><span>최근 접속 <b id="lastSeen"></b></span></div>
                         <div class="profile-actions">
                             <button class="btn sm" type="button" data-act="edit-profile"><svg class="ico"><use href="#i-edit"/></svg>프로필 수정</button>
                             <button class="btn sm danger" type="button" data-act="logout"><svg class="ico"><use href="#i-log-out"/></svg>로그아웃</button>
                         </div>
                     </div>
-                    <a class="card friend-teaser" href="#" onclick="openFriendModal(event)">
+                    <a class="card friend-teaser" href="#" data-on="openFriendModal(event)" id="friendTeaser">
                         <img class="friend-teaser-img" src="images/friend.png" alt="친구 · 채팅">
                         <div class="friend-teaser-body">
                             <div class="friend-teaser-text">
                                 <div class="friend-teaser-title">친구 · 채팅</div>
                                 <div class="friend-teaser-stats">
-                                    <span class="friend-teaser-stat">친구 <b>0</b>명</span>
-                                    <span class="friend-teaser-stat">안 읽은 메시지 <b>0</b>개</span>
+                                    <span class="friend-teaser-stat">친구 <b id="friendCount">0</b>명</span>
+                                    <span class="friend-teaser-stat">안 읽은 메시지 <b id="unreadCount">0</b>개</span>
                                 </div>
                             </div>
                             <svg class="friend-teaser-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -531,9 +582,9 @@
     </div>
 
     <!-- 친구 · 채팅 (디자인 시안 — 기능은 백엔드에서 이미 구현돼 있고, 여기서는 작은 모달 디자인만 보여줘요) -->
-    <div class="social-overlay" id="socialOverlay" hidden onclick="if (event.target === this) closeFriendModal();">
+    <div class="social-overlay" id="socialOverlay" hidden data-on-self="closeFriendModal()">
         <div class="social-modal" role="dialog" aria-modal="true" aria-label="친구 · 채팅">
-            <button class="social-close" type="button" onclick="closeFriendModal()" aria-label="닫기"><svg class="ico"><use href="#i-x"/></svg></button>
+            <button class="social-close" type="button" data-on="closeFriendModal()" aria-label="닫기"><svg class="ico"><use href="#i-x"/></svg></button>
             <div class="social-header">
                 <img src="images/friend.png" alt="" class="social-header-img">
                 <div>
@@ -570,187 +621,274 @@
         </defs>
     </svg>
 
+    <script src="assets/oos/runtime.js"></script>
+    <script src="assets/avatar-items.js"></script>
     <script src="assets/terms.js"></script>
     <script>
 
 // ============================================================
-//  마이페이지 (디자인 시안 — 기능 없음)
+//  마이페이지
 //
-//  아래 데이터는 전부 화면 확인용 예시(mock)입니다. 실제 계정 데이터는 백엔드가 연동되면
-//  각 섹션의 MOCK_* 변수를 API 응답으로 교체하면 됩니다. (요청사항: "기능을 넣는 게 아니라 디자인만")
-//
-//  백엔드 연동 시 필요한 데이터 (화면 기준):
-//   1) 투자 성향   : { type: 'stable'|'neutral'|'aggressive', score, analyzedAt }
-//   2) 학습 로그   : [{ term, learnedAt }]
-//   3) 실습 이력   : [{ name, tries, completed, inProgress, bestReturn, href }]
-//   4) 관심 종목   : [{ code, name, price, changeRate }]
-//   5) 접속 로그   : [{ type: 'login'|'logout', at, device }]
-//   6) 비밀번호 변경: POST 엔드포인트만 있으면 됨 (현재/새 비밀번호)
+//  [백엔드 연동] 서버가 이 화면을 내보내면 내 계정의 실제 기록을 보여 준다(로그인 필요 — 아니면 로그인 화면으로).
+//   /me(프로필·성향·지갑·출석·접속 요약) · /learn/progress + /me/logs/learning(학습 로그) · /practice/records(실습 이력)
+//   · /watchlist(관심 종목 담기·빼기 — 검색 /search/suggest) · /me/logs/access(접속 기록) · /learn/quiz(퀴즈 완료 일수)
+//   · /auth/change-password(비밀번호 변경) · /transfer(송금 — 멱등키, 큰 금액·평소와 다른 송금은 비밀번호 재확인)
+//   · DELETE /me(회원 탈퇴 — 비밀번호 재확인) · /friends·/users·/chat(친구·채팅 — 실시간 알림으로 갱신)
+//  파일로 열면(디자인 확인용) 시안의 예시 데이터를 그대로 보여 준다(아래 S 의 처음 값).
 // ============================================================
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const ico = (n) => `<svg class="ico"><use href="#i-${n}"/></svg>`;
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const head = (icon, title, sub) => `<div class="card-header"><div class="card-title">${ico(icon)}${title}</div>${sub ? `<span class="card-sub">${sub}</span>` : ''}</div>`;
+const won = (n) => Math.round(Number(n) || 0).toLocaleString('ko-KR');
+// 서버 시각은 한국시간 'YYYY-MM-DDTHH:MM:SS' — 시안 표기(가입 2026.10.04 · 목록 10.11 13:27)로
+const dtp = (s) => { const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/); return m ? { y: m[1], mo: m[2], d: m[3], h: m[4], mi: m[5] } : null; };
+const ymd = (s) => { const t = dtp(s); return t ? `${t.y}.${t.mo}.${t.d}` : '-'; };
+const mdhm = (s) => { const t = dtp(s); return t ? `${t.mo}.${t.d}${t.h ? ` ${t.h}:${t.mi}` : ''}` : '-'; };
+const mdShort = (s) => { const t = dtp(s); return t ? `${Number(t.mo)}.${t.d}` : '-'; };
+const nowMdhm = () => { const d = new Date(), p = (v) => String(v).padStart(2, '0'); return `${d.getMonth() + 1}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 
 const RISK_PROFILE = {
     stable: { name: '안정형', cls: 'stable', img: 'assets/risk-stable.png', desc: '원금 변동을 줄이는 쪽이에요. 저위험 자산 위주로 천천히 배워가요.' },
     neutral: { name: '중립형', cls: 'neutral', img: 'assets/risk-neutral.png', desc: '수익과 안정 사이에서 균형을 잡는 쪽이에요. 중위험 자산을 중심으로 조금씩 경험을 넓혀가요.' },
     aggressive: { name: '공격형', cls: 'aggressive', img: 'assets/risk-aggressive.png', desc: '변동을 감수하고 수익을 노리는 쪽이에요. 고위험 자산 비중을 높여 실전 감각을 키워요.' }
 };
+const TYPE_KEY = { '안정형': 'stable', '중립형': 'neutral', '공격형': 'aggressive' };
+const TECH_NAME = { golden: '골든크로스 매매 실습', rsi: 'RSI 과매도 반등 매매 실습', pullback: '눌림목 매매 실습', support: '지지선 매매 실습' };
+const TERM_TOTAL = typeof TERMS !== 'undefined' ? TERMS.length : 169;
 
-// ---------- 1) 투자 성향 (예시) ----------
-const MOCK_PERSONA = { type: 'neutral', score: 14, analyzedAt: '2026.09.20' };
+// ---------- 화면 상태 — 처음 값은 시안의 예시(파일로 열었을 때), 서버에 연결되면 내 계정 값으로 바뀐다 ----------
+function mockDate(daysAgo) { const d = new Date(); d.setDate(d.getDate() - daysAgo); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')}`; }
+const S = {
+    live: false,
+    user: { name: '김입문', email: 'test@outofstock.io', joined: '2026.03.02', lastSeen: nowMdhm() },
+    persona: { type: 'neutral', score: 14, analyzedAt: '2026.09.20' },
+    balance: 1000000,
+    learn: ['골든크로스', 'RSI', '손절매 (손절)', '분산투자', 'PER', '시가총액', 'ETF', '배당금'].map((name, i) => ({ name, at: mockDate(i * 2 + 1) })),
+    learnedCount: 8,
+    practice: [
+        { tech: 'golden', name: '골든크로스 매매 실습', tries: 5, completed: 3, best: 0.171 },
+        { tech: 'rsi', name: 'RSI 과매도 반등 매매 실습', tries: 2, completed: 1, best: 0.094 }
+    ],
+    watch: [
+        { code: '005930', name: '삼성전자', price: 285500, rate: 3.25 },
+        { code: '000660', name: 'SK하이닉스', price: 1862000, rate: 1.20 },
+        { code: '035420', name: 'NAVER', price: 184700, rate: -0.76 },
+        { code: '373220', name: 'LG에너지솔루션', price: 365000, rate: 0.40 }
+    ],
+    access: [
+        { type: 'login', label: '로그인', at: '09.24 08:12', device: 'Chrome · Windows' },
+        { type: 'logout', label: '로그아웃', at: '09.23 23:47', device: 'Chrome · Windows' },
+        { type: 'login', label: '로그인', at: '09.23 19:03', device: 'Safari · iPhone' },
+        { type: 'logout', label: '로그아웃', at: '09.22 22:10', device: 'Chrome · Windows' },
+        { type: 'login', label: '로그인', at: '09.22 20:55', device: 'Chrome · Windows' },
+        { type: 'login', label: '로그인', at: '09.21 13:30', device: 'Safari · iPhone' }
+    ],
+    activity: [
+        { at: '10.26 09:33', label: '출석 보상', sub: '연속 1일', amount: 500 },
+        { at: '10.26 09:23', label: '가입 환영금', sub: '가입 환영 가상머니', amount: 1000000 }
+    ],
+    activityTotal: 2,
+    quizDays: 2,
+    attendanceDays: 3,
+    friends: [],
+    unread: 0
+};
 
+// [백엔드 연동] 양봉이 꾸미기에서 옷을 입혔으면 프로필 그림은 그 모습(수저 등급 배경) + 이름 옆 수저 칩
+function dressAvatar(img) {
+    const av = S.live && S.avatar, eq = av && av.equipped, spoon = $('#profileSpoon');
+    if (!eq || !Object.keys(eq).length || !window.AVATAR) { spoon.hidden = true; return false; }
+    const c = AVATAR.classOf(AVATAR.worth(eq));
+    img.src = AVATAR.dataUrl(eq, { label: '꾸민 양봉이' }); img.alt = `꾸민 양봉이(${c.name})`;
+    img.className = 'profile-avatar-big av k-' + c.level;
+    spoon.textContent = `${c.name} · 몸값 ${AVATAR.fmt(AVATAR.worth(eq))}`; spoon.hidden = false;
+    return true;
+}
+
+// ---------- 1) 투자 성향 ----------
 function renderPersona() {
-    const p = RISK_PROFILE[MOCK_PERSONA.type];
-    const avatarImg = $('#profileAvatarImg');
-    avatarImg.src = p.img;
-    avatarImg.alt = p.name + ' 양봉이';
-    avatarImg.className = 'profile-avatar-big ' + p.cls;
+    const avatarImg = $('#profileAvatarImg'), sample = S.live ? '' : ' <span class="sample-tag">예시</span>';
+    const p = S.persona && RISK_PROFILE[S.persona.type];
+    if (!p) {                                                  // 아직 설문 전(서버에 성향 기록 없음)
+        if (!dressAvatar(avatarImg)) { avatarImg.src = 'assets/logo-mark.png'; avatarImg.alt = ''; avatarImg.className = 'profile-avatar-big'; }
+        $('#secPersona').innerHTML = head('target', '투자 성향', '') + `
+        <div class="persona-body">
+            <img src="assets/logo-mark.png" alt="">
+            <div style="min-width:0;flex:1">
+                <div class="persona-type">아직 분석 전이에요</div>
+                <p class="persona-desc">10가지 질문에 답하면 나에게 맞는 투자 스타일과 추천 상품을 알려 드려요.</p>
+            </div>
+            <a class="btn outline sm" href="index.html#survey">진단하기${ico('arrow-right')}</a>
+        </div>`;
+        return;
+    }
+    if (!dressAvatar(avatarImg)) {
+        avatarImg.src = p.img;
+        avatarImg.alt = p.name + ' 양봉이';
+        avatarImg.className = 'profile-avatar-big ' + p.cls;
+    }
     $('#secPersona').innerHTML = head('target', '투자 성향', '') + `
         <div class="persona-body">
             <img src="${p.img}" alt="${p.name} 양봉이">
             <div style="min-width:0;flex:1">
-                <div class="persona-type ${p.cls}">${p.name} <span class="sample-tag">예시</span></div>
-                <div class="persona-date">분석일 ${MOCK_PERSONA.analyzedAt} · 총점 ${MOCK_PERSONA.score}점</div>
+                <div class="persona-type ${p.cls}">${p.name}${sample}</div>
+                <div class="persona-date">분석일 ${esc(S.persona.analyzedAt)} · 총점 ${esc(S.persona.score)}점</div>
                 <p class="persona-desc">${p.desc}</p>
             </div>
             <a class="btn outline sm" href="index.html#survey">다시 진단하기${ico('arrow-right')}</a>
         </div>`;
 }
 
-// ---------- 내 지갑 · 가상머니 (디자인만 — index.html 로그인 카드와 동일한 outofstock_balance 값을 보여줌) ----------
-function getBalance() {
-    const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-    return Number.isFinite(v) ? v : 1000000;
+// ---------- 프로필 ----------
+function renderProfile() {
+    $('#profileName').textContent = S.user.name;
+    const em = $('#profileEmail');
+    em.textContent = S.user.email || '';
+    em.style.display = S.user.email ? '' : 'none';            // 이메일을 받지 않는 서비스 — 없으면 줄을 숨긴다
+    $('#joinedAt').textContent = S.user.joined;
+    $('#lastSeen').textContent = S.user.lastSeen;
 }
+
+// ---------- 내 지갑 · 가상머니 ----------
 function renderWallet() {
     $('#secWallet').innerHTML = `
         <div class="wallet-card">
             <div class="wallet-top">${ico('wallet')}<span class="wallet-label">내 지갑 · 가상머니</span></div>
-            <div class="wallet-amt">${getBalance().toLocaleString('ko-KR')}원</div>
+            <div class="wallet-amt">${won(S.balance)}원</div>
             <div class="wallet-sub">출석 체크 등으로 적립된 연습용 가상머니예요</div>
             <button class="btn primary" type="button" data-act="transfer">${ico('send')}송금</button>
             <div class="wallet-foot"><a href="#" data-act="delete-account">회원 탈퇴</a></div>
         </div>`;
 }
 
-// ---------- 2) 학습 로그 (예시) ----------
-const MOCK_LEARN_NAMES = ['골든크로스', 'RSI', '손절매 (손절)', '분산투자', 'PER', '시가총액', 'ETF', '배당금'];
-function mockDate(daysAgo) { const d = new Date(); d.setDate(d.getDate() - daysAgo); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')}`; }
-
+// ---------- 2) 학습 로그 ----------
 function renderLearn() {
     const byName = new Map((typeof TERMS !== 'undefined' ? TERMS : []).map((t) => [t.name, t]));
-    const rows = MOCK_LEARN_NAMES.map((name, i) => ({ term: byName.get(name) || { name }, learnedAt: mockDate(i * 2 + 1) }));
+    const rows = S.learn.slice(0, 10).map((r) => ({ term: byName.get(r.name) || { name: r.name }, at: r.at }));
     $('#secLearn').innerHTML = `
-        <div class="log-summary"><span class="chip">누적 학습 <b class="num">${rows.length}</b>개</span><span class="chip">전체 용어 <b class="num">${typeof TERMS !== 'undefined' ? TERMS.length : 116}</b>개</span></div>
+        <div class="log-summary"><span class="chip">누적 학습 <b class="num">${S.learnedCount}</b>개</span><span class="chip">전체 용어 <b class="num">${TERM_TOTAL}</b>개</span></div>
         <div class="log-list" style="margin-top:10px">
-            ${rows.map((r) => `
+            ${rows.length ? rows.map((r) => `
             <a class="log-row" href="learn.html?term=${encodeURIComponent(r.term.name)}">
                 <div class="lr-ico">${ico('check')}</div>
                 <div class="lr-name">${esc(r.term.name)}</div>
-                <div class="lr-date">${r.learnedAt} 학습</div>
-            </a>`).join('')}
+                <div class="lr-date">${r.at ? esc(r.at) + ' 학습' : ''}</div>
+            </a>`).join('') : `<div class="watch-empty">아직 '이해했어요'로 표시한 용어가 없어요.</div>`}
         </div>
         <div style="text-align:center;margin-top:10px"><a class="link-btn" href="learn.html">용어사전에서 더 보기 →</a></div>`;
 }
 
-// ---------- 3) 실습 이력 (예시) ----------
-const MOCK_PRACTICE = [
-    { name: '골든크로스 매매 실습', icon: 'activity', tries: 5, completed: 3, inProgress: 0, bestReturn: 17.1, href: 'practice.html?t=golden' },
-    { name: 'RSI 과매도 반등 실습', icon: 'activity', tries: 2, completed: 1, inProgress: 1, bestReturn: 9.4, href: 'practice.html?t=rsi' }
-];
+// ---------- 3) 실습 이력 ----------
 function renderPractice() {
-    $('#secPractice').innerHTML = `
+    const pct = (v) => `${v > 0 ? '+' : ''}${(v * 100).toFixed(1)}%`;
+    $('#secPractice').innerHTML = S.practice.length ? `
         <div class="practice-stat-grid">
-            ${MOCK_PRACTICE.map((p) => {
-                const pct = p.tries ? Math.round((p.completed / p.tries) * 100) : 0;
-                return `<a class="practice-stat" href="${esc(p.href)}" style="text-decoration:none;color:inherit">
-                    <div class="ps-ico">${ico(p.icon)}</div>
+            ${S.practice.map((p) => {
+                const rate = p.tries ? Math.round((p.completed / p.tries) * 100) : 0;
+                return `<a class="practice-stat" href="practice.html?t=${encodeURIComponent(p.tech)}" style="text-decoration:none;color:inherit">
+                    <div class="ps-ico">${ico('activity')}</div>
                     <div style="min-width:0">
                         <div class="ps-name">${esc(p.name)}</div>
-                        <div class="ps-bar-track"><div class="ps-bar-fill" style="width:${pct}%"></div></div>
-                        <div class="ps-meta">시도 ${p.tries}회 · 완료 ${p.completed}회${p.inProgress ? ` · 진행 중 ${p.inProgress}개` : ''}</div>
+                        <div class="ps-bar-track"><div class="ps-bar-fill" style="width:${rate}%"></div></div>
+                        <div class="ps-meta">시도 ${p.tries}회 · 완료 ${p.completed}회${p.realTries ? ` · 실전 ${p.realTries}회` : ''}</div>
                     </div>
-                    <div class="ps-right"><div class="ps-best up">+${p.bestReturn.toFixed(1)}%</div><div class="ps-best-label">최고 수익률</div></div>
+                    <div class="ps-right"><div class="ps-best ${p.best == null ? '' : p.best >= 0 ? 'up' : 'down'}">${p.best == null ? '-' : pct(p.best)}</div><div class="ps-best-label">최고 수익률</div></div>
                 </a>`;
             }).join('')}
-        </div>`;
+        </div>` : `<div class="watch-empty">아직 실습 기록이 없어요. <a class="link-btn" href="practice.html">실습하러 가기 →</a></div>`;
 }
 
-// ---------- 4) 관심 종목 (예시) ----------
-let MOCK_WATCH = [
-    { code: '005930', name: '삼성전자', price: 285500, rate: 3.25 },
-    { code: '000660', name: 'SK하이닉스', price: 1862000, rate: 1.20 },
-    { code: '035420', name: 'NAVER', price: 184700, rate: -0.76 },
-    { code: '373220', name: 'LG에너지솔루션', price: 365000, rate: 0.40 }
-];
+// ---------- 4) 관심 종목 ----------
 function renderWatch() {
     const box = $('#secWatch');
     box.innerHTML = `
         <div class="watch-list" id="watchList">
-            ${MOCK_WATCH.length ? MOCK_WATCH.map((s) => `
+            ${S.watch.length ? S.watch.map((s) => `
             <div class="watch-item" data-code="${esc(s.code)}">
                 <div class="wi-info"><span class="wi-name">${esc(s.name)}</span><span class="wi-code">${esc(s.code)}</span></div>
-                <div><div class="wi-price num">${s.price.toLocaleString('ko-KR')}</div><div class="wi-rate num ${s.rate >= 0 ? 'up' : 'down'}">${s.rate > 0 ? '+' : ''}${s.rate.toFixed(2)}%</div></div>
-                <button class="wi-remove" type="button" data-act="unwatch" data-code="${esc(s.code)}" title="관심 종목에서 빼기">${ico('x')}</button>
+                <div><div class="wi-price num">${s.price == null ? '-' : won(s.price)}</div><div class="wi-rate num ${(s.rate || 0) >= 0 ? 'up' : 'down'}">${s.rate == null ? '' : `${s.rate > 0 ? '+' : ''}${Number(s.rate).toFixed(2)}%`}</div></div>
+                <button class="wi-remove" type="button" data-act="unwatch" data-code="${esc(s.code)}" title="관심 종목에서 빼기" aria-label="${esc(s.name)} 관심 종목에서 빼기">${ico('x')}</button>
             </div>`).join('') : `<div class="watch-empty">관심 종목이 없어요.</div>`}
         </div>
-        <div class="watch-add"><input type="text" placeholder="종목명 또는 종목코드 검색 (백엔드 연동 예정)" disabled><button class="btn sm" type="button" disabled>${ico('plus')}추가</button></div>`;
+        <div class="watch-add"><input type="text" id="watchQ" placeholder="${S.live ? '종목명 또는 종목코드 검색' : '종목명 또는 종목코드 검색 (백엔드 연동 예정)'}" autocomplete="off" maxlength="40" aria-label="관심 종목 검색"${S.live ? '' : ' disabled'}><button class="btn sm" type="button" data-act="watch-search"${S.live ? '' : ' disabled'}>${ico('plus')}추가</button></div>
+        <div class="watch-suggest" id="watchSuggest" role="list"></div>`;
 }
-function unwatch(code) {
-    const el = $(`.watch-item[data-code="${code}"]`); if (!el) return;
+async function unwatch(code) {
+    const el = $(`.watch-item[data-code="${CSS.escape(code)}"]`); if (!el) return;
+    if (S.live) {
+        try { await OOS.api('/watchlist/' + encodeURIComponent(code), { method: 'DELETE' }); }
+        catch (e) { OOS.notice(e.message, true); return; }
+    }
     el.classList.add('removing');
-    setTimeout(() => { MOCK_WATCH = MOCK_WATCH.filter((s) => s.code !== code); renderWatch(); }, 200);
+    setTimeout(() => { S.watch = S.watch.filter((s) => s.code !== code); renderWatch(); renderStats(); }, 200);
+}
+let watchSeq = 0, watchTimer = null, watchHits = [];
+function watchSearchSoon() { clearTimeout(watchTimer); watchTimer = setTimeout(watchSearch, 250); }
+async function watchSearch(pickExact) {
+    const q = ($('#watchQ') || {}).value || '', seq = ++watchSeq, box = $('#watchSuggest');
+    if (!q.trim()) { watchHits = []; box.innerHTML = ''; return; }
+    let d;
+    try { d = await OOS.api('/search/suggest?kind=kr&limit=6&q=' + encodeURIComponent(q.trim())); } catch (e) { if (seq === watchSeq) box.innerHTML = `<div class="watch-empty">${esc(e.message)}</div>`; return; }
+    if (seq !== watchSeq) return;                            // 빨리 친 글자의 늦은 응답은 버림
+    const have = new Set(S.watch.map((s) => s.code));
+    watchHits = ((d && d.items) || []).filter((x) => x.ticker && !have.has(x.ticker));
+    const exact = watchHits.find((x) => x.ticker === q.trim() || x.name === q.trim());
+    if (pickExact && exact) { addWatch(exact.ticker); return; }
+    box.innerHTML = watchHits.length ? watchHits.map((x) => `
+        <button type="button" class="watch-item" role="listitem" data-act="watch-add" data-code="${esc(x.ticker)}">
+            <div class="wi-info"><span class="wi-name">${esc(x.name)}</span><span class="wi-code">${esc(x.ticker)} · ${esc(x.market || '')}</span></div>
+            <span class="chip">${ico('plus')}담기</span>
+        </button>`).join('') : `<div class="watch-empty">찾는 종목이 없어요(이미 담은 종목은 빼고 보여요).</div>`;
+}
+async function addWatch(code) {
+    try { await OOS.api('/watchlist/' + encodeURIComponent(code), { method: 'POST' }); }
+    catch (e) { OOS.notice(e.message, true); return; }
+    await loadWatch();
+    renderWatch(); renderStats();
+    OOS.notice('관심 종목에 담았어요');
 }
 
-// ---------- 5) 접속 로그 (예시) ----------
-const MOCK_ACCESS = [
-    { type: 'login', at: '09.24 08:12', device: 'Chrome · Windows' },
-    { type: 'logout', at: '09.23 23:47', device: 'Chrome · Windows' },
-    { type: 'login', at: '09.23 19:03', device: 'Safari · iPhone' },
-    { type: 'logout', at: '09.22 22:10', device: 'Chrome · Windows' },
-    { type: 'login', at: '09.22 20:55', device: 'Chrome · Windows' },
-    { type: 'login', at: '09.21 13:30', device: 'Safari · iPhone' }
-];
+// ---------- 5) 접속 로그 ----------
+const ACCESS_LABEL = { login: ['login', '로그인'], logout: ['logout', '로그아웃'], register: ['login', '가입'], change_pw: ['logout', '비밀번호 변경'] };
 function renderAccess() {
     $('#secAccess').innerHTML = `
         <div style="overflow-x:auto"><table class="access-table">
             <thead><tr><th>구분</th><th>일시</th><th>기기</th></tr></thead>
             <tbody>
-                ${MOCK_ACCESS.map((a) => `<tr>
-                    <td><span class="access-type ${a.type === 'login' ? 'in' : 'out'}">${ico(a.type === 'login' ? 'log-in' : 'log-out')}${a.type === 'login' ? '로그인' : '로그아웃'}</span></td>
-                    <td class="num">${a.at}</td>
-                    <td class="access-dev">${esc(a.device)}</td>
-                </tr>`).join('')}
+                ${S.access.length ? S.access.map((a) => `<tr>
+                    <td><span class="access-type ${a.type === 'login' ? 'in' : 'out'}">${ico(a.type === 'login' ? 'log-in' : 'log-out')}${esc(a.label)}</span></td>
+                    <td class="num">${esc(a.at)}</td>
+                    <td class="access-dev">${esc(a.device || '-')}</td>
+                </tr>`).join('') : '<tr><td colspan="3">접속 기록이 없어요</td></tr>'}
             </tbody>
         </table></div>`;
 }
 
-// ---------- 6) 비밀번호 변경 (디자인만 — 실제 변경 없음) ----------
+// ---------- 6) 비밀번호 변경 ----------
 function renderPw() {
     $('#secPw').innerHTML = `
         <form class="pw-form" id="pwForm" novalidate>
             <div class="pw-field">
                 <label for="pwCur">현재 비밀번호</label>
-                <div class="pw-input-wrap"><input type="password" id="pwCur" placeholder="현재 비밀번호" autocomplete="current-password">
+                <div class="pw-input-wrap"><input type="password" id="pwCur" placeholder="현재 비밀번호" autocomplete="current-password" maxlength="128">
                     <button class="pw-toggle" type="button" data-act="toggle-pw" data-target="pwCur" aria-label="비밀번호 표시">${ico('eye')}</button></div>
             </div>
             <div class="pw-field">
                 <label for="pwNew">새 비밀번호</label>
-                <div class="pw-input-wrap"><input type="password" id="pwNew" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password">
+                <div class="pw-input-wrap"><input type="password" id="pwNew" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password" maxlength="128">
                     <button class="pw-toggle" type="button" data-act="toggle-pw" data-target="pwNew" aria-label="비밀번호 표시">${ico('eye')}</button></div>
                 <div class="pw-hint" id="pwNewHint">영문, 숫자를 포함해 8자 이상 입력해 주세요.</div>
             </div>
             <div class="pw-field">
                 <label for="pwNew2">새 비밀번호 확인</label>
-                <div class="pw-input-wrap"><input type="password" id="pwNew2" placeholder="새 비밀번호 다시 입력" autocomplete="new-password">
+                <div class="pw-input-wrap"><input type="password" id="pwNew2" placeholder="새 비밀번호 다시 입력" autocomplete="new-password" maxlength="128">
                     <button class="pw-toggle" type="button" data-act="toggle-pw" data-target="pwNew2" aria-label="비밀번호 표시">${ico('eye')}</button></div>
                 <div class="pw-hint" id="pwMatchHint"></div>
             </div>
-            <button class="btn primary block" type="submit">비밀번호 변경</button>
-            <div class="pw-notice" id="pwNotice">${ico('info')}<span>디자인 시안이에요. 백엔드 연동 후 실제로 비밀번호가 바뀌도록 연결할 예정이에요.</span></div>
+            <button class="btn primary block" type="submit" id="pwSubmit">비밀번호 변경</button>
+            <div class="pw-notice${S.live ? '' : ' show'}" id="pwNotice" role="status">${ico('info')}<span>${S.live ? '' : '디자인 시안이에요. 백엔드 연동 후 실제로 비밀번호가 바뀌도록 연결할 예정이에요.'}</span></div>
         </form>`;
 }
 
@@ -765,37 +903,39 @@ function checkPw() {
     mh.className = 'pw-hint' + (n2 ? (n1 === n2 ? ' ok' : ' err') : '');
     return !!cur && strongEnough && n1 === n2 && !!n2;
 }
+function pwNotice(text, isErr) {
+    const notice = $('#pwNotice');
+    notice.classList.add('show');
+    notice.classList.toggle('err', !!isErr);
+    notice.querySelector('span').textContent = text;
+}
+async function changePw() {
+    const ok = checkPw();
+    if (!S.live) {
+        pwNotice(ok ? '입력하신 값은 정상이에요. 백엔드 연동 후 이 버튼을 누르면 실제로 비밀번호가 바뀌도록 연결할 예정이에요.'
+            : '입력값을 다시 확인해 주세요. (실제 변경 기능은 백엔드 연동 후 제공돼요)', !ok);
+        return;
+    }
+    if (!ok) { pwNotice('입력값을 다시 확인해 주세요.', true); return; }
+    await OOS.once('chpw', async () => {
+        $('#pwSubmit').disabled = true;
+        try {
+            await OOS.api('/auth/change-password', { method: 'POST', body: { old_password: $('#pwCur').value, new_password: $('#pwNew').value } });
+            $('#pwForm').reset(); checkPw(); $('#pwNewHint').className = 'pw-hint';
+            pwNotice('비밀번호를 바꿨어요. 이 기기 말고 다른 곳의 로그인은 모두 끝났어요.', false);
+        } catch (e) { pwNotice(e.message || '비밀번호를 바꾸지 못했어요', true); }
+        finally { $('#pwSubmit').disabled = false; }
+    });
+}
 
 // ---------- 요약 스탯 (학습한 용어 / 실습 완료 / 관심 종목 / 퀴즈 완료 / 총 출석) ----------
-function getLearnedCount() {
-    try {
-        const arr = JSON.parse(localStorage.getItem('outofstock_learned_terms'));
-        if (Array.isArray(arr) && arr.length) return arr.length;
-    } catch (e) { /* 무시 */ }
-    return MOCK_LEARN_NAMES.length;
-}
-function getAttendanceDays() {
-    const v = parseInt(localStorage.getItem('outofstock_streak'), 10);
-    return Number.isFinite(v) ? v : 3;
-}
-function getQuizCompletedCount() {
-    const MOCK_QUIZ_BASE = 2;
-    try {
-        const s = JSON.parse(localStorage.getItem('outofstock_daily_quiz'));
-        const today = new Date().toISOString().slice(0, 10);
-        if (s && s.date === today && s.done) return MOCK_QUIZ_BASE + 1;
-    } catch (e) { /* 무시 */ }
-    return MOCK_QUIZ_BASE;
-}
 function renderStats() {
-    const termsTotal = typeof TERMS !== 'undefined' ? TERMS.length : 169;
-    const practiceCompleted = MOCK_PRACTICE.reduce((sum, p) => sum + p.completed, 0);
     const stats = [
-        { label: '학습한 용어', val: getLearnedCount(), unit: `/ ${termsTotal}` },
-        { label: '실습 완료', val: practiceCompleted, unit: '회' },
-        { label: '관심 종목', val: MOCK_WATCH.length, unit: '개' },
-        { label: '퀴즈 완료', val: getQuizCompletedCount(), unit: '회' },
-        { label: '총 출석', val: getAttendanceDays(), unit: '일' }
+        { label: '학습한 용어', val: S.learnedCount, unit: `/ ${TERM_TOTAL}` },
+        { label: '실습 완료', val: S.practice.reduce((sum, p) => sum + p.completed, 0), unit: '회' },
+        { label: '관심 종목', val: S.watch.length, unit: '개' },
+        { label: '퀴즈 완료', val: S.quizDays, unit: '회' },
+        { label: '총 출석', val: S.attendanceDays, unit: '일' }
     ];
     $('#statRow').innerHTML = stats.map((s) => `
         <div class="stat-tile">
@@ -805,31 +945,20 @@ function renderStats() {
 }
 
 // ---------- 내 활동 (지갑 거래 로그) ----------
-// 예시로 깔아두는 기본 기록(가입 환영금 등) + 실제로 쌓이는 기록(퀴즈 보상 등, outofstock_activity_log)을 합쳐서 보여줌
-const MOCK_ACTIVITY = [
-    { at: '10.26 09:33', label: '출석 보상', sub: '연속 1일', amount: 500 },
-    { at: '10.26 09:23', label: '가입 환영금', sub: '가입 환영 가상머니', amount: 1000000 }
-];
-function getActivityLog() {
-    try {
-        const log = JSON.parse(localStorage.getItem('outofstock_activity_log'));
-        if (Array.isArray(log)) return log;
-    } catch (e) { /* 무시 */ }
-    return [];
-}
+// [백엔드 연동] 서버 원장(/me/logs/wallet)이 원본 — 가입 환영금·출석 보상·퀴즈 보상(용어사전 Daily Quiz)·송금이 모두 여기로 온다.
+//   시안의 브라우저 기록(outofstock_activity_log)은 쓰지 않는다(공용 런타임이 지운다).
 function renderActivity() {
-    const rows = [...getActivityLog(), ...MOCK_ACTIVITY];
     $('#secActivity').innerHTML = `
         <div class="activity-list">
-            ${rows.map((a) => `
+            ${S.activity.length ? S.activity.map((a) => `
             <div class="activity-row">
                 <span class="activity-date">${esc(a.at)}</span>
                 <span class="chip">지갑</span>
-                <span class="activity-body"><span class="activity-label">${esc(a.label)}</span><span class="activity-sub">${esc(a.sub)}</span></span>
-                <span class="activity-amt">+${a.amount.toLocaleString('ko-KR')}원</span>
-            </div>`).join('')}
+                <span class="activity-body"><span class="activity-label">${esc(a.label)}</span><span class="activity-sub">${esc(a.sub || '')}</span></span>
+                <span class="activity-amt${a.amount < 0 ? ' minus' : ''}">${a.amount < 0 ? '−' : '+'}${won(Math.abs(a.amount))}원</span>
+            </div>`).join('') : '<div class="watch-empty">아직 지갑 거래가 없어요.</div>'}
         </div>
-        <div class="activity-foot">최근 ${rows.length}건 · 전체 ${rows.length}건</div>`;
+        <div class="activity-foot">최근 ${S.activity.length}건 · 전체 ${S.activityTotal}건</div>`;
 }
 
 // ---------- 기록 탭 (내 활동 / 학습 로그 / 실습 이력 / 관심 종목 / 접속 기록 / 비밀번호 변경) ----------
@@ -841,15 +970,17 @@ const MY_TABS = [
     { id: 'secAccess', label: '접속 기록', icon: 'clock' },
     { id: 'secPw', label: '비밀번호 변경', icon: 'lock' }
 ];
+let curTab = 'secActivity';
 function renderTabBar() {
-    $('#mytabsBar').innerHTML = MY_TABS.map((t, i) => `<button type="button" class="mytab${i === 0 ? ' active' : ''}" data-tab="${t.id}">${ico(t.icon)}${t.label}</button>`).join('');
+    $('#mytabsBar').innerHTML = MY_TABS.map((t) => `<button type="button" class="mytab${t.id === curTab ? ' active' : ''}" data-tab="${t.id}" aria-pressed="${t.id === curTab}">${ico(t.icon)}${t.label}</button>`).join('');
 }
 function switchTab(id) {
+    curTab = id;
     MY_TABS.forEach((t) => { document.getElementById(t.id).hidden = t.id !== id; });
-    $$('.mytab').forEach((b) => b.classList.toggle('active', b.dataset.tab === id));
+    $$('.mytab').forEach((b) => { const on = b.dataset.tab === id; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on); });
 }
 
-// ---------- 친구 · 채팅 (디자인 시안 — 작은 모달, 백엔드 기능은 이미 구현돼 있다고 가정) ----------
+// ---------- 친구 · 채팅 ----------
 const SOCIAL_TABS = [
     { id: 'friends', label: '친구' },
     { id: 'requests', label: '친구 요청' },
@@ -857,7 +988,13 @@ const SOCIAL_TABS = [
     { id: 'chat', label: '채팅' }
 ];
 const MOCK_FIND_USERS = ['12341234', '123412341234', '123@123.123', '123@123.1234'];
+let socialTab = 'friends', socialSeq = 0, findTimer = null;
+const chat = { peer: null, items: [], lastId: 0, canSend: false };
 
+function renderTeaser() {
+    $('#friendCount').textContent = S.friends.length;
+    $('#unreadCount').textContent = S.unread;
+}
 function openFriendModal(e) {
     if (e && e.preventDefault) e.preventDefault();
     $('#socialTabs').innerHTML = SOCIAL_TABS.map((t, i) => `<button type="button" class="social-tab${i === 0 ? ' active' : ''}" data-social-tab="${t.id}">${t.label}</button>`).join('');
@@ -868,40 +1005,259 @@ function openFriendModal(e) {
 function closeFriendModal() {
     $('#socialOverlay').hidden = true;
     document.body.style.overflow = '';
+    chat.peer = null;
 }
-function switchSocialTab(id) {
+const socialOpen = () => !$('#socialOverlay').hidden;
+const userRow = (name, btns) => `<div class="social-user-row"><span class="social-user-name">${esc(name)}</span><span class="social-btns">${btns}</span></div>`;
+const actBtn = (act, user, label, extra) => `<button type="button" class="social-req-btn" data-act="${act}" data-user="${esc(user)}"${extra || ''}>${label}</button>`;
+function socialMock(id, body) {
+    if (id === 'friends') body.innerHTML = `<div class="social-empty">아직 친구가 없어요.<br><button type="button" class="social-link-inline" data-social-tab="find">사용자 찾기</button>에서 친구 요청을 보내 보세요.</div>`;
+    else if (id === 'requests') body.innerHTML = `
+            <div class="social-req-group"><div class="social-req-head">받은 요청 <span class="num">0</span></div><div class="social-req-empty">받은 친구 요청이 없어요.</div></div>
+            <div class="social-req-group"><div class="social-req-head">보낸 요청 <span class="num">0</span></div><div class="social-req-empty">보낸 친구 요청이 없어요.</div></div>`;
+    else if (id === 'find') body.innerHTML = `<div class="social-search">${ico('search')}<input type="text" placeholder="아이디로 검색" aria-label="아이디로 검색" disabled></div>`
+            + MOCK_FIND_USERS.map((u) => userRow(u, `<button type="button" class="social-req-btn" disabled>친구 요청</button>`)).join('');
+    else body.innerHTML = `<div class="social-empty">아직 대화가 없어요. 친구 목록에서 <b>[대화]</b>를 눌러 시작해 보세요.</div>`;
+}
+async function switchSocialTab(id) {
+    socialTab = id; chat.peer = null;
     $$('.social-tab').forEach((b) => b.classList.toggle('active', b.dataset.socialTab === id));
-    const body = $('#socialBody');
-    if (id === 'friends') {
-        body.innerHTML = `<div class="social-empty">아직 친구가 없어요.<br><button type="button" class="social-link-inline" data-social-tab="find">사용자 찾기</button>에서 친구 요청을 보내 보세요.</div>`;
-    } else if (id === 'requests') {
-        body.innerHTML = `
-            <div class="social-req-group">
-                <div class="social-req-head">받은 요청 <span class="num">0</span></div>
-                <div class="social-req-empty">받은 친구 요청이 없어요.</div>
-            </div>
-            <div class="social-req-group">
-                <div class="social-req-head">보낸 요청 <span class="num">0</span></div>
-                <div class="social-req-empty">보낸 친구 요청이 없어요.</div>
-            </div>`;
-    } else if (id === 'find') {
-        body.innerHTML = `
-            <div class="social-search">${ico('search')}<input type="text" placeholder="아이디로 검색" disabled></div>
-            ${MOCK_FIND_USERS.map((u) => `
-            <div class="social-user-row">
-                <span class="social-user-name">${esc(u)}</span>
-                <button type="button" class="social-req-btn" data-act="friend-request">친구 요청</button>
-            </div>`).join('')}`;
-    } else if (id === 'chat') {
-        body.innerHTML = `<div class="social-empty">아직 대화가 없어요. 친구 목록에서 <b>[대화]</b>를 눌러 시작해 보세요.</div>`;
+    const body = $('#socialBody'), seq = ++socialSeq;
+    if (!S.live) { socialMock(id, body); return; }
+    if (id === 'find') {
+        body.innerHTML = `<div class="social-search">${ico('search')}<input type="text" id="findQ" placeholder="아이디로 검색" autocomplete="off" maxlength="50" aria-label="아이디로 검색"></div><div id="findList"></div>`;
+        findUsers(); $('#findQ').focus();
+        return;
     }
+    body.innerHTML = '<div class="social-empty">불러오는 중…</div>';
+    try {
+        if (id === 'friends') {
+            const d = await OOS.api('/friends'); if (seq !== socialSeq) return;
+            S.friends = (d.items || []).map((f) => f.username); renderTeaser();
+            body.innerHTML = S.friends.length ? S.friends.map((u) => userRow(u,
+                actBtn('chat-open', u, '대화') + actBtn('transfer', u, '송금') + actBtn('unfriend', u, '끊기'))).join('')
+                : `<div class="social-empty">아직 친구가 없어요.<br><button type="button" class="social-link-inline" data-social-tab="find">사용자 찾기</button>에서 친구 요청을 보내 보세요.</div>`;
+        } else if (id === 'requests') {
+            const d = await OOS.api('/friends/requests'); if (seq !== socialSeq) return;
+            const rec = d.received || [], snt = d.sent || [];
+            body.innerHTML = `
+                <div class="social-req-group"><div class="social-req-head">받은 요청 <span class="num">${rec.length}</span></div>
+                    ${rec.length ? rec.map((r) => userRow(r.username, actBtn('friend-accept', r.username, '수락') + actBtn('friend-decline', r.username, '거절'))).join('') : '<div class="social-req-empty">받은 친구 요청이 없어요.</div>'}</div>
+                <div class="social-req-group"><div class="social-req-head">보낸 요청 <span class="num">${snt.length}</span></div>
+                    ${snt.length ? snt.map((r) => userRow(r.username, actBtn('friend-cancel', r.username, '요청 취소'))).join('') : '<div class="social-req-empty">보낸 친구 요청이 없어요.</div>'}</div>`;
+        } else if (id === 'chat') {
+            const d = await OOS.api('/chat/rooms'); if (seq !== socialSeq) return;
+            S.unread = d.unread_total || 0; renderTeaser();
+            const items = d.items || [];
+            body.innerHTML = items.length ? items.map((r) => `
+                <button type="button" class="social-room" data-act="chat-open" data-user="${esc(r.peer)}">
+                    <div class="social-room-body"><div class="social-user-name">${esc(r.peer)}</div><div class="social-room-last">${r.last_mine ? '나: ' : ''}${esc(r.last_body || '')}</div></div>
+                    <div class="social-room-meta">${esc(mdhm(r.last_at))}${r.unread ? `<br><span class="social-unread">${r.unread}</span>` : ''}</div>
+                </button>`).join('') : `<div class="social-empty">아직 대화가 없어요. 친구 목록에서 <b>[대화]</b>를 눌러 시작해 보세요.</div>`;
+        }
+    } catch (e) { if (seq === socialSeq) body.innerHTML = `<div class="social-empty">${esc(e.message)}</div>`; }
+}
+const RELATION_BTN = { none: ['friend-request', '친구 요청'], sent: ['friend-cancel', '요청 취소'], received: ['friend-accept', '수락'] };
+async function findUsers() {
+    const q = ($('#findQ') || {}).value || '', seq = ++socialSeq, list = $('#findList');
+    let d;
+    try { d = await OOS.api('/users?q=' + encodeURIComponent(q.trim())); } catch (e) { if (list && seq === socialSeq) list.innerHTML = `<div class="social-empty">${esc(e.message)}</div>`; return; }
+    if (seq !== socialSeq || !$('#findList')) return;
+    const items = d.items || [];
+    $('#findList').innerHTML = items.length ? items.slice(0, 30).map((u) => {
+        const b = RELATION_BTN[u.relation];
+        return userRow(u.username, b ? actBtn(b[0], u.username, b[1]) : `<button type="button" class="social-req-btn" disabled>친구</button>`);
+    }).join('') : `<div class="social-empty">${q.trim() ? '찾는 사용자가 없어요.' : '다른 사용자가 아직 없어요.'}</div>`;
+}
+async function friendAction(act, user) {
+    const call = {
+        'friend-request': ['POST', `/friends/${encodeURIComponent(user)}`, '친구 요청을 보냈어요'],
+        'friend-accept': ['POST', `/friends/${encodeURIComponent(user)}/accept`, '이제 친구예요'],
+        'friend-decline': ['POST', `/friends/${encodeURIComponent(user)}/decline`, '요청을 거절했어요'],
+        'friend-cancel': ['DELETE', `/friends/${encodeURIComponent(user)}/request`, '요청을 취소했어요'],
+        'unfriend': ['DELETE', `/friends/${encodeURIComponent(user)}`, '친구를 끊었어요']
+    }[act];
+    if (!call) return;
+    if (act === 'unfriend' && !(await OOS.confirm('친구 끊기', `${user}님과 친구를 끊을까요? 서로의 친구 목록에서 사라지고 새 메시지를 보낼 수 없어요.`, '끊기', true))) return;
+    try { await OOS.api(call[1], { method: call[0] }); }
+    catch (e) { OOS.notice(e.message, true); return; }
+    OOS.notice(call[2]);
+    if (socialTab === 'find') findUsers(); else switchSocialTab(socialTab);
+    OOS.badges();
+    loadFriends();
+}
+
+// 1:1 대화 — 서로 친구일 때만 보낼 수 있다(서버가 확인). 새 메시지는 실시간 알림(SSE)이 오면 그 뒤만 받아 온다
+async function openChat(peer) {
+    socialTab = 'chat'; chat.peer = peer; chat.items = []; chat.lastId = 0;
+    $$('.social-tab').forEach((b) => b.classList.toggle('active', b.dataset.socialTab === 'chat'));
+    const seq = ++socialSeq;
+    $('#socialBody').innerHTML = `
+        <div class="chat-head"><button type="button" class="social-link-inline" data-social-tab="chat">← 대화 목록</button><b>${esc(peer)}</b></div>
+        <div class="chat-box" id="chatBox" aria-live="polite"><div class="social-empty">불러오는 중…</div></div>
+        <form class="chat-form" id="chatForm"><input type="text" id="chatInput" maxlength="1000" autocomplete="off" placeholder="메시지 입력" aria-label="메시지"><button type="submit" class="social-req-btn">보내기</button></form>`;
+    try {
+        const d = await OOS.api(`/chat/${encodeURIComponent(peer)}/messages?limit=50`);
+        if (seq !== socialSeq || chat.peer !== peer) return;
+        chat.items = d.items || []; chat.lastId = chat.items.length ? chat.items[chat.items.length - 1].id : 0; chat.canSend = !!d.can_send;
+        drawChat(true);
+        OOS.badges();
+    } catch (e) { if (chat.peer === peer) $('#chatBox').innerHTML = `<div class="social-empty">${esc(e.message)}</div>`; }
+    if ($('#chatInput')) $('#chatInput').focus();
+}
+function drawChat(toBottom) {
+    const box = $('#chatBox'); if (!box) return;
+    box.innerHTML = chat.items.length ? chat.items.map((m) => `<div class="chat-msg${m.mine ? ' mine' : ''}">${esc(m.body)}<span class="chat-time">${esc(mdhm(m.created_at))}${m.mine && !m.read ? ' · 1' : ''}</span></div>`).join('')
+        : `<div class="social-empty">${chat.canSend ? '첫 메시지를 보내 보세요.' : '서로 친구가 되면 대화를 시작할 수 있어요.'}</div>`;
+    if (toBottom) box.scrollTop = box.scrollHeight;
+}
+async function pollChat() {
+    const peer = chat.peer; if (!peer) return;
+    try {
+        const d = await OOS.api(`/chat/${encodeURIComponent(peer)}/messages?after_id=${chat.lastId}`);
+        if (chat.peer !== peer) return;                      // 그사이 다른 대화로 옮겼으면 버림
+        const fresh = (d.items || []).filter((m) => m.id > chat.lastId);
+        if (fresh.length) { chat.items.push(...fresh); chat.lastId = fresh[fresh.length - 1].id; }
+        const lastRead = d.peer_last_read_id || 0;
+        chat.items.forEach((m) => { if (m.mine && m.id <= lastRead) m.read = true; });
+        drawChat(true);
+        if (fresh.length) OOS.badges();                      // 열린 대화에서 읽음 처리됐으니 안 읽은 수를 다시
+    } catch (e) { /* 다음 알림 때 다시 */ }
+}
+async function sendChat() {
+    const input = $('#chatInput'), body = (input.value || '').trim(), peer = chat.peer;
+    if (!body || !peer) return;
+    await OOS.once('chat-send', async () => {
+        try {
+            const m = await OOS.api(`/chat/${encodeURIComponent(peer)}/messages`, { method: 'POST', body: { body } });
+            if (chat.peer !== peer) return;
+            input.value = '';
+            if (m && m.id > chat.lastId) { chat.items.push(m); chat.lastId = m.id; }
+            drawChat(true);
+            if (m && m.masked) OOS.notice(MASKED_NOTE);          // [백엔드 연동] 서버가 주민등록번호·카드번호를 가려서 저장
+        } catch (e) { OOS.notice(e.message, true); }
+    });
+}
+
+// ---------- 송금 · 회원 탈퇴 ----------
+async function openTransfer(to) {
+    if (!S.live) { alert('디자인 시안이에요. 백엔드 연동 후 실제로 송금되도록 연결할 예정이에요.'); return; }
+    let key = OOS.idemKey(), lastSig = null;                  // 같은 내용을 다시 보내면 같은 키(서버가 한 번만 처리) · 내용을 바꾸면 새 키
+    const res = await OOS.dialog({
+        title: '가상머니 송금', ok: '보내기',
+        sub: `보낼 수 있는 금액: ${won(S.balance)}원\n큰 금액이나 평소와 다른 송금은 비밀번호를 한 번 더 확인해요.`,
+        fields: [
+            { name: 'to', label: '받는 사람 아이디', value: to || '', maxlength: 50, hint: S.friends.length ? '친구: ' + S.friends.slice(0, 6).join(', ') : '' },
+            { name: 'amount', label: '금액(원)', inputmode: 'numeric', maxlength: 16, placeholder: '예: 10,000' },
+            { name: 'memo', label: '메모(선택)', maxlength: 200 }
+        ],
+        async submit(v) {
+            const who = v.to.trim(), amount = Number(String(v.amount).replace(/[,\s원]/g, '')), memo = v.memo.trim();
+            if (!who) throw new Error('받는 사람 아이디를 입력해 주세요');
+            if (who === OOS.user) throw new Error('나에게는 보낼 수 없어요');
+            if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error('보낼 금액을 1원 이상 숫자로 입력해 주세요');
+            const sig = `${who}|${amount}|${memo}`;
+            if (lastSig !== null && sig !== lastSig) key = OOS.idemKey();
+            lastSig = sig;
+            const r = await OOS.api('/transfer', { method: 'POST', headers: { 'Idempotency-Key': key }, body: { to: who, amount, memo } });
+            return Object.assign({ to: who, amount }, r || {});
+        }
+    });
+    if (!res) return;
+    OOS.notice(`${res.to}님에게 ${won(res.amount)}원을 보냈어요${res.duplicate ? '(이미 처리된 송금)' : ''}${res.masked ? ' — ' + MASKED_NOTE : ''}`);
+    refreshWallet();
+}
+// 중요정보 유출 방지 — 서버(app/security/dlp.py)가 주민등록번호·카드번호처럼 보이는 숫자를 저장 전에 가린다
+const MASKED_NOTE = '주민등록번호·카드번호처럼 보이는 숫자는 가려서 보냈어요';
+async function deleteAccount() {
+    if (!S.live) { alert('디자인 시안이에요. 백엔드 연동 후 실제로 탈퇴가 처리되도록 연결할 예정이에요.'); return; }
+    const ok = await OOS.confirm('회원 탈퇴', '계정과 지갑·학습·실습·친구·채팅 기록이 모두 지워지고 되돌릴 수 없어요.\n남은 가상머니도 사라져요. 정말 탈퇴할까요?', '탈퇴하기', true);
+    if (!ok) return;
+    try { await OOS.api('/me', { method: 'DELETE' }); }        // 최근 5분 안 비밀번호 확인이 없으면 확인 창 → 다시 시도(runtime)
+    catch (e) { alert(e.message); return; }
+    alert('탈퇴했어요. 그동안 이용해 주셔서 고마워요.');
+    OOS.logout('index.html');
+}
+
+// ---------- [백엔드 연동] 서버 데이터 → 화면 상태 ----------
+async function loadWatch() {
+    const d = await OOS.api('/watchlist').catch(() => null);
+    if (d) S.watch = (d.items || []).map((x) => ({ code: x.ticker, name: x.name, price: x.price, rate: x.change_rate }));
+}
+async function loadFriends() {
+    const [f, b] = await Promise.all([OOS.api('/friends').catch(() => null), OOS.api('/me/badges').catch(() => null)]);
+    if (f) S.friends = (f.items || []).map((x) => x.username);
+    if (b) S.unread = b.chat_unread || 0;
+    renderTeaser();
+}
+async function refreshWallet() {
+    const [w, logs] = await Promise.all([OOS.api('/wallet').catch(() => null), OOS.api('/me/logs/wallet?limit=5').catch(() => null)]);
+    if (w) { S.balance = w.balance; OOS.setBalance(w.balance); renderWallet(); }
+    if (logs) { S.activity = activityRows(logs.items || []); S.activityTotal = logs.total || 0; renderActivity(); }
+}
+function activityRows(items) {
+    return items.map((r) => ({ at: mdhm(r.created_at), label: r.reason_ko || r.reason, sub: r.memo || '', amount: Number(r.amount) || 0 }));
+}
+async function boot() {
+    if (!OOS.online) { render(); return; }                   // 파일로 연 화면 — 시안의 예시 그대로
+    // 서버 화면: 예시 값이 잠깐이라도 보이지 않게 내 데이터를 받을 때까지 가려 둔다
+    $('#draftBanner').style.display = 'none';
+    $('.dashboard-grid').style.visibility = 'hidden';
+    if (!OOS.loggedIn()) { location.replace('index.html#login'); return; }
+    let me;
+    try { me = await OOS.api('/me'); }
+    catch (e) {
+        $('#draftBanner').querySelector('span').textContent = '내 정보를 불러오지 못했어요 — 잠시 뒤 새로고침해 주세요. (' + (e.message || '') + ')';
+        $('#draftBanner').style.display = '';
+        $('.dashboard-grid').style.display = 'none';
+        return;
+    }
+    const [prog, learnLog, prac, quiz, access] = await Promise.all([
+        OOS.api('/learn/progress').catch(() => null),
+        OOS.api('/me/logs/learning?limit=100').catch(() => null),
+        OOS.api('/practice/records?limit=1').catch(() => null),
+        OOS.api('/learn/quiz').catch(() => null),
+        OOS.api('/me/logs/access?limit=10').catch(() => null)]);
+    S.live = true;
+    S.user = { name: me.profile.username, email: '', joined: ymd(me.profile.created_at), lastSeen: '-' };
+    const acc = (access && access.items) || (me.access && me.access.items) || [];
+    const lastLogin = acc.find((a) => a.event === 'login');
+    S.user.lastSeen = lastLogin ? mdhm(lastLogin.at) : '-';
+    S.access = acc.map((a) => { const [type, label] = ACCESS_LABEL[a.event] || ['logout', a.event]; return { type, label, at: mdhm(a.at), device: a.detail || '-' }; });
+    const sv = me.survey;
+    S.persona = sv && TYPE_KEY[sv.type] ? { type: TYPE_KEY[sv.type], score: sv.score, analyzedAt: ymd(sv.created_at) } : null;
+    S.balance = me.wallet ? me.wallet.balance : 0;
+    OOS.setBalance(S.balance);
+    S.avatar = me.avatar || null;
+    S.activity = activityRows((me.wallet && me.wallet.ledger) || []);
+    S.activityTotal = (me.counts && me.counts.wallet) || S.activity.length;
+    // 학습 로그: '이해했어요' 상태(진도)인 용어 + 마지막으로 표시한 날짜(학습 로그의 term_done 기록)
+    const done = new Set((prog && prog.done) || []);
+    const lastDone = new Map();
+    ((learnLog && learnLog.items) || []).forEach((r) => { if (r.kind === 'term_done' && done.has(r.item_key) && !lastDone.has(r.item_key)) lastDone.set(r.item_key, r.viewed_at); });
+    S.learn = [...done].map((name) => ({ name, when: lastDone.get(name) || '' }))
+        .sort((a, b) => (b.when || '').localeCompare(a.when || ''))
+        .map((r) => ({ name: r.name, at: r.when ? mdShort(r.when) : '' }));
+    S.learnedCount = done.size;
+    const sum = (prac && prac.summary) || {};
+    S.practice = Object.keys(TECH_NAME).filter((k) => sum[k] && (sum[k].tries || sum[k].real_tries)).map((k) => {
+        const v = sum[k], bests = [v.best, v.real_best].filter((x) => x != null);
+        return { tech: k, name: TECH_NAME[k], tries: (v.tries || 0) + (v.real_tries || 0), realTries: v.real_tries || 0,
+            completed: v.traded || 0, best: bests.length ? Math.max(...bests) : null };
+    });
+    S.quizDays = (quiz && quiz.total_days) || 0;
+    S.attendanceDays = (me.attendance && me.attendance.total_days) || 0;
+    S.watch = ((me.watchlist && me.watchlist.items) || []).map((x) => ({ code: x.ticker, name: x.name, price: x.price, rate: x.change_rate }));
+    render();
+    $('.dashboard-grid').style.visibility = '';
+    loadFriends();
 }
 
 // ---------- 공통 ----------
 function render() {
-    $('#lastSeen').textContent = (function () { const d = new Date(); return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; })();
-    renderPersona(); renderWallet(); renderStats(); renderTabBar();
+    renderProfile(); renderPersona(); renderWallet(); renderStats(); renderTabBar();
     renderActivity(); renderLearn(); renderPractice(); renderWatch(); renderAccess(); renderPw();
+    switchTab(curTab); renderTeaser();
 }
 
 document.addEventListener('click', (e) => {
@@ -916,44 +1272,59 @@ document.addEventListener('click', (e) => {
         const input = document.getElementById(el.dataset.target); if (!input) return;
         const show = input.type === 'password'; input.type = show ? 'text' : 'password';
         el.innerHTML = show ? ico('eye-off') : ico('eye');
-    } else if (act === 'logout') alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
-    else if (act === 'edit-profile') alert('디자인 시안이에요. 프로필 수정 화면은 백엔드 연동 후 추가할 예정이에요.');
-    else if (act === 'transfer') { e.preventDefault(); alert('디자인 시안이에요. 백엔드 연동 후 실제로 송금되도록 연결할 예정이에요.'); }
-    else if (act === 'delete-account') { e.preventDefault(); alert('디자인 시안이에요. 백엔드 연동 후 실제로 탈퇴가 처리되도록 연결할 예정이에요.'); }
-    else if (act === 'friend-request') alert('디자인 시안이에요. 실제 친구 요청 전송은 백엔드 화면에 이미 연결돼 있어요.');
+    } else if (act === 'logout') { if (S.live) OOS.logout(); else alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.'); }
+    else if (act === 'edit-profile') {                       // 바꿀 수 있는 계정 정보는 비밀번호뿐 — 그 탭으로
+        switchTab('secPw'); $('#secPw').scrollIntoView({ behavior: 'smooth', block: 'center' }); const f = $('#pwCur'); if (f) f.focus({ preventScroll: true });
+    }
+    else if (act === 'transfer') { e.preventDefault(); if (socialOpen()) closeFriendModal(); openTransfer(el.dataset.user || ''); }
+    else if (act === 'delete-account') { e.preventDefault(); deleteAccount(); }
+    else if (act === 'watch-search') watchSearch(true);
+    else if (act === 'watch-add') addWatch(el.dataset.code);
+    else if (act === 'chat-open') openChat(el.dataset.user);
+    else if (/^friend-|^unfriend$/.test(act)) friendAction(act, el.dataset.user);
+});
+document.addEventListener('input', (e) => {
+    if (e.target.id === 'watchQ') watchSearchSoon();
+    else if (e.target.id === 'findQ') { clearTimeout(findTimer); findTimer = setTimeout(findUsers, 250); }
 });
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !$('#socialOverlay').hidden) closeFriendModal();
+    if (e.key === 'Enter' && e.target.id === 'watchQ') { e.preventDefault(); watchSearch(true); }
+    if (e.key === 'Escape' && !$('#socialOverlay').hidden && !document.querySelector('.oos-dlg-overlay')) closeFriendModal();
 });
 document.addEventListener('submit', (e) => {
+    if (e.target.id === 'chatForm') { e.preventDefault(); sendChat(); return; }
     if (e.target.id !== 'pwForm') return;
     e.preventDefault();
-    const ok = checkPw();
-    const notice = $('#pwNotice');
-    notice.classList.toggle('show', true);
-    notice.style.color = ok ? '' : '#b91c1c';
-    if (!ok) { notice.querySelector('span').textContent = '입력값을 다시 확인해 주세요. (실제 변경 기능은 백엔드 연동 후 제공돼요)'; }
-    else { notice.querySelector('span').textContent = '입력하신 값은 정상이에요. 백엔드 연동 후 이 버튼을 누르면 실제로 비밀번호가 바뀌도록 연결할 예정이에요.'; }
+    changePw();
+});
+
+// 실시간 알림(runtime 의 SSE) — 채팅·친구 요청이 오면 열린 화면만 다시 그린다
+OOS.on('chat', (d) => {
+    if (!S.live) return;
+    if (socialOpen() && chat.peer && d && d.from === chat.peer) pollChat();
+    else if (socialOpen() && socialTab === 'chat' && !chat.peer) switchSocialTab('chat');
+});
+OOS.on('friends', () => {
+    if (!S.live) return;
+    loadFriends();
+    if (socialOpen() && (socialTab === 'requests' || socialTab === 'friends') && !chat.peer) switchSocialTab(socialTab);
+});
+OOS.on('badges', (b) => { if (S.live && b) { S.unread = b.chat_unread || 0; renderTeaser(); } });
+OOS.on('wallet', (bal) => { if (S.live) { S.balance = bal; renderWallet(); } });
+OOS.on('session', (u) => {                                   // 로그아웃·세션 만료 → 로그인 화면 · 다른 탭에서 다른 계정으로 → 그 계정으로 다시
+    if (!OOS.online) return;
+    if (!u) location.replace('index.html#login');
+    else if (S.live && u !== S.user.name) location.reload();
 });
 
 const sidebar = $('#sidebar');
 $('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
 
-render();
-window.__M = { render, unwatch, checkPw, MOCK_WATCH: () => MOCK_WATCH };
-
-        // ===== 우측 상단 가상머니 표시 / 로그아웃 (디자인 전용) =====
-        (function () {
-            try {
-                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-                const amt = document.getElementById('headerBalanceAmt');
-                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
-            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
-            window.headerLogout = function () {
-                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
-            };
-        })();
+// 화면 동작(data-on) — 여기 등록한 함수만 부를 수 있다(assets/oos/runtime.js)
+OOS.actions({ openFriendModal, closeFriendModal });
+boot();
+window.__M = { render, unwatch, checkPw, state: () => S };
 
     </script>
 </body>

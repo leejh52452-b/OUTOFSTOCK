@@ -12,7 +12,7 @@
             --card-border: #cbd5e1;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
             --accent-blue: #3730a3;
             --accent-green: #16a34a;
             --accent-red: #dc2626;
@@ -62,7 +62,9 @@
         .toggle-btn:hover { background-color: var(--hover-bg); }
         .logo { display: flex; align-items: center; min-width: 0; }
         .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
-        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .nav-menu { list-style: none; padding: 16px 10px; }
         .nav-item { margin-bottom: 4px; }
         .nav-link {
@@ -325,7 +327,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="stocks.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                     <span class="nav-text">실시간 종목</span>
                 </a>
@@ -342,6 +344,12 @@
                     <span class="nav-text">뉴스</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
         </ul>
     </aside>
 
@@ -354,7 +362,7 @@
                 <div class="search-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
-                <input type="text" placeholder="종목명 또는 종목코드 검색">
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
             </div>
 
             <div class="header-actions" id="headerProfile">
@@ -366,7 +374,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
                     <span class="header-btn-label">마이페이지</span>
                 </a>
-                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="header-btn-label">로그아웃</span>
                 </button>
@@ -377,7 +385,7 @@
             <div class="page-head">
                 <div>
                     <h1 class="page-title">뉴스</h1>
-                    <p class="page-sub">오늘 가장 많이 읽힌 금융 뉴스와 핵심 테마를 한눈에 확인해요.</p>
+                    <p class="page-sub" id="pageSub">오늘 가장 많이 읽힌 금융 뉴스와 핵심 테마를 한눈에 확인해요.</p>
                 </div>
                 <div class="upd"><span class="sample-badge" id="sampleBadge" hidden>샘플 데이터</span><span id="updText"></span></div>
             </div>
@@ -400,9 +408,11 @@
             <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
             <symbol id="i-external" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></symbol>
             <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+            <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
         </defs>
     </svg>
 
+    <script src="assets/oos/runtime.js"></script>
     <script src="assets/news-mock.js"></script>
     <script src="assets/news-api.js"></script>
     <script>
@@ -421,7 +431,20 @@ const state = { period: 'week', shown: PAGE };
 let DATA = null;
 
 const rk = (n) => `<span class="rk${n <= 3 ? ' r' + n : ''}">${n}</span>`;
-const link = (a) => `href="${esc(a.url || '#')}" target="_blank" rel="noopener noreferrer"`;
+const link = (a) => `href="${esc(OOS.safeUrl(a.url))}" target="_blank" rel="noopener noreferrer"`;   // http(s) 원문만, 그 밖은 '#'
+
+// [백엔드 연동] 서버는 조회수 대신 '보도량'(같은 이슈를 다룬 기사·언론사 수)으로 순위를 매긴다(metric.basis = 'coverage').
+//   기사 조회수는 포털·언론사가 공개하지 않아 views 가 null — 그래서 '조회수'라고 쓰지 않고 보도량으로 보여 준다.
+//   (샘플 데이터처럼 views 가 있으면 시안 그대로 조회수)
+const byCoverage = () => !!(DATA && DATA.metric && DATA.metric.basis === 'coverage');
+const basis = () => byCoverage()
+    ? { order: '보도량 많은 순', top: '오늘 가장 많이 다뤄진 뉴스', rank: '보도량 기준 TOP 10' }
+    : { order: '조회수 높은 순', top: '오늘 가장 많이 읽힌 뉴스', rank: '조회수 기준 TOP 10' };
+function pop(a) {
+    if (a.views != null) return `<span class="views">${ico('eye')}${fmtViews(a.views)}</span>`;
+    const c = a.coverage;
+    return c ? `<span class="views" title="같은 이슈를 다룬 기사 ${c.articles}건 · 언론사 ${c.outlets}곳">${ico('layers')}기사 ${c.articles}건</span>` : '';
+}
 const head = (icon, title, sub, right) => `
     <div class="sec-head">
         <div class="sec-title"><span class="si">${ico(icon)}</span>${title}${sub ? `<span class="sec-sub">${sub}</span>` : ''}</div>
@@ -432,15 +455,18 @@ const emptyMsg = (t) => `<div class="empty" style="padding:22px 10px"><div class
 // ---- 오늘의 이슈 TOP ----
 function renderHero() {
     const list = DATA.todayTop || [], f = list[0];
-    if (!f) { $('#secHero').innerHTML = head('flame', '오늘의 이슈 TOP', '조회수 높은 순') + emptyMsg('오늘의 이슈가 아직 없어요'); return; }
-    $('#secHero').innerHTML = head('flame', '오늘의 이슈 TOP', '조회수 높은 순', `<span class="sec-sub">오늘 기준</span>`) + `
+    const B = basis(), c = f && f.coverage;
+    if (!f) { $('#secHero').innerHTML = head('flame', '오늘의 이슈 TOP', B.order) + emptyMsg('오늘의 이슈가 아직 없어요'); return; }
+    $('#secHero').innerHTML = head('flame', '오늘의 이슈 TOP', B.order, `<span class="sec-sub">${esc(DATA.todayLabel || '오늘 기준')}</span>`) + `
     <div class="hero-body">
         <a class="hero-feat" ${link(f)}>
-            <span class="feat-badge">${ico('flame')}오늘 가장 많이 읽힌 뉴스</span>
+            <span class="feat-badge">${ico('flame')}${B.top}</span>
             <div class="feat-meta"><b>${esc(f.source)}</b> · ${timeAgo(f.publishedAt)}</div>
             <h3 class="feat-title">${esc(f.title)}</h3>
             ${f.summary ? `<p class="feat-sum">${esc(f.summary)}</p>` : ''}
-            <div class="feat-foot"><span class="views">${ico('eye')}조회 <b class="num" style="font-weight:800;color:var(--text-secondary)">${Number(f.views).toLocaleString('ko-KR')}</b></span><span class="btn outline sm">기사 보기${ico('external')}</span></div>
+            <div class="feat-foot">${f.views != null
+                ? `<span class="views">${ico('eye')}조회 <b class="num" style="font-weight:800;color:var(--text-secondary)">${Number(f.views).toLocaleString('ko-KR')}</b></span>`
+                : c ? `<span class="views">${ico('layers')}관련 기사 <b class="num" style="font-weight:800;color:var(--text-secondary)">${c.articles}</b>건 · 언론사 <b class="num" style="font-weight:800;color:var(--text-secondary)">${c.outlets}</b>곳</span>` : '<span></span>'}<span class="btn outline sm">기사 보기${ico('external')}</span></div>
             <img class="feat-mascot" src="assets/happy.png" alt="">
         </a>
         <div class="hero-list">
@@ -448,7 +474,7 @@ function renderHero() {
             <a class="hero-row" ${link(a)}>
                 ${rk(i + 2)}
                 <div style="min-width:0"><div class="hr-title">${esc(a.title)}</div>
-                <div class="hr-meta"><span class="src">${esc(a.source)}</span><span>${timeAgo(a.publishedAt)}</span><span class="views">${ico('eye')}${fmtViews(a.views)}</span></div></div>
+                <div class="hr-meta"><span class="src">${esc(a.source)}</span><span>${timeAgo(a.publishedAt)}</span>${pop(a)}</div></div>
             </a>`).join('')}
         </div>
     </div>`;
@@ -484,17 +510,17 @@ function renderRank() {
     const R = DATA.rankings || {}, list = (R[state.period] || []).slice(0, 10);
     const label = state.period === 'week' ? (R.weekLabel || '') : (R.monthLabel || '');
     $('#secRank').innerHTML = head('award', '인기 기사 랭킹', '', `
-        <div class="seg-group" role="tablist" aria-label="기간">
-            <button class="seg${state.period === 'week' ? ' active' : ''}" type="button" data-act="period" data-period="week">주간</button>
-            <button class="seg${state.period === 'month' ? ' active' : ''}" type="button" data-act="period" data-period="month">월간</button>
+        <div class="seg-group" role="group" aria-label="기간">
+            <button class="seg${state.period === 'week' ? ' active' : ''}" type="button" data-act="period" data-period="week" aria-pressed="${state.period === 'week'}">주간</button>
+            <button class="seg${state.period === 'month' ? ' active' : ''}" type="button" data-act="period" data-period="month" aria-pressed="${state.period === 'month'}">월간</button>
         </div>`) + `
-    ${label ? `<div class="rank-period">${state.period === 'week' ? '최근 7일' : '이번 달'} · ${esc(label)} · 조회수 기준 TOP 10</div>` : ''}
+    ${label ? `<div class="rank-period">${state.period === 'week' ? '최근 7일' : '이번 달'} · ${esc(label)} · ${basis().rank}</div>` : ''}
     <div class="rank-list">
         ${list.length ? list.map((a) => {
             const c = Number(a.rankChange) || 0;
             const chg = a.isNew ? `<span class="rr-new">NEW</span>` : c > 0 ? `<span class="rr-chg up">▲${c}</span>` : c < 0 ? `<span class="rr-chg down">▼${Math.abs(c)}</span>` : `<span class="rr-chg flat">–</span>`;
             return `<a class="rank-row" ${link(a)}>${rk(a.rank)}
-                <div style="min-width:0"><div class="rr-title">${esc(a.title)}</div><div class="rr-meta"><span class="src">${esc(a.source)}</span><span class="views">${ico('eye')}${fmtViews(a.views)}</span></div></div>
+                <div style="min-width:0"><div class="rr-title">${esc(a.title)}</div><div class="rr-meta"><span class="src">${esc(a.source)}</span>${pop(a)}</div></div>
                 <div style="text-align:right">${chg}</div></a>`;
         }).join('') : emptyMsg('랭킹 데이터가 아직 없어요')}
     </div>`;
@@ -509,7 +535,7 @@ function renderFeed() {
         <a class="feed-item" ${link(a)}>
             <div class="fi-time">${timeAgo(a.publishedAt)}</div>
             <div style="min-width:0"><div class="fi-title">${esc(a.title)}</div>${a.summary ? `<div class="fi-sum">${esc(a.summary)}</div>` : ''}</div>
-            <div class="fi-meta"><span class="src">${esc(a.source)}</span><span class="views">${ico('eye')}${fmtViews(a.views)}</span></div>
+            <div class="fi-meta"><span class="src">${esc(a.source)}</span>${pop(a)}</div>
         </a>`).join('')}
     </div>
     ${remain > 0 ? `<div class="more-wrap"><button class="btn outline" type="button" data-act="more">더 보기 (남은 ${remain}건)</button></div>` : ''}` : emptyMsg('표시할 뉴스가 없어요'));
@@ -519,6 +545,7 @@ function renderUpd() {
     const d = DATA.updatedAt ? new Date(DATA.updatedAt) : null, p2 = (v) => String(v).padStart(2, '0');
     $('#updText').innerHTML = d && !isNaN(d) ? `<b>${p2(d.getHours())}:${p2(d.getMinutes())}</b> 기준` : '';
     $('#sampleBadge').hidden = !DATA._sample;
+    if (byCoverage()) $('#pageSub').textContent = '오늘 가장 많이 다뤄진 금융 뉴스와 핵심 테마를 한눈에 확인해요.';
 }
 function render() { renderUpd(); renderHero(); renderThemes(); renderRank(); renderFeed(); }
 
@@ -560,17 +587,7 @@ if (window.innerWidth <= 760) sidebar.classList.add('collapsed');
 load();
 window.__N = { state, load, data: () => DATA, render };
 
-        // ===== 우측 상단 가상머니 표시 / 로그아웃 (디자인 전용) =====
-        (function () {
-            try {
-                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-                const amt = document.getElementById('headerBalanceAmt');
-                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
-            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
-            window.headerLogout = function () {
-                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
-            };
-        })();
+// 우측 상단 잔액·로그인/로그아웃은 공용 런타임(assets/oos/runtime.js)이 채운다
 
     </script>
 </body>

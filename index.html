@@ -12,7 +12,7 @@
             --card-border: #cbd5e1;
             --text-primary: #0f172a;
             --text-secondary: #475569;
-            --text-muted: #94a3b8;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
             --accent-blue: #3730a3;
             --accent-green: #16a34a;
             --accent-red: #dc2626;
@@ -62,7 +62,9 @@
         .toggle-btn:hover { background-color: var(--hover-bg); }
         .logo { display: flex; align-items: center; min-width: 0; }
         .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
-        .sidebar.collapsed .logo, .sidebar.collapsed .nav-text { display: none; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
         .nav-menu { list-style: none; padding: 16px 10px; }
         .nav-item { margin-bottom: 4px; }
         .nav-link {
@@ -147,6 +149,12 @@
             background: #fdfbf6;
         }
         .top-stocks-list + .principle-box { margin-top: 14px; }
+        /* 기준일 한 줄(연동 추가) — 서버가 고른 주가 언제 기준인지 · 불러오는 중/실패 안내 줄은 순번 없이 */
+        .picks-asof { font-size: 11px; color: var(--text-muted); margin: 8px 2px 0; }
+        .picks-asof:empty { display: none; }
+        .picks-asof + .principle-box { margin-top: 12px; }
+        .top-stock-item.picks-msg .rank-num { display: none; }
+        .top-stock-item.picks-msg .stock-name { font-weight: 500; color: var(--text-secondary); }
         .principle-img { width: 100%; height: 128px; object-fit: contain; background: #fdfbf6; }
         .principle-text { padding: 10px 12px 12px; }
         .principle-title { font-size: 13.5px; font-weight: 800; color: var(--text-primary); }
@@ -222,6 +230,21 @@
         .login-done-avatar.stable { background: #eaf1ff; border-color: #d3e3ff; }
         .login-done-avatar.neutral { background: #fffaea; border-color: #f3e6a8; }
         .login-done-avatar.aggressive { background: #fdecec; border-color: #f7cfcb; }
+        /* [백엔드 연동] 꾸민 양봉이(양봉이 꾸미기에서 산 옷을 입은 모습) — 몸값 수저 등급마다 배경 */
+        .login-done-avatar.av { padding: 4px; background: linear-gradient(180deg, #f7f4ee, #ece3d4); border-color: #e7e5e4; }
+        .login-done-avatar.av.k-2 { background: linear-gradient(180deg, #fff8f0, #fcdcbc); border-color: #fed7aa; }
+        .login-done-avatar.av.k-3 { background: linear-gradient(180deg, #ffffff, #dfe6ef); border-color: #cbd5e1; }
+        .login-done-avatar.av.k-4 { background: radial-gradient(circle at 50% 40%, #fffdf2, #fde68a 58%, #f3c24a); border-color: #f3c24a; }
+        .login-done-avatar.av.k-5 { background: radial-gradient(circle at 50% 38%, #f5feff, #bae6fd 52%, #a5b4fc); border-color: #67e8f9; }
+        .login-done-avatar-link { position: relative; display: block; flex-shrink: 0; border-radius: 18px; text-decoration: none; }
+        .login-done-avatar-link:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
+        .login-done-avatar-link .av-edit {
+            position: absolute; right: -7px; bottom: -6px; display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px;
+            border-radius: 999px; background: var(--accent-blue); color: #fff; font-size: 10.5px; font-weight: 800; white-space: nowrap;
+            box-shadow: 0 3px 8px rgba(55, 48, 163, 0.3);
+        }
+        .login-done-avatar-link .av-edit svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linejoin: round; flex-shrink: 0; }
+        .login-done-avatar-link:hover .av-edit { filter: brightness(1.12); }
         .login-done-info { min-width: 0; }
         .login-done-name { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
         .login-done-streak {
@@ -519,7 +542,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link" onclick="openSurvey(event)">
+                <a href="#" class="nav-link" data-on="openSurvey(event)">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg>
                     <span class="nav-text">투자 성향 분석</span>
                 </a>
@@ -537,7 +560,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="stocks.html" class="nav-link">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                     <span class="nav-text">실시간 종목</span>
                 </a>
@@ -554,6 +577,12 @@
                     <span class="nav-text">뉴스</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
         </ul>
     </aside>
 
@@ -566,7 +595,7 @@
                 <div class="search-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
-                <input type="text" placeholder="종목명 또는 종목코드 검색">
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
             </div>
 
             <div class="header-actions" id="headerProfile">
@@ -578,7 +607,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
                     <span class="header-btn-label">마이페이지</span>
                 </a>
-                <button type="button" class="header-btn header-btn-logout" onclick="headerLogout()">
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="header-btn-label">로그아웃</span>
                 </button>
@@ -586,7 +615,7 @@
         </header>
 
         <div class="content-container">
-            <section class="indices-bar">
+            <section class="indices-bar" id="indicesBar">
                 <div class="index-card">
                     <div class="index-name">KOSPI</div>
                     <div class="index-value">2,614.30</div>
@@ -614,7 +643,8 @@
                     <div class="recommend-grid">
                         <div class="card">
                             <div class="card-header"><div class="card-title">이번 주 양봉이가 고른 5종목!</div></div>
-                            <ul class="top-stocks-list" id="weeklyPicks"></ul>
+                            <ul class="top-stocks-list" id="weeklyPicks" aria-live="polite"></ul>
+                            <div class="picks-asof" id="picksAsOf"></div>
                             <div class="principle-box">
                                 <img class="principle-img" src="assets/yangbong-cards.jpg" alt="투자 카드 5장을 앞에 두고 고민하는 양봉이">
                                 <div class="principle-text">
@@ -663,8 +693,8 @@
                             <div class="basket-foot">
                                 <span class="basket-caption" id="statCaption"></span>
                                 <div class="sim-btn-group">
-                                    <button class="sim-btn active" id="btnProfit" onclick="toggleSimResult(true)">수익 보기</button>
-                                    <button class="sim-btn" id="btnLoss" onclick="toggleSimResult(false)">손실 보기</button>
+                                    <button class="sim-btn active" id="btnProfit" data-on="toggleSimResult(true)">수익 보기</button>
+                                    <button class="sim-btn" id="btnLoss" data-on="toggleSimResult(false)">손실 보기</button>
                                 </div>
                             </div>
                         </div>
@@ -707,21 +737,24 @@
                             <div class="login-header-row">
                                 <img class="login-logo" src="assets/logo.png" alt="OUTOFSTOCK">
                             </div>
-                            <form class="login-form" onsubmit="doMockLogin(event);">
-                                <div class="input-group"><input type="text" placeholder="아이디 또는 이메일"></div>
-                                <div class="input-group"><input type="password" placeholder="비밀번호"></div>
+                            <form class="login-form" data-on-submit="doLogin(event)">
+                                <div class="input-group"><input type="text" id="loginId" placeholder="아이디 또는 이메일" autocomplete="username" maxlength="50" aria-label="아이디"></div>
+                                <div class="input-group"><input type="password" id="loginPw" placeholder="비밀번호" autocomplete="current-password" maxlength="128" aria-label="비밀번호"></div>
                                 <div class="login-options">
-                                    <label style="cursor: pointer;"><input type="checkbox"> 로그인 유지</label>
+                                    <label style="cursor: pointer;"><input type="checkbox" id="loginKeep"> 로그인 유지</label>
                                 </div>
                                 <button class="btn-login">로그인</button>
                             </form>
-                            <div class="login-links"><a href="#" onclick="openSignup(event)">회원가입</a><span>|</span><a href="#">비밀번호 찾기</a></div>
+                            <div class="login-links"><a href="#" data-on="openSignup(event)">회원가입</a><span>|</span><a href="#" data-on="findPassword(event)">비밀번호 찾기</a></div>
                         </div>
 
                         <!-- 로그인 후 상태 (디자인 시안 — 실제 로그인 연동 전까지는 목업 데이터예요) -->
                         <div id="loginDoneView" hidden>
                             <div class="login-done-head">
-                                <img class="login-done-avatar" id="loginDoneImg" src="assets/risk-aggressive.png" alt="">
+                                <a class="login-done-avatar-link" href="avatar.html" title="양봉이 꾸미기">
+                                    <img class="login-done-avatar" id="loginDoneImg" src="assets/risk-aggressive.png" alt="">
+                                    <span class="av-edit"><svg viewBox="0 0 24 24"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>꾸미기</span>
+                                </a>
                                 <div class="login-done-info">
                                     <div class="login-done-name"><strong id="loginDoneId">1234</strong>님!</div>
                                     <span class="login-done-streak">
@@ -738,23 +771,23 @@
                                 <div class="login-done-wallet-amt"><span id="loginDoneBalance">1,000,000</span>원</div>
                             </div>
                             <div class="login-done-actions">
-                                <button type="button" class="login-done-btn primary" id="btnAttendance" onclick="doAttendanceCheck()">출석 체크 <span class="login-done-reward">+500원</span></button>
+                                <button type="button" class="login-done-btn primary" id="btnAttendance" data-on="doAttendanceCheck()">출석 체크 <span class="login-done-reward">+500원</span></button>
                             </div>
                             <div class="login-done-stats">
                                 <div class="login-done-stat">
                                     <span class="login-done-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
-                                    <div class="login-done-stat-body"><div class="login-done-stat-num">2</div><div class="login-done-stat-label">친구 요청</div></div>
+                                    <div class="login-done-stat-body"><div class="login-done-stat-num" id="loginDoneFriendReq">2</div><div class="login-done-stat-label">친구 요청</div></div>
                                 </div>
                                 <div class="login-done-stat">
                                     <span class="login-done-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
-                                    <div class="login-done-stat-body"><div class="login-done-stat-num">5</div><div class="login-done-stat-label">안 읽은 메시지</div></div>
+                                    <div class="login-done-stat-body"><div class="login-done-stat-num" id="loginDoneUnread">5</div><div class="login-done-stat-label">안 읽은 메시지</div></div>
                                 </div>
                             </div>
-                            <div class="login-done-logout"><a href="#" onclick="doMockLogout(event)">로그아웃</a></div>
+                            <div class="login-done-logout"><a href="#" data-on="doLogout(event)">로그아웃</a></div>
                         </div>
                     </div>
 
-                    <a class="word-card" href="learn.html?term=골든크로스">
+                    <a class="word-card" id="wordCard" href="learn.html?term=골든크로스">
                         <div class="word-art art-plate">
                             <img src="assets/study.png" alt="공부하는 양봉이">
                         </div>
@@ -765,7 +798,7 @@
                         </div>
                     </a>
 
-                    <div class="profile-guide-card" id="profileGuideCard" onclick="openSurvey(event)">
+                    <div class="profile-guide-card" id="profileGuideCard" data-on="openSurvey(event)">
                         <span class="guide-badge">투자 성향</span>
                         <div style="font-size: 11.5px; color: var(--text-primary);">
                             설문 완료 후 <strong>맞춤 실습</strong> 받기!
@@ -775,15 +808,15 @@
                     <div class="card">
                         <div class="card-header" style="margin-bottom: 6px;"><div class="card-title">실시간 종목 순위</div></div>
                         <div class="tab-group">
-                            <button class="tab-btn active" onclick="switchTab(this)">거래대금</button>
-                            <button class="tab-btn" onclick="switchTab(this)">상승</button>
-                            <button class="tab-btn" onclick="switchTab(this)">하락</button>
+                            <button class="tab-btn active" data-on="switchTab(this)">거래대금</button>
+                            <button class="tab-btn" data-on="switchTab(this)">상승</button>
+                            <button class="tab-btn" data-on="switchTab(this)">하락</button>
                         </div>
                         <table class="ranking-table">
                             <thead>
                                 <tr><th>종목명</th><th>현재가</th><th>등락률</th></tr>
                             </thead>
-                            <tbody>
+                            <tbody id="rankBody">
                                 <tr><td>SK하이닉스</td><td>178,400</td><td class="up">+2.04%</td></tr>
                                 <tr><td>삼성전자</td><td>71,900</td><td class="up">+1.12%</td></tr>
                                 <tr><td>HD현대일렉트릭</td><td>312,500</td><td class="up">+3.10%</td></tr>
@@ -797,7 +830,6 @@
         </div>
     </div>
 
-    <!-- 투자 성향 분석 설문 모달 -->
     <!-- 첫 접속 투자 유의 안내: '확인했습니다'는 이번 방문 동안, '30일 동안 안 보기'는 30일 동안 다시 안 뜸 -->
     <div class="notice-overlay" id="noticeOverlay" hidden>
         <div class="notice-modal" role="alertdialog" aria-modal="true" aria-labelledby="noticeTitle">
@@ -809,15 +841,16 @@
                 <li><span class="notice-num">2</span><span>매매기법의 승률은 100%가 아닙니다. 매매기법의 사용과 책임은 본인에게 있습니다.</span></li>
             </ol>
             <div class="notice-actions">
-                <button type="button" class="notice-btn" id="noticeConfirm" onclick="closeNotice(false)">확인했습니다</button>
-                <button type="button" class="notice-btn ghost" onclick="closeNotice(true)">30일 동안 안 보기</button>
+                <button type="button" class="notice-btn" id="noticeConfirm" data-on="closeNotice(false)">확인했습니다</button>
+                <button type="button" class="notice-btn ghost" data-on="closeNotice(true)">30일 동안 안 보기</button>
             </div>
         </div>
     </div>
 
-    <div class="survey-overlay" id="surveyOverlay" hidden onclick="if (event.target === this) closeSurvey();">
+    <!-- 투자 성향 분석 설문 모달 -->
+    <div class="survey-overlay" id="surveyOverlay" hidden data-on-self="closeSurvey()">
         <div class="survey-modal" role="dialog" aria-modal="true" aria-label="투자 성향 분석">
-            <button class="survey-close" onclick="closeSurvey()" aria-label="닫기">
+            <button class="survey-close" data-on="closeSurvey()" aria-label="닫기">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <div class="survey-header">
@@ -832,9 +865,9 @@
         </div>
     </div>
 
-    <div class="auth-overlay" id="signupOverlay" hidden onclick="if (event.target === this) closeSignup();">
+    <div class="auth-overlay" id="signupOverlay" hidden data-on-self="closeSignup()">
         <div class="auth-modal" role="dialog" aria-modal="true" aria-label="회원가입">
-            <button class="auth-close" onclick="closeSignup()" aria-label="닫기">
+            <button class="auth-close" data-on="closeSignup()" aria-label="닫기">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <div class="auth-header">
@@ -842,7 +875,7 @@
                 <div class="auth-title">회원가입</div>
                 <div class="auth-subtitle">아이디와 비밀번호를 설정해주세요</div>
             </div>
-            <form id="signupForm" onsubmit="event.preventDefault(); submitSignup();" novalidate>
+            <form id="signupForm" data-on-submit="event.preventDefault(); submitSignup();" novalidate>
                 <div class="auth-field">
                     <label for="suId">아이디</label>
                     <div class="auth-input-wrap"><input type="text" id="suId" placeholder="아이디" autocomplete="username"></div>
@@ -852,7 +885,7 @@
                     <label for="suPw">비밀번호 설정</label>
                     <div class="auth-input-wrap">
                         <input type="password" id="suPw" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password">
-                        <button class="auth-toggle" type="button" onclick="toggleAuthPw('suPw', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button class="auth-toggle" type="button" data-on="toggleAuthPw('suPw', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
                     </div>
                     <div class="auth-hint" id="suPwHint">영문, 숫자를 포함해 8자 이상 입력해주세요.</div>
                 </div>
@@ -860,7 +893,7 @@
                     <label for="suPw2">비밀번호 확인</label>
                     <div class="auth-input-wrap">
                         <input type="password" id="suPw2" placeholder="비밀번호 다시 입력" autocomplete="new-password">
-                        <button class="auth-toggle" type="button" onclick="toggleAuthPw('suPw2', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                        <button class="auth-toggle" type="button" data-on="toggleAuthPw('suPw2', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
                     </div>
                     <div class="auth-hint" id="suPw2Hint"></div>
                 </div>
@@ -870,10 +903,12 @@
                     <span></span>
                 </div>
             </form>
-            <div class="auth-switch">이미 계정이 있으신가요? <a onclick="closeSignup()">로그인하기</a></div>
+            <div class="auth-switch">이미 계정이 있으신가요? <a data-on="closeSignup()">로그인하기</a></div>
         </div>
     </div>
 
+    <script src="assets/oos/runtime.js"></script>
+    <script src="assets/avatar-items.js"></script>
     <script src="assets/news-mock.js"></script>
     <script src="assets/news-api.js"></script>
     <script>
@@ -882,17 +917,51 @@
             sidebar.classList.toggle('collapsed');
         });
 
+        // 실시간 종목 순위 탭(거래대금 / 상승 / 하락) — [백엔드 연동] 누를 때마다 그 순위를 서버에서 다시 받는다
+        const RANK_SORTS = ['value', 'rise', 'fall'];
+        let rankSort = 'value';
         function switchTab(element) {
             element.parentElement.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
+            rankSort = RANK_SORTS[[...element.parentElement.querySelectorAll('.tab-btn')].indexOf(element)] || 'value';
+            fillRanking();
+        }
+
+        // ===== [백엔드 연동] 홈 데이터 — 서버 값이 오면 시안의 예시 값을 바꿔 넣는다(불러오지 못하면 예시 그대로) =====
+        const esc = OOS.esc;
+        const fmt2 = (v) => Number(v).toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const signCls = (v) => (v > 0 ? 'up' : v < 0 ? 'down' : '');
+        const pctText = (v, d = 2) => (v > 0 ? '+' : '') + Number(v).toFixed(d) + '%';
+
+        // 지수 띠: 코스피·코스닥·원/달러(/indices) + S&P 500(/overseas/indices) — 카드 순서 그대로
+        const INDEX_SLOTS = [['kr', 'KOSPI'], ['kr', 'KOSDAQ'], ['kr', 'USDKRW'], ['us', 'SPX']];
+        async function fillIndices() {
+            if (!OOS.online) return;                                // 파일로 연 화면은 시안 예시 그대로
+            const [kr, us] = await Promise.all([OOS.api('/indices').catch(() => null), OOS.api('/overseas/indices').catch(() => null)]);
+            const by = { kr: new Map(((kr && kr.items) || []).map((x) => [x.code, x])), us: new Map(((us && us.items) || []).map((x) => [x.code, x])) };
+            document.querySelectorAll('#indicesBar .index-card').forEach((card, i) => {
+                const slot = INDEX_SLOTS[i], x = slot && by[slot[0]].get(slot[1]);
+                if (!x || x.value == null) {                        // 못 받은 칸은 예시 숫자 대신 '-'
+                    if (card.dataset.live !== '1') { card.querySelector('.index-value').textContent = '-'; const c = card.querySelector('.index-change'); c.textContent = ''; c.className = 'index-change'; }
+                    return;
+                }
+                card.dataset.live = '1';
+                const ch = Number(x.change) || 0, rate = Number(x.change_rate) || 0;
+                card.querySelector('.index-value').textContent = fmt2(x.value);
+                const c = card.querySelector('.index-change');
+                c.textContent = `${ch > 0 ? '▲ ' : ch < 0 ? '▼ ' : ''}${fmt2(Math.abs(ch))} (${pctText(rate)})`;
+                c.className = 'index-change ' + signCls(ch);
+                card.title = x.status === 'sample' ? '표본(예시) 데이터' : (x.as_of ? `${x.as_of} 기준` : '');
+            });
         }
 
         // ===== 양봉이 주간 추천 (5종목 × 20% 분산) =====
-        // 규칙: 코스피 시총 상위 200 중 ① 최근 60일 주가 흔들림 하위 30% ② 200일선 위(장기 상승 흐름)
-        //       → 큰 회사 순으로 고르되 5종목 모두 다른 업종. 매주 월요일 시가 매수 → 30일 뒤 종가로 채점
-        // 서버에 GET /api/yangbong/weekly 가 있으면 그 값을 쓰고 (yangbong_recommend/README.md),
-        // 없으면(파일로 열었을 때 등) 아래 예시 값을 보여준다 — backtest 프로그램으로 계산한 실제 값
+        // 규칙(팀 알고리즘 — 서버 app/services/yangbong_picks.py 원본 그대로): 코스피 시총 상위 200 중 ① 최근 60일 주가 흔들림 하위 30%
+        //   ② 200일선 위(장기 상승 흐름) → 큰 회사 순으로 고르되 5종목 모두 다른 업종. 다음 거래일 시가 매수 → 30일 뒤 종가로 채점
+        // [백엔드 연동] GET /yangbong/weekly — 서버 배치가 매주 고르고 30일 뒤 채점한 값(분석 계층 KRX 수정주가).
+        //   서버 없이 파일로 열면(시안 모드) 아래 예시 값 — backtest 프로그램으로 계산한 실제 값
         let WEEKLY_PICKS = ['셀트리온', '메리츠금융지주', 'HMM', 'KT&G', '코웨이'];   // 2026-10-23 금요일 데이터 기준
+        let PICKS_AS_OF = '2026-10-23';
 
         const BASKET = {
             profit: {
@@ -909,30 +978,43 @@
 
         const fmtPct = v => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
         const clsOf = v => v > 0 ? 'up' : (v < 0 ? 'down' : '');
-
-        function renderWeeklyPicks() {
+        const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+        function asOfText(iso) {                                  // '2026-10-23' → '2026.10.23(금) 장 마감 기준'
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return '';
+            const [y, m, d] = iso.split('-').map(Number);
+            return `${iso.replaceAll('-', '.')}(${DOW[new Date(y, m - 1, d).getDay()]}) 장 마감 기준 · 투자 권유 아님`;
+        }
+        // 목록 한 줄(값은 textContent 로만 — 종목명은 서버 데이터)
+        function pickRow(rank, name, cls) {
+            const li = document.createElement('li');
+            li.className = 'top-stock-item' + (cls ? ' ' + cls : '');
+            li.innerHTML = '<span class="rank-num"></span><div class="stock-info"><span class="stock-name"></span></div>';
+            li.querySelector('.rank-num').textContent = rank;
+            li.querySelector('.stock-name').textContent = name;
+            return li;
+        }
+        function renderWeeklyPicks(message) {
             const ul = document.getElementById('weeklyPicks');
             ul.innerHTML = '';
-            WEEKLY_PICKS.forEach((name, i) => {
-                const li = document.createElement('li');
-                li.className = 'top-stock-item';
-                li.innerHTML = '<span class="rank-num"></span><div class="stock-info"><span class="stock-name"></span></div>';
-                li.querySelector('.rank-num').textContent = i + 1;
-                li.querySelector('.stock-name').textContent = name;
-                ul.appendChild(li);
-            });
+            if (message) { ul.appendChild(pickRow('', message, 'picks-msg')); }
+            else WEEKLY_PICKS.forEach((name, i) => ul.appendChild(pickRow(i + 1, name)));
+            document.getElementById('picksAsOf').textContent = message ? '' : asOfText(PICKS_AS_OF);
         }
 
         function renderBasketStats() {
-            const s = BASKET_STATS;
-            document.getElementById('statWin').textContent = Math.round(s.wins / s.weeks * 100) + '%';
-            document.getElementById('statWinSub').textContent = s.weeks + '주 중 ' + s.wins + '주 수익';
-            document.getElementById('statTotal').textContent = '+' + s.total + '만 원';
-            document.getElementById('statAvg').textContent = fmtPct(s.avg);
-            document.getElementById('statCaption').textContent = s.caption;
+            const s = BASKET_STATS, none = !s || !s.weeks;
+            document.getElementById('statWin').textContent = none ? '-' : Math.round(s.wins / s.weeks * 100) + '%';
+            document.getElementById('statWinSub').textContent = none ? '' : s.weeks + '주 중 ' + s.wins + '주 수익';
+            const tot = document.getElementById('statTotal');
+            tot.textContent = none ? '-' : (s.total > 0 ? '+' : '') + s.total.toLocaleString('ko-KR') + '만 원';
+            tot.className = 'basket-stat-value ' + (none ? '' : clsOf(s.total));
+            const avg = document.getElementById('statAvg');
+            avg.textContent = none ? '-' : fmtPct(s.avg);
+            avg.className = 'basket-stat-value ' + (none ? '' : clsOf(s.avg));
+            document.getElementById('statCaption').textContent = none ? '' : s.caption;
         }
 
-        // 수익 보기 / 손실 보기: 실제 과거 바구니 두 개 (API 연결 전 예시)
+        // 수익 보기 / 손실 보기: 실제 과거 바구니 두 개 (서버 결과가 오기 전·시안 모드 예시)
         function toggleSimResult(isProfit) {
             document.getElementById('btnProfit').classList.toggle('active', isProfit);
             document.getElementById('btnLoss').classList.toggle('active', !isProfit);
@@ -953,20 +1035,23 @@
             rate.textContent = fmtPct(total);
             rate.className = 'sim-result-rate ' + clsOf(total);
             document.getElementById('simMessage').textContent = total > 0
-                ? '5종목 중 ' + ups + '종목이 올라서 바구니가 수익을 냈어요!'
+                ? b.stocks.length + '종목 중 ' + ups + '종목이 올라서 바구니가 수익을 냈어요!'
                 : '이번 달은 손실이에요. 그래도 ' + ups + '종목은 올라서 손실을 줄여 줬어요.';
             const ul = document.getElementById('basketList');
             ul.innerHTML = '';
+            const w = Math.round(100 / b.stocks.length) + '%';
             b.stocks.forEach(([name, r]) => {
                 const li = document.createElement('li');
                 li.className = 'basket-row';
-                li.innerHTML = '<span class="w">20%</span><span class="n"></span><span class="r"></span>';
+                li.innerHTML = '<span class="w"></span><span class="n"></span><span class="r"></span>';
+                li.querySelector('.w').textContent = w;
                 li.querySelector('.n').textContent = name;
                 const rEl = li.querySelector('.r');
                 rEl.textContent = fmtPct(r);
                 rEl.classList.add(clsOf(r) || 'flat');
                 ul.appendChild(li);
             });
+            if (b.kospi == null) return;
             const idx = document.createElement('li');
             idx.className = 'basket-row index-row';
             idx.innerHTML = '<span class="w"></span><span class="n">같은 기간 코스피</span><span class="r"></span>';
@@ -975,42 +1060,85 @@
             iEl.classList.add(clsOf(b.kospi) || 'flat');
             ul.appendChild(idx);
         }
+        // 서버 결과가 아직 없을 때(첫 30일) — 예시 바구니 대신 안내
+        function renderBasketEmpty(text) {
+            document.querySelector('.sim-btn-group').style.display = 'none';
+            document.getElementById('simDate').textContent = '';
+            document.getElementById('simResultLabel').textContent = text;
+            const rate = document.getElementById('simResultRate');
+            rate.textContent = ''; rate.className = 'sim-result-rate';
+            document.getElementById('simMessage').textContent = '';
+            document.getElementById('basketList').innerHTML = '';
+        }
 
         // 서버 API 값으로 바꾸기 (수익률은 소수로 옴: 0.05 = +5%)
         async function loadYangbongWeekly() {
-            try {
-                const res = await fetch('/api/yangbong/weekly', { cache: 'no-store' });
-                if (!res.ok) return;
-                const d = await res.json();
-                const pct = v => v == null ? 0 : v * 100;
-                const dot = s => s.replaceAll('-', '.');
-                if (d.picks && d.picks.length) {
-                    WEEKLY_PICKS = d.picks.map(p => p.name);
-                    renderWeeklyPicks();
-                }
-                if (d.stats && d.stats.weeks) {
-                    BASKET_STATS = {
-                        weeks: d.stats.weeks, wins: d.stats.wins, avg: pct(d.stats.avg_return),
-                        total: Math.round(d.stats.total_won / 10000),
-                        caption: '승률·수익: ' + dot(d.stats.since) + '부터 매주 바구니 ' + d.stats.weeks + '개 (2022~2026 과거 시뮬레이션 포함)'
-                    };
-                    renderBasketStats();
-                }
-                if (d.last_basket) {
-                    const lb = d.last_basket;
-                    renderBasket({
-                        buy: dot(lb.buy_date), sell: dot(lb.sell_date).slice(5), kospi: pct(lb.kospi_return),
-                        stocks: lb.stocks.filter(s => s.return != null).map(s => [s.name, pct(s.return)])
-                    });
-                    document.querySelector('.sim-btn-group').style.display = 'none';   // 실제 결과가 있으면 예시 버튼 숨김
-                }
-            } catch (e) { /* API가 없으면 예시 값 유지 */ }
+            if (!OOS.online) return;                          // 시안 모드(파일·다른 서버) — 예시 값 그대로, 없는 API 를 부르지 않는다
+            let d;
+            try { d = await OOS.api('/yangbong/weekly'); }
+            catch (e) {
+                renderWeeklyPicks('추천 종목을 불러오지 못했어요');
+                BASKET_STATS = null; renderBasketStats(); renderBasketEmpty('결과를 불러오지 못했어요');
+                return;
+            }
+            const pct = v => v == null ? 0 : v * 100;
+            const dot = s => String(s || '').replaceAll('-', '.');
+            if (d && d.picks && d.picks.length) {
+                WEEKLY_PICKS = d.picks.map(p => p.name);
+                PICKS_AS_OF = d.as_of;
+                renderWeeklyPicks();
+            } else renderWeeklyPicks('이번 주 추천을 준비하고 있어요');
+            if (d && d.stats && d.stats.weeks) {
+                BASKET_STATS = {
+                    weeks: d.stats.weeks, wins: d.stats.wins, avg: pct(d.stats.avg_return),
+                    total: Math.round(d.stats.total_won / 10000),
+                    caption: '승률·수익: ' + dot(d.stats.since) + '부터 매주 바구니 ' + d.stats.weeks + '개 (2022~2026 과거 시뮬레이션 포함)'
+                };
+            } else BASKET_STATS = null;
+            renderBasketStats();
+            const lb = d && d.last_basket;
+            const stocks = lb ? (lb.stocks || []).filter(s => s.return != null).map(s => [s.name, pct(s.return)]) : [];
+            if (stocks.length) {
+                renderBasket({ buy: dot(lb.buy_date), sell: dot(lb.sell_date).slice(5), kospi: lb.kospi_return == null ? null : pct(lb.kospi_return), stocks });
+                document.querySelector('.sim-btn-group').style.display = 'none';   // 실제 결과가 있으면 예시 버튼 숨김
+            } else renderBasketEmpty('한 달이 지나면 결과를 보여 드릴게요');
         }
 
-        renderWeeklyPicks();
-        renderBasketStats();
-        toggleSimResult(true);
-        loadYangbongWeekly();
+        if (OOS.online) {                                     // 서버 값이 오기 전 — 예시 값을 실제처럼 보이지 않게
+            renderWeeklyPicks('불러오는 중…');
+            BASKET_STATS = null; renderBasketStats(); renderBasketEmpty('불러오는 중…');
+        } else {
+            renderWeeklyPicks();
+            renderBasketStats();
+            toggleSimResult(true);
+        }
+
+        // 실시간 종목 순위(/market/stocks?sort=value|rise|fall)
+        let rankSeq = 0;
+        async function fillRanking() {
+            if (!OOS.online) return;
+            const seq = ++rankSeq, sort = rankSort;
+            let d;
+            try { d = await OOS.api(`/market/stocks?sort=${sort}&limit=5`); }
+            catch (e) { if (seq === rankSeq) document.getElementById('rankBody').innerHTML = '<tr><td colspan="3">순위를 불러오지 못했어요</td></tr>'; return; }
+            if (seq !== rankSeq) return;                          // 탭을 빨리 바꾸면 늦게 온 이전 탭 응답은 버림
+            const items = (d && d.items) || [];
+            document.getElementById('rankBody').innerHTML = items.length ? items.map((r) => {
+                const cr = Number(r.change_rate) || 0;
+                return `<tr><td>${esc(r.name)}</td><td>${OOS.won(r.price)}</td><td class="${signCls(cr)}">${pctText(cr)}</td></tr>`;
+            }).join('') : '<tr><td colspan="3">순위 데이터가 아직 없어요</td></tr>';
+        }
+
+        // 양봉이의 1분 용어 학습(/learn/today) — 날짜(한국)마다 한 개, 누르면 그 용어로 바로
+        async function fillWordCard() {
+            if (!OOS.online) return;
+            let t;
+            try { t = await OOS.api('/learn/today'); } catch (e) { return; }
+            if (!t || !t.term) return;
+            const en = String(t.en || '').replace(/\s*\(.*\)\s*$/, '');
+            document.querySelector('#wordCard .word-desc').textContent = `"${t.term}${en ? `(${en})` : ''}란?"`;
+            document.getElementById('wordCard').href = 'learn.html?term=' + encodeURIComponent(t.term);
+        }
 
         // ===== 투자 성향 분석 설문 =====
         // OUTOFSTOCK_투자성향설문.docx 기준: 5개 영역 × 4문항 = 20문항 은행에서
@@ -1146,6 +1274,9 @@
                 '가장 좋아 보이는 한 회사에 전부 넣어요'
             ]}
         ];
+        // [백엔드 연동] 문항 번호(Q1~Q20) — 서버 문항 은행과 같은 순서·같은 문구(tests/test_web_front.py 가 확인).
+        // 채점은 서버가 한다(/survey/submit): 화면은 '어느 문항에 몇 번 보기'만 보내고, 점수·성향은 서버 결과를 쓴다.
+        SURVEY_BANK.forEach((item, i) => { item.id = 'Q' + (i + 1); });
 
         // 등급 구분(0~10 안정형 / 11~20 중립형 / 21~30 공격형)과 추천 상품은
         // OUTOFSTOCK_투자성향설문.docx · OUTOFSTOCK_추천상품_선정.docx 기준 그대로 반영
@@ -1223,7 +1354,7 @@
             document.body.style.overflow = '';
         }
 
-        // ===== 회원가입 모달 (디자인 전용 — 실제 계정은 만들어지지 않아요) =====
+        // ===== 회원가입 모달 — [백엔드 연동] /auth/register 로 계정을 만들고 바로 로그인(쿠키 세션) =====
         const signupOverlay = document.getElementById('signupOverlay');
         const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
         const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
@@ -1276,10 +1407,26 @@
             pw2Hint.className = 'auth-hint' + (pw2 ? (matchOk ? ' ok' : ' err') : '');
 
             const notice = document.getElementById('signupNotice');
-            notice.classList.add('show');
-            notice.querySelector('span').textContent = (idOk && pwOk && matchOk)
-                ? '입력하신 값은 정상이에요. 디자인 시안이라 실제 계정은 만들어지지 않아요. 백엔드 연동 후 저장되도록 연결할 예정이에요.'
-                : '입력값을 다시 확인해주세요. (디자인 시안이라 실제로 저장되지는 않아요)';
+            const say = (text) => { notice.classList.add('show'); notice.querySelector('span').textContent = text; };
+            if (!(idOk && pwOk && matchOk)) { say('입력값을 다시 확인해주세요.'); return; }
+            if (!OOS.online) { say('서버에 연결된 화면에서만 가입할 수 있어요.'); return; }
+            // 아이디 사용 가능 여부는 서버만 안다(가입을 시도해야 확인 — 아이디 존재 여부를 따로 묻는 창구를 두지 않는다)
+            idHint.textContent = '영문·숫자로 4자 이상 입력해주세요.'; idHint.className = 'auth-hint';
+            pwHint.textContent = '영문, 숫자를 포함해 8자 이상 입력해주세요.'; pwHint.className = 'auth-hint';
+            say('가입하는 중이에요…');
+            OOS.once('signup', async () => {
+                try {
+                    const r = await OOS.register(id, pw);
+                    if (!r) { say('2단계 인증을 마치지 않았어요. 로그인 카드에서 다시 로그인해 주세요.'); return; }
+                    closeSignup();
+                    OOS.notice('가입을 환영해요! 가입 환영 가상머니가 지갑에 들어왔어요');
+                } catch (e) {
+                    const msg = e.message || '가입하지 못했어요';
+                    if (/아이디/.test(msg)) { idHint.textContent = msg; idHint.className = 'auth-hint err'; }
+                    else if (/비밀번호/.test(msg)) { pwHint.textContent = msg; pwHint.className = 'auth-hint err'; }
+                    say(msg);
+                }
+            });
         }
 
         document.addEventListener('keydown', (e) => {
@@ -1298,13 +1445,13 @@
                 <div class="survey-progress-label">${surveyIndex + 1} / ${total}</div>
                 <div class="survey-progress-track"><div class="survey-progress-fill" style="width:${((surveyIndex + 1) / total) * 100}%"></div></div>
                 <div class="survey-domain-tag">영역 ${q.domain} · ${domainName}</div>
-                <div class="survey-question">${q.q}</div>
+                <div class="survey-question">${esc(q.q)}</div>
                 <div class="survey-options">
-                    ${q.options.map((opt, i) => `<button type="button" class="survey-option${surveyAnswers[surveyIndex] === i ? ' selected' : ''}" onclick="selectSurveyOption(${i})">${opt}</button>`).join('')}
+                    ${q.options.map((opt, i) => `<button type="button" class="survey-option${surveyAnswers[surveyIndex] === i ? ' selected' : ''}" data-on="selectSurveyOption(${i})">${esc(opt)}</button>`).join('')}
                 </div>
                 <div class="survey-nav-row">
-                    <button type="button" class="survey-btn" onclick="prevSurveyQuestion()" ${surveyIndex === 0 ? 'style="visibility:hidden"' : ''}>이전</button>
-                    <button type="button" class="survey-btn primary" ${answered ? '' : 'disabled'} onclick="nextSurveyQuestion()">${isLast ? '결과 보기' : '다음'}</button>
+                    <button type="button" class="survey-btn" data-on="prevSurveyQuestion()" ${surveyIndex === 0 ? 'style="visibility:hidden"' : ''}>이전</button>
+                    <button type="button" class="survey-btn primary" ${answered ? '' : 'disabled'} data-on="nextSurveyQuestion()">${isLast ? '결과 보기' : '다음'}</button>
                 </div>
             `;
         }
@@ -1330,21 +1477,36 @@
             }
         }
 
+        // 설문 결과 — [백엔드 연동] 채점은 서버(/survey/submit). 로그인 상태면 서버가 성향 이력에 저장하고 브라우저에는
+        // 남기지 않는다(공용 PC). 로그인 전에는 결과를 이 브라우저에만 둔다(로그아웃하면 지움).
+        // 서버에 닿지 않으면(파일로 연 화면 등) 화면에서 같은 기준으로 채점한 결과를 보여 준다.
+        let myProfile = null;                       // 로그인 사용자의 최신 성향 { type: 'stable'|'neutral'|'aggressive', score } — 서버 값
+        let myAvatar = null;                        // [백엔드 연동] 꾸민 양봉이 { equipped, worth, class } — /avatar/me
+        const TYPE_KEY = { '안정형': 'stable', '중립형': 'neutral', '공격형': 'aggressive' };
+
         function finishSurvey() {
-            // 보기 순서(index)가 곧 0~3점이므로 선택한 인덱스를 그대로 합산
-            const score = surveyAnswers.reduce((sum, ansIdx) => sum + ansIdx, 0);
-            const type = classifyRiskScore(score);
-            try {
-                localStorage.setItem('outofstock_risk_profile', JSON.stringify({ type, score, date: new Date().toISOString() }));
-            } catch (e) { /* 개인정보 저장 실패해도 결과 화면은 그대로 보여줌 */ }
-            renderSurveyResult(type);
-            updateProfileGuideCard();
-            document.getElementById('surveyQuestionView').hidden = true;
-            document.getElementById('surveyResultView').hidden = false;
+            OOS.once('survey', async () => {
+                // 보기 순서(index)가 곧 0~3점이므로 선택한 인덱스를 그대로 합산(서버에 닿지 않을 때만 쓰는 값)
+                let score = surveyAnswers.reduce((sum, ansIdx) => sum + ansIdx, 0);
+                let type = classifyRiskScore(score), products = null;
+                try {
+                    const res = await OOS.api('/survey/submit', { method: 'POST',
+                        body: { answers: surveyActiveQuestions.map((q, i) => ({ id: q.id, answer: surveyAnswers[i] })) } });
+                    if (res && RISK_PROFILES[res.key]) { type = res.key; score = res.score; products = res.products; }
+                } catch (e) { /* 서버에 닿지 않으면 화면에서 채점한 결과 */ }
+                if (OOS.loggedIn()) myProfile = { type, score };
+                else OOS.writeJSON('outofstock_risk_profile', { type, score, date: new Date().toISOString() });
+                renderSurveyResult(type, products);
+                updateProfileGuideCard();
+                renderLoginAvatar();
+                document.getElementById('surveyQuestionView').hidden = true;
+                document.getElementById('surveyResultView').hidden = false;
+            });
         }
 
-        function renderSurveyResult(type) {
+        function renderSurveyResult(type, products) {
             const p = RISK_PROFILES[type];
+            const list = products && products.length ? products : p.products;   // 서버가 준 추천 상품(같은 문서 기준) 우선
             document.getElementById('surveyResultView').innerHTML = `
                 <div class="survey-result">
                     <img class="survey-result-img" src="${p.img}" alt="${p.name} 양봉이">
@@ -1352,29 +1514,35 @@
                     <div class="survey-result-desc">${p.desc}</div>
                     <div class="survey-result-subtitle">${p.name}에게 추천하는 상품</div>
                     <div class="survey-result-products">
-                        ${p.products.map(pr => `
+                        ${list.map(pr => `
                             <div class="reco-product">
                                 <div class="reco-product-head">
-                                    <span class="reco-product-name">${pr.name}</span>
-                                    <span class="badge ${RISK_BADGE_CLASS[pr.risk]}">${pr.risk}</span>
+                                    <span class="reco-product-name">${esc(pr.name)}</span>
+                                    <span class="badge ${RISK_BADGE_CLASS[pr.risk] || ''}">${esc(pr.risk)}</span>
                                 </div>
-                                <div class="reco-product-desc">${pr.desc}</div>
+                                <div class="reco-product-desc">${esc(pr.desc)}</div>
                             </div>
                         `).join('')}
                     </div>
                     <div class="survey-nav-row">
-                        <button type="button" class="survey-btn" onclick="openSurvey()">다시 하기</button>
-                        <button type="button" class="survey-btn primary" onclick="closeSurvey()">닫기</button>
+                        <button type="button" class="survey-btn" data-on="openSurvey()">다시 하기</button>
+                        <button type="button" class="survey-btn primary" data-on="closeSurvey()">닫기</button>
                     </div>
                 </div>
             `;
         }
 
+        // 지금 보여 줄 성향 — 로그인했으면 서버 값, 아니면 이 브라우저의 설문 결과
+        function currentProfile() {
+            if (OOS.loggedIn()) return myProfile;
+            const saved = OOS.readJSON('outofstock_risk_profile');
+            return saved && RISK_PROFILES[saved.type] ? saved : null;
+        }
+
         // 홈 화면 우측 "투자 성향" 카드: 진단 결과가 있으면 성향을 보여주고, 없으면 설문 유도 문구를 보여줌
         function updateProfileGuideCard() {
             const el = document.getElementById('profileGuideCard');
-            let saved = null;
-            try { saved = JSON.parse(localStorage.getItem('outofstock_risk_profile')); } catch (e) { saved = null; }
+            const saved = currentProfile();
             if (saved && RISK_PROFILES[saved.type]) {
                 const p = RISK_PROFILES[saved.type];
                 el.innerHTML = `
@@ -1421,107 +1589,142 @@
             document.getElementById('noticeConfirm').focus();
         }
 
-        // 주요 뉴스: 뉴스 데이터(assets/news-api.js)의 최신 기사로 채운다. 불러오지 못하면 위의 기본 문구를 그대로 둔다.
+        // 주요 뉴스: 뉴스 데이터(assets/news-api.js — 서버 /api/news/home)의 최신 기사로 채운다. 불러오지 못하면 위의 기본 문구를 그대로 둔다.
+        // 기사 원문은 새 탭으로(http/https 주소만 — 그 밖은 뉴스 화면으로)
         (async function renderHomeNews() {
             try {
                 const { latest } = await loadNewsHome();
                 const top = (latest || []).slice(0, 5);
                 if (!top.length) return;
-                const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-                document.getElementById('homeNews').innerHTML = top.map((n) =>
-                    `<li class="news-item"><a href="${esc(n.url || 'news.html')}" title="${esc(n.title)}">${esc(n.title)}</a><div class="news-meta">${esc(n.source)} · ${timeAgo(n.publishedAt)}</div></li>`).join('');
-            } catch (e) { /* 실패해도 기본 문구 유지 */ }
-        })();
-        // ===== 우측 상단 가상머니 표시 (디자인 전용) =====
-        (function () {
-            try {
-                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-                const amt = document.getElementById('headerBalanceAmt');
-                if (amt) amt.textContent = (Number.isFinite(v) ? v : 1000000).toLocaleString('ko-KR');
-            } catch (e) { /* 저장소 접근 실패해도 기본값을 보여줌 */ }
+                document.getElementById('homeNews').innerHTML = top.map((n) => {
+                    const url = OOS.safeUrl(n.url, '');
+                    const href = url ? `href="${esc(url)}" target="_blank" rel="noopener noreferrer"` : 'href="news.html"';
+                    return `<li class="news-item"><a ${href} title="${esc(n.title)}">${esc(n.title)}</a><div class="news-meta">${esc(n.source)} · ${timeAgo(n.publishedAt)}</div></li>`;
+                }).join('');
+            } catch (e) {     // 서버 화면에서 실패하면 시안의 예시 기사를 진짜처럼 남기지 않는다(파일로 연 화면은 예시 그대로)
+                if (OOS.online) document.getElementById('homeNews').innerHTML = '<li class="news-item"><a href="news.html">뉴스를 불러오지 못했어요 — 뉴스 화면에서 다시 시도해 주세요</a></li>';
+            }
         })();
 
-        // ===== 홈 로그인 카드: 로그인 전/후 상태 전환 (디자인 전용 — 실제 로그인은 아니에요) =====
-        (function () {
-            const formView = document.getElementById('loginFormView');
-            const doneView = document.getElementById('loginDoneView');
-            if (!formView || !doneView) return;
+        // ===== 홈 로그인 카드 — [백엔드 연동] 로그인(HttpOnly 쿠키 세션) · 지갑 · 출석 · 친구 요청·안 읽은 메시지 =====
+        const formView = document.getElementById('loginFormView');
+        const doneView = document.getElementById('loginDoneView');
+        const setText = (id, v) => { const n = document.getElementById(id); if (n) n.textContent = v; };
 
-            function getBalance() {
-                const v = parseInt(localStorage.getItem('outofstock_balance'), 10);
-                return Number.isFinite(v) ? v : 1000000;
+        function renderLoginAvatar() {
+            const saved = currentProfile(), imgEl = document.getElementById('loginDoneImg');
+            const eq = OOS.loggedIn() && myAvatar && myAvatar.equipped;
+            if (eq && Object.keys(eq).length && window.AVATAR) {   // 양봉이 꾸미기에서 옷을 입혔으면 그 모습(수저 등급 배경)
+                const c = AVATAR.classOf(AVATAR.worth(eq));
+                imgEl.src = AVATAR.dataUrl(eq, { label: '꾸민 양봉이' }); imgEl.alt = `꾸민 양봉이(${c.name})`;
+                imgEl.className = 'login-done-avatar av k-' + c.level;
+            } else if (saved && RISK_PROFILES[saved.type]) {
+                const p = RISK_PROFILES[saved.type];
+                imgEl.src = p.img; imgEl.alt = p.name + ' 양봉이'; imgEl.className = 'login-done-avatar ' + saved.type;
+            } else {                                     // 아직 설문 전 — 성향 그림 대신 로고
+                imgEl.src = 'assets/logo-mark.png'; imgEl.alt = ''; imgEl.className = 'login-done-avatar';
             }
-            function setBalance(v) {
-                try { localStorage.setItem('outofstock_balance', String(v)); } catch (e) { /* 무시 */ }
-                const headerAmt = document.getElementById('headerBalanceAmt');
-                if (headerAmt) headerAmt.textContent = v.toLocaleString('ko-KR');
-                document.getElementById('loginDoneBalance').textContent = v.toLocaleString('ko-KR');
+        }
+        function renderAttendance(at) {
+            const btnAtt = document.getElementById('btnAttendance');
+            setText('loginDoneStreak', at.streak || 0);
+            if (at.checked_in_today) { btnAtt.disabled = true; btnAtt.innerHTML = '오늘 출석 완료 ✓'; }
+            else { btnAtt.disabled = false; btnAtt.innerHTML = `출석 체크 <span class="login-done-reward">+${OOS.won(at.daily_reward)}원</span>`; }
+        }
+        function renderBadges(b) {
+            if (!b) return;
+            setText('loginDoneFriendReq', b.friend_requests || 0);
+            setText('loginDoneUnread', b.chat_unread || 0);
+        }
+
+        let cardSeq = 0;
+        async function showLoginCard() {
+            const seq = ++cardSeq;
+            if (!OOS.loggedIn()) {
+                myProfile = null; myAvatar = null; doneView.hidden = true; formView.hidden = false;
+                updateProfileGuideCard();
+                return;
             }
-            function getStreak() {
-                const v = parseInt(localStorage.getItem('outofstock_streak'), 10);
-                return Number.isFinite(v) ? v : 3;
-            }
-            function todayStr() { return new Date().toISOString().slice(0, 10); }
+            setText('loginDoneId', OOS.user);
+            ['loginDoneStreak', 'loginDoneBalance', 'loginDoneFriendReq', 'loginDoneUnread'].forEach((id) => setText(id, '-'));
+            document.getElementById('btnAttendance').disabled = true;
+            formView.hidden = true; doneView.hidden = false;
+            renderLoginAvatar();
+            const [w, at, bd, sv, av] = await Promise.all([
+                OOS.api('/wallet').catch(() => null), OOS.api('/attendance').catch(() => null),
+                OOS.api('/me/badges').catch(() => null), OOS.api('/me/survey').catch(() => null),
+                OOS.api('/avatar/me').catch(() => null)]);
+            if (seq !== cardSeq || !OOS.loggedIn()) return;          // 그사이 로그아웃·계정 전환이면 버림
+            if (w) { setText('loginDoneBalance', OOS.won(w.balance)); OOS.setBalance(w.balance); }
+            if (at) renderAttendance(at);
+            renderBadges(bd);
+            const s = sv && sv.survey;
+            myProfile = s && TYPE_KEY[s.type] ? { type: TYPE_KEY[s.type], score: s.score } : null;
+            myAvatar = av;
+            renderLoginAvatar();
+            updateProfileGuideCard();
+        }
 
-            function renderLoginDone(id) {
-                let saved = null;
-                try { saved = JSON.parse(localStorage.getItem('outofstock_risk_profile')); } catch (e) { saved = null; }
-                const type = (saved && RISK_PROFILES[saved.type]) ? saved.type : 'aggressive';
-                const p = RISK_PROFILES[type];
-
-                document.getElementById('loginDoneId').textContent = id || '1234';
-                const imgEl = document.getElementById('loginDoneImg');
-                imgEl.src = p.img;
-                imgEl.alt = p.name + ' 양봉이';
-                imgEl.className = 'login-done-avatar ' + type;
-                document.getElementById('loginDoneStreak').textContent = getStreak();
-                document.getElementById('loginDoneBalance').textContent = getBalance().toLocaleString('ko-KR');
-
-                const lastAtt = localStorage.getItem('outofstock_last_attendance');
-                const btnAtt = document.getElementById('btnAttendance');
-                if (lastAtt === todayStr()) {
-                    btnAtt.disabled = true;
-                    btnAtt.innerHTML = '오늘 출석 완료 ✓';
-                } else {
-                    btnAtt.disabled = false;
-                    btnAtt.innerHTML = '출석 체크 <span class="login-done-reward">+500원</span>';
-                }
-            }
-
-            window.doMockLogin = function (e) {
-                if (e && e.preventDefault) e.preventDefault();
-                const idInput = document.querySelector('#loginFormView input[type="text"]');
-                const id = (idInput && idInput.value.trim()) || '1234';
-                renderLoginDone(id);
-                formView.hidden = true;
-                doneView.hidden = false;
-            };
-
-            window.doAttendanceCheck = function () {
-                if (localStorage.getItem('outofstock_last_attendance') === todayStr()) return;
+        function doLogin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const id = document.getElementById('loginId').value.trim(), pw = document.getElementById('loginPw').value;
+            if (!id || !pw) { alert('아이디와 비밀번호를 입력해 주세요.'); return; }
+            OOS.once('login', async () => {
                 try {
-                    localStorage.setItem('outofstock_last_attendance', todayStr());
-                    localStorage.setItem('outofstock_streak', String(getStreak() + 1));
-                } catch (e) { /* 무시 */ }
-                setBalance(getBalance() + 500);
-                document.getElementById('loginDoneStreak').textContent = getStreak();
-                const btnAtt = document.getElementById('btnAttendance');
-                btnAtt.disabled = true;
-                btnAtt.innerHTML = '오늘 출석 완료 ✓';
-            };
+                    const r = await OOS.login(id, pw, document.getElementById('loginKeep').checked);
+                    if (r) document.getElementById('loginPw').value = '';
+                } catch (err) { alert(err.message); }
+            });
+        }
+        function doAttendanceCheck() {
+            OOS.once('attendance', async () => {
+                try {
+                    const r = await OOS.api('/attendance/check-in', { method: 'POST' });
+                    renderAttendance(r);
+                    if (r.balance != null) { setText('loginDoneBalance', OOS.won(r.balance)); OOS.setBalance(r.balance); }
+                    if (r.reward_given) OOS.notice(`출석 체크 완료! +${OOS.won(r.reward_given)}원`);
+                } catch (err) { alert(err.message); }
+            });
+        }
+        function doLogout(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            OOS.once('logout', () => OOS.logout(false));
+        }
+        function findPassword(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            alert('비밀번호 찾기는 아직 지원하지 않아요.\n본인 확인 수단(이메일·휴대폰)을 받지 않는 서비스라, 잊어버린 비밀번호를 화면에서 다시 정할 수 없어요.');
+        }
+        function focusLogin() {
+            if (OOS.loggedIn()) return;
+            document.querySelector('.login-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => document.getElementById('loginId').focus({ preventScroll: true }), 300);
+        }
 
-            window.doMockLogout = function (e) {
-                if (e && e.preventDefault) e.preventDefault();
-                doneView.hidden = true;
-                formView.hidden = false;
-            };
+        OOS.on('session', showLoginCard);
+        OOS.on('badges', renderBadges);
+        OOS.on('wallet', (b) => { if (!doneView.hidden) setText('loginDoneBalance', OOS.won(b)); });
+        OOS.on('login-request', focusLogin);
 
-            // 헤더 우측 로그아웃 버튼을 눌러도 홈 로그인 카드가 로그인 전 상태로 돌아가게 함
-            window.headerLogout = function () {
-                alert('디자인 시안이에요. 백엔드 연동 후 실제로 로그아웃되도록 연결할 예정이에요.');
-                if (!doneView.hidden) window.doMockLogout();
-            };
+        // 화면 동작(data-on) — 여기 등록한 함수만 부를 수 있다(assets/oos/runtime.js)
+        OOS.actions({ openSurvey, closeSurvey, selectSurveyOption, prevSurveyQuestion, nextSurveyQuestion,
+            openSignup, closeSignup, toggleAuthPw, submitSignup, toggleSimResult, switchTab, closeNotice,
+            doLogin, doLogout, doAttendanceCheck, findPassword });
+
+        // ===== 시작 =====
+        // 예전 화면 주소(/app#/learn …)로 들어온 경우 — 같은 내용의 새 화면으로
+        (function legacyHash() {
+            const h = location.hash;
+            const map = [[/^#\/learn/, 'learn.html'], [/^#\/practice/, 'practice.html'], [/^#\/news/, 'news.html'],
+                [/^#\/(my|friends|chat)/, 'mypage.html']];
+            for (const [re, to] of map) if (re.test(h)) { location.replace(to); return; }
+            if (/^#\/login/.test(h)) history.replaceState(null, '', '#login');
         })();
+        showLoginCard();
+        if (location.hash === '#login') focusLogin();
+        fillIndices(); loadYangbongWeekly(); fillRanking(); fillWordCard();
+        // 지수·순위는 화면을 보고 있을 때만 1분마다(숨긴 탭은 쉰다)
+        setInterval(() => { if (!document.hidden) { fillIndices(); fillRanking(); } }, 60000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) { fillIndices(); fillRanking(); } });
 
     </script>
 </body>

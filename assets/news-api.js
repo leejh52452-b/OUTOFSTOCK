@@ -1,27 +1,36 @@
 // ============================================================
 //  뉴스 데이터 로더 (뉴스 페이지 · 홈의 '주요 뉴스' 카드 공용)
 //
-//  ▶ 지금은 assets/news-mock.js 의 샘플 데이터를 보여줍니다.
-//  ▶ 백엔드가 준비되면:
-//      1) 아래 API_BASE 에 서버 주소를 넣고 (예: 'https://api.example.com')
-//      2) html 의 <script src="assets/news-mock.js"> 줄을 지우면 끝입니다.
-//     화면은 GET {API_BASE}/api/news/home 응답을 그대로 사용합니다. (데이터 형식은 news-mock.js 맨 위 주석 참고)
+//  ▶ 서버(우리 백엔드)가 이 화면을 내보내면 같은 출처의 GET /api/news/home 응답을 그대로 씁니다.
+//     (API_BASE 를 비워 두면 '이 페이지를 연 서버'. 다른 서버를 쓰려면 주소를 넣으세요 — 예: 'https://api.example.com')
+//     서버 오류면 오류를 그대로 던져 화면의 '불러오지 못했어요'(다시 시도) 상태로 — 가상 기사로 대신 채우지 않습니다.
+//  ▶ 우리 서버 없이 열었을 때(파일로 열기·Live Server·GitHub Pages — 디자인 확인용)만 assets/news-mock.js 의 샘플을
+//     보여주고 '샘플' 표시를 켭니다. (우리 서버가 내보낸 화면에만 <meta name="oos-server"> 표식이 붙습니다)
+//     화면은 응답의 data 객체를 그대로 사용합니다. (데이터 형식은 news-mock.js 맨 위 주석 참고)
+//  ▶ 서버 응답의 sample:true(예시 데이터로 채운 DB) 도 '샘플' 표시로 이어집니다.
 // ============================================================
 const NEWS_CONFIG = {
     API_BASE: ''
 };
 
+function newsApiBase() {
+    if (NEWS_CONFIG.API_BASE) return NEWS_CONFIG.API_BASE.replace(/\/$/, '');
+    const served = /^https?:$/.test(location.protocol) && !!document.querySelector('meta[name="oos-server"]');
+    return served ? '' : null;                                  // null = 우리 서버 없음(디자인 확인용)
+}
+
 async function loadNewsHome() {
-    if (NEWS_CONFIG.API_BASE) {
+    const base = newsApiBase();
+    if (base !== null) {
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), 10000);
         try {
-            const res = await fetch(NEWS_CONFIG.API_BASE.replace(/\/$/, '') + '/api/news/home', { cache: 'no-store', signal: ctrl.signal, credentials: 'include' });
+            const res = await fetch(base + '/api/news/home', { signal: ctrl.signal, credentials: base ? 'omit' : 'same-origin' });
             if (!res.ok) throw new Error('서버 응답 오류 (HTTP ' + res.status + ')');
             const j = await res.json();
             const d = j && j.data ? j.data : j;
             if (!d || !Array.isArray(d.todayTop) || !Array.isArray(d.latest)) throw new Error('데이터 형식이 올바르지 않아요');
-            return Object.assign({}, d, { _sample: false });
+            return Object.assign({}, d, { _sample: !!d.sample });
         } finally { clearTimeout(timer); }
     }
     if (typeof NEWS_MOCK === 'undefined') throw new Error('뉴스 데이터가 연결되지 않았어요');
