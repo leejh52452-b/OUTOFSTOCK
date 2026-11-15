@@ -14,7 +14,8 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WEB = ROOT / "web"
+sys.path.insert(0, str(ROOT))
+from app.webui import WEB_ROOT as WEB  # noqa: E402  화면 폴더(최상위 frontend/)
 
 
 def main():

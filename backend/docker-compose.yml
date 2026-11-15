@@ -30,6 +30,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql+psycopg://oos:oos@db:5432/outofstock
+    volumes:
+      - ../frontend:/app/web:ro   # 화면은 저장소 최상위 frontend/ 를 붙인다
     env_file:
       - path: .env                # KRX_API_KEY / DART_API_KEY / KIS_* (없으면 무시)
         required: false

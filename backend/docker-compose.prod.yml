@@ -148,6 +148,10 @@ services:
   app:
     <<: *app-common
     build: {context: ., target: runtime}
+    volumes:                                         # 공통(상태·CA) + 화면(저장소 최상위 frontend/)
+      - oos_state:/var/lib/oos
+      - ./deploy/tls/trust:/tls:ro
+      - ../frontend:/app/web:ro
     ports: !reset []                                 # 공개는 edge(nginx)만
     # 앱은 data(DB)·egress(프록시) 망에도 붙지만 'app-web'(web 망 주소)에서만 듣는다 — 다른 망의 컨테이너(스케줄러·프록시 등)는
     # 앱에 연결조차 못 하고, 연결할 수 있는 상대는 edge 하나다. 예전엔 0.0.0.0 이라 egress 프록시가 침해되면 edge 를 건너뛰고

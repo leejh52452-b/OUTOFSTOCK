@@ -15,7 +15,8 @@ from app.services import account, auth, avatar, wallet
 
 client = TestClient(app)
 ROOT = Path(__file__).resolve().parents[1]
-WEB_ITEMS = ROOT / "web" / "assets" / "avatar-items.js"
+from app.webui import WEB_ROOT as WEB  # noqa: E402  화면 폴더(최상위 frontend/)
+WEB_ITEMS = WEB / "assets" / "avatar-items.js"
 PW = "Avatar-pass-2026"
 
 
@@ -156,11 +157,11 @@ def test_account_deletion_removes_avatar_rows():
 
 
 def test_screen_sends_only_the_item_id_and_the_price_it_showed():
-    page = (ROOT / "web" / "avatar.html").read_text(encoding="utf-8")
+    page = (WEB / "avatar.html").read_text(encoding="utf-8")
     assert "body: { item_id: id, equip: true, price: it.price }" in page          # 금액은 '확인용'으로만 — 차감은 서버 가격
     assert "/avatar/me" in page and "/avatar/equip" in page
     for name in ("avatar", "mypage", "index"):                                   # 그림 파일은 공용 런타임 다음에
-        src = (ROOT / "web" / f"{name}.html").read_text(encoding="utf-8")
+        src = (WEB / f"{name}.html").read_text(encoding="utf-8")
         assert src.index('src="assets/oos/runtime.js"') < src.index('src="assets/avatar-items.js"'), name
     for name in ("index", "learn", "news", "practice", "mypage", "stocks", "avatar"):   # 모든 화면 메뉴에 '양봉이 꾸미기'
-        assert 'href="avatar.html"' in (ROOT / "web" / f"{name}.html").read_text(encoding="utf-8"), name
+        assert 'href="avatar.html"' in (WEB / f"{name}.html").read_text(encoding="utf-8"), name

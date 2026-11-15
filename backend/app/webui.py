@@ -28,7 +28,9 @@ from starlette.staticfiles import NotModifiedResponse
 
 from app.config import settings
 
-WEB_ROOT = Path(os.getenv("WEB_ROOT") or Path(__file__).resolve().parents[1] / "web")
+# 화면 폴더 — 환경변수 WEB_ROOT > backend/web(컨테이너가 붙이는 자리) > 저장소 최상위 frontend/
+_BACKEND = Path(__file__).resolve().parents[1]
+WEB_ROOT = Path(os.getenv("WEB_ROOT") or (_BACKEND / "web" if (_BACKEND / "web").is_dir() else _BACKEND.parent / "frontend"))
 PAGES = ("index", "learn", "news", "practice", "mypage", "stocks", "avatar", "invest")
 
 PAGE_CSP = ("default-src 'self'; script-src 'self' 'nonce-{nonce}'; script-src-attr 'none'; "

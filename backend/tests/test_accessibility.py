@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-WEB = Path(__file__).resolve().parents[1] / "web"
+from app.webui import WEB_ROOT as WEB  # 화면 폴더(최상위 frontend/)
 PAGES = {p.stem: p.read_text(encoding="utf-8") for p in sorted(WEB.glob("*.html"))}
 RUNTIME = (WEB / "assets" / "oos" / "runtime.js").read_text(encoding="utf-8")
 
