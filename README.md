@@ -61,19 +61,19 @@
 
 ```
 OUTOFSTOCK/
-├── frontend/                    # 웹 화면 (빌드 없이 동작하는 HTML · JS)
-│   ├── index.html               # 홈 · 양봉이 주간 추천 · 로그인 · 투자 성향 분석
+├── frontend/                    # 웹 화면
+│   ├── index.html               # 홈 · 주간 추천 · 로그인 · 투자 성향 분석
 │   ├── learn.html               # 용어사전 · Daily Quiz
-│   ├── practice.html            # 매매기법 실습 게임 · 양봉이 튜토리얼 · 복기
-│   ├── invest.html              # 가상시장 모의투자 (주간 시즌제)
-│   ├── stocks.html              # 실시간 종목 (국내 · 미국)
-│   ├── news.html                # 오늘의 이슈 · 핵심 테마 · 인기 기사
-│   ├── avatar.html              # 양봉이 꾸미기
+│   ├── practice.html            # 매매기법 실습 게임
+│   ├── invest.html              # 가상시장 모의투자
+│   ├── stocks.html              # 실시간 종목
+│   ├── news.html                # 기사
+│   ├── avatar.html              # 아바타
 │   ├── mypage.html              # 마이페이지 · 학습 기록 · 친구
-│   ├── assets/                  # 화면 스크립트 · 캐릭터 그림 · 용어 그림(169개)
-│   └── data/                    # 모의투자 시즌별 가상 주가
+│   ├── assets/                  # 화면 스크립트 · 캐릭터 데이터 · 용어 데이터
+│   └── data/                    # 모의투자 시즌별 가상 주가 데이터
 │
-├── backend/                     # FastAPI 서버 (frontend/ 를 같은 출처로 서빙)
+├── backend/                     # FastAPI 서버
 │   ├── app/
 │   │   ├── api.py               # REST API 라우터
 │   │   ├── webui.py             # 웹 화면 서빙
@@ -81,23 +81,23 @@ OUTOFSTOCK/
 │   │   ├── services/            # 기능별 로직
 │   │   │   ├── auth · account                    # 회원가입 · 로그인
 │   │   │   ├── survey · products                 # 투자 성향 분석 · 상품 추천
-│   │   │   ├── yangbong_picks · recommend        # 양봉이 주간 5종목 추천
-│   │   │   ├── vmarket · invest · ledger         # 가상시장 모의투자 · 거래 원장
+│   │   │   ├── yangbong_picks · recommend        # 주간 5종목 추천
+│   │   │   ├── vmarket · invest · ledger         # 가상시장 모의투자
 │   │   │   ├── practice · practice_records       # 매매기법 실습 기록
 │   │   │   ├── learn · quiz                      # 용어사전 · Daily Quiz
-│   │   │   ├── avatar · wallet · friends         # 꾸미기 · 가상머니 · 친구 송금
-│   │   │   └── market · quotes · news_home · themes  # 실시간 시세 · 뉴스
+│   │   │   ├── avatar · wallet · friends         # 아바타
+│   │   │   └── market · quotes · news_home · themes  # 뉴스
 │   │   ├── security/            # 인증 · 세션 · 권한 · 보안 정책
 │   │   ├── models/              # 수익률 · 리스크 모델
 │   │   └── data/                # 용어 · 퀴즈 · 아바타 아이템 데이터
 │   ├── sql/                     # DB 스키마 · 마이그레이션
 │   ├── tests/                   # 테스트
-│   ├── deploy/                  # 배포 설정 (nginx · systemd · 백업)
+│   ├── deploy/                  # 배포 설정
 │   ├── docs/                    # 설계 결정(ADR) · 보안 · 성능 문서
 │   ├── Dockerfile · docker-compose.yml
-│   └── .env.example             # 환경변수 예시 (실제 키는 저장소에 올리지 않음)
+│   └── .env.example             # 환경변수 (실제 키 제외)
 │
-├── recommend/                   # 양봉이 주간 추천 알고리즘 · 2022~2026 과거 시뮬레이션
+├── recommend/                   # 주간 추천 알고리즘 · 2022~2026 과거 시뮬레이션
 ├── tools/
 │   └── virtual_stock_generator.py   # 통계 기반 모의투자 가상 종목 생성기
 └── docs/
