@@ -1,0 +1,4 @@
+
+# 실제 시세 원본 — 재배포 제한(KRX 시장정보 · Yahoo Finance 약관)으로 저장소에 넣지 않음. tools/fetch_real_prices.py 로 생성
+frontend/assets/real-stocks-kr.js
+frontend/assets/soxl-real.js

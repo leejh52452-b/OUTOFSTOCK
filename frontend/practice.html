@@ -866,8 +866,9 @@ const TECH = {
 // ---------- 실전 모드: 실제 데이터 ----------
 // SOXL: assets/soxl-real.js 의 SOXL_REAL (달러, 3배 레버리지 ETF)
 // 국내 종목: assets/real-stocks-kr.js 의 REAL_STOCKS_KR (원) — 눌림목·지지선 실전 구간
+// 실제 시세 파일은 재배포 제한으로 공개 저장소에 없음(tools/fetch_real_prices.py 로 생성) — 없으면 실전 구간을 숨긴다
 const REAL_SETS = Object.assign(
-    { SOXL: { name: 'SOXL', desc: '반도체 3배 레버리지 ETF', usd: true, rows: SOXL_REAL } },
+    typeof SOXL_REAL !== 'undefined' ? { SOXL: { name: 'SOXL', desc: '반도체 3배 레버리지 ETF', usd: true, rows: SOXL_REAL } } : {},
     Object.fromEntries(Object.entries(typeof REAL_STOCKS_KR !== 'undefined' ? REAL_STOCKS_KR : {})
         .map(([code, v]) => [code, { name: v.name, desc: '코스피', usd: false, rows: v.data }]))
 );
@@ -1429,7 +1430,7 @@ function renderIntro(id) {
 let modeReturnFocus = null;
 function openModeModal(id) {
     $('#modeStartPractice').dataset.id = id;
-    const picks = REAL_PICKS[id] || [];
+    const picks = (REAL_PICKS[id] || []).filter(p => REAL_SETS[p.ticker || 'SOXL']);   // 시세 파일이 있는 종목만
     $('#modeRealSection').hidden = picks.length === 0;
     // 종목별로 묶어서 '종목 ○○' 아래에 그 종목의 구간 버튼을 둔다 (구간이 1개여도 같은 모양)
     const groups = {};
