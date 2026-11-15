@@ -1,0 +1,968 @@
+{
+  "version": "2026-11-03.1",
+  "framework": {
+    "name": "금융보안 수준진단 프레임워크(Self-regulated Security Framework)",
+    "publisher": "금융보안원",
+    "version": "v1.0 (2026.2)",
+    "shape": "7개 분야 · 45개 항목 · 127개 세부원칙 · 성숙도 4단계(초기·기반·발전·고도화)",
+    "mapping": "NIST CSF 2.0(2024.2 — 6개 기능 106개 하위 항목)",
+    "source": "금융보안원 자율보안연구팀 특강 「금융보안체계의 패러다임 전환, 자율보안체계」(2026.4.27) 항목표 · 보도(2026.2)",
+    "note": "항목명은 프레임워크 그대로, 세부원칙·구현기준은 공개되지 않아 등급은 자체 판정 규칙(app/security/assessment.py)으로 매긴다"
+  },
+  "scope": {
+    "organization": "OUTOFSTOCK — 가상머니 모의투자·금융 학습 서비스(졸업 작품, 학생 팀)",
+    "boundary": "서비스 1개: API·웹 화면·DB·배치·실시간 수집기·배포 스크립트. 조직 거버넌스(이사회·예산·인사)는 범위 밖",
+    "impact_tier": "CRI 프로파일 중요도 Tier 4(국소적 영향) — 이용자 100만 명 미만, 다른 기관의 업무 연속성과 무관",
+    "excluded_reason": "범위 정의(CSF 프로파일 1단계): 해당 자산이 없는 항목은 제외하고 이유를 적는다"
+  },
+  "domains": [
+    {
+      "id": "1",
+      "name": "거버넌스",
+      "items": 8,
+      "weight": 1.0
+    },
+    {
+      "id": "2",
+      "name": "식별",
+      "items": 5,
+      "weight": 1.0
+    },
+    {
+      "id": "3",
+      "name": "보호",
+      "items": 20,
+      "weight": 1.5
+    },
+    {
+      "id": "4",
+      "name": "탐지",
+      "items": 5,
+      "weight": 1.2
+    },
+    {
+      "id": "5",
+      "name": "대응",
+      "items": 4,
+      "weight": 1.5
+    },
+    {
+      "id": "6",
+      "name": "복구",
+      "items": 1,
+      "weight": 1.2
+    },
+    {
+      "id": "7",
+      "name": "공급망",
+      "items": 2,
+      "weight": 1.0
+    }
+  ],
+  "items": [
+    {
+      "id": "1.1",
+      "name": "사이버보안 전략 수립 및 개선",
+      "csf": [
+        "GV.OC-01",
+        "GV.RM-01",
+        "ID.IM-01",
+        "ID.IM-03"
+      ],
+      "target": 3,
+      "cap": 3,
+      "cap_reason": "조직 전략·경영진 승인은 학생 프로젝트 범위 밖",
+      "evidence": [
+        "doc:docs/adr/README.md",
+        "doc:docs/security/zero_trust.md### 4. 남은 위험과 정직한 한계",
+        "record:docs/security/verification_report_2026-10-21.md",
+        "code:app/security/assessment.py::run",
+        "test:tests/test_assessment.py::test_baseline_catalog_still_reproduces_the_baseline",
+        "auto:job:assessment",
+        "record:docs/security/assessment/2026-11-02_baseline.json"
+      ],
+      "note": "수준진단 엔진 — 근거 기계 확인, 매월 재진단·등급 퇴보 경보, 결과는 감사 체인에 고정. 개선 전 기준선을 같은 엔진으로 재 두었다",
+      "change": "진단 → 개선 → 재평가 주기를 코드로(매월 재진단·퇴보 경보·기준선 비교)"
+    },
+    {
+      "id": "1.2",
+      "name": "경영진 참여 보장",
+      "csf": [
+        "GV.RR-01",
+        "GV.OV-01",
+        "GV.OV-02"
+      ],
+      "target": 2,
+      "cap": 2,
+      "cap_reason": "이사회·경영진이 없는 학생 팀 — 팀장·지도교수 보고로 대체",
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 15. 계획의 수립·변경·승인",
+        "code:app/security/assessment.py::executive_summary",
+        "doc:docs/security/internal_management_plan.md### 17. 보안 수준 자가진단"
+      ],
+      "note": "진단 결과를 한 장 요약(분야별 현재·목표·개선 전, 남은 갭, 결정이 필요한 상한)으로 자동 생성 — 분기 보고 절차",
+      "change": "경영진 보고 요약 자동 생성 + 분기 보고 절차(내부 관리계획 §17)"
+    },
+    {
+      "id": "1.3",
+      "name": "법적 규제 및 요구사항 준수",
+      "csf": [
+        "GV.OC-03"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/compliance_mapping.md",
+        "code:tools/security_check.py::checks",
+        "test:tests/test_deploy_config.py::test_prod_env_example_passes_the_security_baseline_and_holds_no_secrets",
+        "test:tests/test_infosec.py::test_legal_minimum_retention_counts_calendar_years_not_days",
+        "probe:security_baseline",
+        "test:tests/test_incidents.py::test_reporting_rule_follows_enforcement_detail_7_4",
+        "probe:incident_reports"
+      ],
+      "note": "규정 대응표(안전성 확보조치·전자금융감독규정·시행세칙 사고보고·N²SF·BCBS 239) + 기준선 점검 도구가 CI 에서 돈다 · 보고 대상 판정·기한(시행세칙 제7조의4)을 코드로"
+    },
+    {
+      "id": "1.4",
+      "name": "역할 및 책임의 명확화",
+      "csf": [
+        "GV.RR-02"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 1. 개인정보 보호 조직",
+        "code:app/security/rbac.py::ROLES",
+        "code:app/security/policy.json",
+        "test:tests/test_zero_trust.py::test_pdp_decision_matrix",
+        "test:tests/test_zero_trust.py::test_role_grant_needs_two_different_admins",
+        "probe:policy"
+      ],
+      "note": "관리 역할 3종(감사·보안·관리)과 동작별 허용 역할이 정책 파일에 — 직무 분리(2인 승인) 시험"
+    },
+    {
+      "id": "1.5",
+      "name": "정보보호 자원(인력 및 예산) 확보",
+      "csf": [
+        "GV.RR-03"
+      ],
+      "excluded": "학생 팀 — 인력·예산을 배정할 조직 주체가 없다(범위 밖)"
+    },
+    {
+      "id": "1.6",
+      "name": "보안 정책 수립 및 관리",
+      "csf": [
+        "GV.PO-01",
+        "GV.PO-02"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0012-policy-decision-and-jit-admin.md",
+        "code:app/security/policy.json",
+        "code:app/security/pdp.py::_validate",
+        "test:tests/test_zero_trust.py::test_every_api_route_declares_a_known_policy_action",
+        "test:tests/test_zero_trust.py::test_policy_file_is_validated_fail_closed",
+        "test:tests/test_zero_trust.py::test_route_without_policy_is_denied_by_default",
+        "probe:policy",
+        "auto:code:app/security/pep.py::enforce",
+        "record:docs/security/verification_report_2026-10-21.md"
+      ],
+      "note": "정책을 코드와 분리한 파일(버전·해시) — 모든 경로가 정책 동작을 선언해야 하고, 형식이 틀리면 기동 거부(fail closed)"
+    },
+    {
+      "id": "1.7",
+      "name": "정보보호 교육 및 훈련",
+      "csf": [
+        "PR.AT-01",
+        "PR.AT-02"
+      ],
+      "target": 2,
+      "cap": 2,
+      "cap_reason": "교육 이수를 관리할 조직이 없다 — 팀 개발 가이드와 자동 경고로 대체",
+      "evidence": [
+        "doc:web/README.md",
+        "code:tools/sync_web.py"
+      ],
+      "note": "화면 팀용 보안 규칙(외부 스크립트·인라인 핸들러 금지)을 가이드로 두고 반영 도구가 미리 경고",
+      "next": "보안 교육 기록(누가·언제·무엇)과 연 1회 이상 이수 확인"
+    },
+    {
+      "id": "1.8",
+      "name": "정보 노출 방지 및 업무 환경 보안",
+      "csf": [
+        "PR.DS-01",
+        "PR.DS-02",
+        "PR.DS-10"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/adr/0024-device-bound-sessions-and-dlp.md",
+        "code:app/security/dlp.py::scan",
+        "code:app/redact.py",
+        "test:tests/test_dlp.py::test_transfer_memo_and_chat_are_masked_before_storage",
+        "test:tests/test_security.py::test_api_keys_never_leak_to_logs_or_public_health",
+        "auto:code:app/security/dlp.py::guard"
+      ],
+      "note": "자유 입력의 주민번호·카드번호를 저장 전 가림 + 로그·알림 출구 가림(redact)"
+    },
+    {
+      "id": "2.1",
+      "name": "자산 식별 및 관리",
+      "csf": [
+        "ID.AM-01",
+        "ID.AM-02",
+        "ID.AM-03",
+        "ID.AM-04",
+        "ID.AM-07"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/data/data_dictionary.md",
+        "doc:docs/security/third_party_register.md",
+        "code:app/security/classification.py::REGISTRY",
+        "test:tests/test_data_protection.py::test_every_table_is_classified_and_protections_hold",
+        "test:tests/test_datadocs.py::test_every_table_is_documented",
+        "code:app/security/assets.py::inventory",
+        "test:tests/test_risk_register.py::test_asset_inventory_covers_every_table_action_and_external_host",
+        "probe:asset_drift"
+      ],
+      "note": "자산 5종(데이터·업무 서비스·외부 연동·소프트웨어·구성요소)을 코드에서 한 목록으로 — 운영 DB 에 분류 안 된 표가 생기면 점검 실패",
+      "change": "자산 목록 자동 생성(5종) + 운영 DB 표 ↔ 분류 등록부 차이 점검"
+    },
+    {
+      "id": "2.2",
+      "name": "자산 중요도 평가",
+      "csf": [
+        "ID.AM-05",
+        "GV.OC-04"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/threat_model.md### 1. 자산",
+        "code:app/security/classification.py::LEVELS",
+        "code:app/security/policy.json",
+        "test:tests/test_capacity.py::test_every_route_has_a_tier_and_money_auth_admin_are_critical",
+        "auto:code:app/services/capacity.py::admit",
+        "code:app/security/assets.py::data_cia",
+        "test:tests/test_risk_register.py::test_criticality_follows_the_cia_rule"
+      ],
+      "note": "데이터·구성요소는 기밀성+무결성+가용성(각 1~3) → 1~3등급, 업무 동작은 critical·normal·low — 업무 중요도는 과부하 때 자동 보호 순서",
+      "change": "C·I·A 점수로 자산마다 중요도 등급"
+    },
+    {
+      "id": "2.3",
+      "name": "자산의 생명주기에 따른 보안 관리",
+      "csf": [
+        "ID.AM-08"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 16. 그 밖",
+        "code:app/services/privacy.py::retention_purge",
+        "code:app/security/rbac.py::decide",
+        "test:tests/test_infosec.py::test_purge_records_its_audit_even_when_a_step_fails",
+        "test:tests/test_infosec.py::test_account_deletion_keeps_role_history_but_pseudonymized",
+        "auto:job:security",
+        "code:app/security/rbac.py::sweep_dormant",
+        "test:tests/test_privilege_lifecycle.py::test_dormant_admin_eligibility_is_revoked_but_bootstrap_is_flagged",
+        "doc:docs/adr/0027-db-storage-and-lifecycle.md",
+        "code:app/services/ilm.py::archive",
+        "test:tests/test_ilm.py::test_archive_verifies_then_deletes_and_restore_brings_rows_back",
+        "test:tests/test_ilm.py::test_tampered_or_foreign_archives_are_refused",
+        "probe:archive_integrity",
+        "auto:job:ilm",
+        "record:docs/perf/db_space_2026-11-03.md"
+      ],
+      "note": "보관 기간 파기(매일)·탈퇴 즉시 삭제·관리 자격 90일 만료 + 60일 안 쓴 자격 자동 회수·기능 폐기 시 표 삭제 · 데이터 수명주기(뉴스·검색 13개월 → 압축 보관·SHA-256 검증 후 정리·복원, 보관 기록은 앱이 고칠 수 없음)"
+    },
+    {
+      "id": "2.4",
+      "name": "위험 평가",
+      "csf": [
+        "ID.RA-03",
+        "ID.RA-04",
+        "ID.RA-05"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/threat_model.md",
+        "record:docs/security/verification_report_2026-10-21.md",
+        "code:app/security/riskreg.py::evaluate",
+        "test:tests/test_risk_register.py::test_every_threat_is_scored_and_its_checks_exist",
+        "probe:risk_register"
+      ],
+      "note": "위협 35개(STRIDE)마다 가능성×영향 — 고유·잔여, 히트맵. 위협 모델 '확인' 열의 시험이 실제로 있는지 구문 트리로 검사",
+      "change": "위협마다 가능성×영향(고유·잔여) 점수 + '확인' 열 시험 실재 검사"
+    },
+    {
+      "id": "2.5",
+      "name": "위험 처리",
+      "csf": [
+        "ID.RA-06",
+        "ID.RA-07",
+        "GV.RM-04"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/threat_model.md### 4. 남은 위험의 처리",
+        "code:app/security/risk_register.json",
+        "test:tests/test_risk_register.py::test_high_residual_risk_needs_a_plan_or_an_acceptance",
+        "probe:risk_register"
+      ],
+      "note": "처리(감소·수용·전가·회피)·담당·재검토일(180일) — 위험 성향 9 를 넘는 잔여는 계획+기한 또는 승인 수용이 있어야 시험 통과",
+      "change": "위험 등록부(처리·담당·재검토) + 위험 성향 초과 시 계획·승인 강제"
+    },
+    {
+      "id": "3.1",
+      "name": "사용자 인증",
+      "csf": [
+        "PR.AA-01",
+        "PR.AA-02",
+        "PR.AA-03",
+        "PR.AA-04"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0011-zero-trust-sessions.md",
+        "code:app/security/sessions.py",
+        "code:app/security/passwords.py",
+        "code:app/security/totp.py",
+        "code:app/security/dpop.py::verify",
+        "test:tests/test_zero_trust.py::test_totp_enrollment_login_replay_recovery_and_encryption",
+        "test:tests/test_zero_trust.py::test_access_expiry_refresh_rotation_grace_and_reuse_detection",
+        "test:tests/test_dpop.py::test_stolen_cookies_on_another_device_cannot_refresh_or_move_money",
+        "auto:rule:refresh_reuse",
+        "auto:rule:dpop_mismatch",
+        "record:docs/security/verification_report_2026-10-21.md"
+      ],
+      "note": "세션 매 요청 재검증·갱신 토큰 회전·TOTP·기기 결속 키(DPoP) — 탈취 신호는 자동 세션 종료",
+      "next": "일반 이용자 2단계 인증은 선택 — 피싱 저항 로그인(패스키)"
+    },
+    {
+      "id": "3.2",
+      "name": "사용자 권한 관리",
+      "csf": [
+        "PR.AA-05"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0012-policy-decision-and-jit-admin.md",
+        "doc:docs/adr/0013-row-level-security.md",
+        "code:app/security/rbac.py::activate",
+        "code:app/security/rls.py",
+        "test:tests/test_zero_trust.py::test_jit_elevation_requires_eligibility_mfa_and_reason",
+        "test:tests/test_zero_trust.py::test_role_grant_needs_two_different_admins",
+        "test:tests/test_rls.py::test_buggy_authorization_code_still_cannot_leak_other_users_rows",
+        "probe:rls_forced",
+        "auto:code:app/security/sessions.py::_VERIFY_SQL",
+        "record:docs/security/verification_report_2026-10-21.md",
+        "code:app/security/rbac.py::offboard",
+        "test:tests/test_privilege_lifecycle.py::test_offboarding_revokes_everything_in_one_step",
+        "probe:dormant_roles"
+      ],
+      "note": "상시 관리자 없음(JIT 30분·자동 만료) · 자격은 2인 승인 · 60일 안 쓴 자격 자동 회수 · 인사조치 일괄 회수 · 개인 데이터는 DB FORCE RLS"
+    },
+    {
+      "id": "3.3",
+      "name": "물리적 접근통제",
+      "csf": [
+        "PR.AA-06",
+        "DE.CM-02"
+      ],
+      "excluded": "자체 전산실이 없다 — 클라우드·학교 VM 제공자 책임"
+    },
+    {
+      "id": "3.4",
+      "name": "저장 데이터 보호",
+      "csf": [
+        "PR.DS-01"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/adr/0014-envelope-encryption-and-keys.md",
+        "code:app/crypto.py::encrypt",
+        "test:tests/test_data_protection.py::test_chat_bodies_are_encrypted_at_rest_and_rotated",
+        "test:tests/test_data_protection.py::test_every_table_is_classified_and_protections_hold",
+        "probe:encryption_at_rest",
+        "probe:ledger"
+      ],
+      "note": "L4 는 해시·봉투 암호화만(시험이 강제) · 돈 데이터는 복식부기·일 마감 해시 사슬로 무결성"
+    },
+    {
+      "id": "3.5",
+      "name": "전송 데이터 보호",
+      "csf": [
+        "PR.DS-02"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/compliance_mapping.md#제7조(전송)",
+        "code:deploy/nginx/compose-tls.conf",
+        "code:deploy/sql/pg_hba_tls.conf",
+        "test:tests/test_deploy_config.py::test_tls_edges_require_modern_tls_and_device_certs_for_admin",
+        "test:tests/test_deploy_config.py::test_tls_pg_hba_rejects_plaintext_tcp_before_any_accept",
+        "probe:security_baseline"
+      ],
+      "note": "경계 TLS 1.2/1.3 · DB 평문 TCP 거부(선택) · 백업 age 암호화"
+    },
+    {
+      "id": "3.6",
+      "name": "암호화 및 키 관리",
+      "csf": [
+        "PR.DS-01",
+        "PR.DS-02"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/adr/0014-envelope-encryption-and-keys.md",
+        "code:app/security/keys.py",
+        "code:app/crypto.py::rotate_all",
+        "test:tests/test_infosec.py::test_aes_gcm_roundtrip_binding_and_rotation",
+        "test:tests/test_zero_trust.py::test_pepper_hash_and_master_key_rotation",
+        "test:tests/test_dr.py::test_key_ring_check_finds_values_locked_by_a_missing_key",
+        "probe:encryption_at_rest",
+        "record:docs/dr/drills/drill-20261020T084147.md"
+      ],
+      "note": "HKDF 용도별 하위 키 · 키 ID 다중 키 링 · 재포장 교체 · 복구 훈련이 키 링 점검",
+      "next": "KEK 를 KMS/HSM 또는 비밀 관리자로(지금은 환경변수)"
+    },
+    {
+      "id": "3.7",
+      "name": "백업 데이터 보호",
+      "csf": [
+        "PR.DS-11"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0019-backup-restore-drills.md",
+        "doc:docs/dr/README.md",
+        "code:tools/dr.py::backup",
+        "test:tests/test_dr.py::test_encrypted_backup_detects_tampering_and_wrong_keys",
+        "test:tests/test_dr.py::test_full_restore_drill_passes_and_catches_an_empty_backup",
+        "test:tests/test_dr.py::test_admin_health_tracks_backup_age_and_drills_but_public_health_hides_them",
+        "probe:backup_recent",
+        "auto:code:tools/dr.py::_record_backup",
+        "record:docs/dr/drills/drill-20261020T084147.md"
+      ],
+      "note": "매일 age 암호화 백업 + 원격 사본 · manifest 로 변조 탐지 · 실패·지연은 자동 경보 · 훈련 실측 RTO"
+    },
+    {
+      "id": "3.8",
+      "name": "로그 관리",
+      "csf": [
+        "PR.PS-04"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0006-audit-chain-encryption-privacy.md",
+        "code:app/services/audit.py::verify",
+        "code:app/logging_conf.py",
+        "test:tests/test_infosec.py::test_audit_chain_detects_tampering",
+        "test:tests/test_infosec.py::test_legal_minimum_retention_counts_calendar_years_not_days",
+        "test:tests/test_logging.py::test_api_process_emits_app_info_logs_with_level_module_and_redaction",
+        "probe:audit_chain",
+        "auto:job:security",
+        "record:docs/security/verification_report_2026-10-21.md",
+        "code:app/security/siem.py::to_cef",
+        "test:tests/test_siem.py::test_cef_export_pseudonymizes_users_and_escapes_fields"
+      ],
+      "note": "감사 해시 체인 + 매일 외부 증인 · 앱 계정은 감사 기록 수정·삭제 불가 · 보관 기간은 달력 기준 하한 · 외부 관제 연동(CEF·JSON Lines — 아이디 가명, 내보내기도 감사 기록)"
+    },
+    {
+      "id": "3.9",
+      "name": "악성코드 차단",
+      "csf": [
+        "DE.CM-09",
+        "PR.PS-05"
+      ],
+      "target": 2,
+      "cap": 2,
+      "cap_reason": "서버 백신·EDR 은 운영 환경 몫 — 이 서비스에는 파일 업로드 기능이 없다",
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 9. 악성프로그램 등 방지",
+        "code:tools/security_scan.sh"
+      ],
+      "note": "업로드 기능 없음 · 의존성 취약점·정적 분석 주 1회"
+    },
+    {
+      "id": "3.10",
+      "name": "자산 보안패치 관리",
+      "csf": [
+        "PR.PS-02",
+        "ID.RA-01"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 10. 취약점 점검",
+        "code:tools/security_scan.sh",
+        "code:deploy/vm.sh#unattended-upgrades",
+        "test:tests/test_deploy_config.py::test_requirements_lock_matches_requirements",
+        "auto:code:.github/workflows/ci.yml#schedule:"
+      ],
+      "note": "서버 자동 보안 업데이트 · 매주 취약점 점검(CI 예약 실행) · 해시 고정 잠금 파일",
+      "next": "의존성 갱신 자동화(봇 PR)와 조치 기한(SLA) 관리"
+    },
+    {
+      "id": "3.11",
+      "name": "안전한 소프트웨어개발 생명주기 정의·설계",
+      "csf": [
+        "PR.PS-06"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/threat_model.md",
+        "doc:docs/security/secure_coding_69.md",
+        "code:.github/workflows/ci.yml",
+        "test:tests/test_zero_trust.py::test_every_api_route_declares_a_known_policy_action",
+        "test:tests/test_data_protection.py::test_every_table_is_classified_and_protections_hold",
+        "auto:code:.github/workflows/ci.yml#pytest"
+      ],
+      "note": "설계 규칙을 시험으로 — 새 경로는 정책 동작, 새 표는 분류부터(빠지면 CI 실패)"
+    },
+    {
+      "id": "3.12",
+      "name": "안전한 소프트웨어개발 생명주기 개발·테스트",
+      "csf": [
+        "PR.PS-06",
+        "ID.IM-02"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/verification.md",
+        "doc:docs/security/scan_report.md",
+        "code:tools/security_scan.sh",
+        "code:tools/e2e_web.py",
+        "test:tests/test_web_security.py::test_pages_have_no_inline_event_handlers_or_eval",
+        "test:tests/test_query_budget.py::test_money_writes_stay_within_budget",
+        "auto:code:.github/workflows/ci.yml#security_scan.sh",
+        "record:docs/security/verification_report_2026-10-21.md",
+        "record:docs/perf/overload_test_2026-11-02.md",
+        "code:app/security/pentest.py::run",
+        "test:tests/test_pentest.py::test_self_pentest_finds_no_open_path",
+        "test:tests/test_pentest.py::test_legacy_shared_demo_session_is_not_reachable_by_number",
+        "probe:pentest_recent",
+        "record:docs/security/pentest/pentest-20261102T221702.md"
+      ],
+      "note": "커밋마다 시험(KST·UTC)·최소 권한 시험·정적 분석·실제 브라우저 E2E · 독립 점검 실측 · 취약점 자가 점검(침투테스트 가이드라인 4단계·ATT&CK 22개 점검) — 첫 실행에서 공용 데모 세션 IDOR 발견·수정"
+    },
+    {
+      "id": "3.13",
+      "name": "네트워크 분리 및 접근통제",
+      "csf": [
+        "PR.IR-01"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/adr/0020-segmented-least-privilege-runtime.md",
+        "code:app/security/egress.py::ALLOWED",
+        "code:deploy/egress-proxy/squid.conf",
+        "code:docker-compose.prod.yml",
+        "test:tests/test_deploy_config.py::test_compose_prod_least_privilege_and_segmentation",
+        "test:tests/test_egress.py::test_unlisted_host_is_blocked_before_any_network_io",
+        "auto:code:app/security/egress.py::check_host",
+        "record:docs/security/verification_report_2026-10-21.md"
+      ],
+      "note": "망 4개 분리 · 나가는 연결 3중(앱 허용 목록 → 프록시 → 커널) · 실측 N-4"
+    },
+    {
+      "id": "3.14",
+      "name": "시스템 설정 관리",
+      "csf": [
+        "PR.PS-01"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/security/README.md",
+        "code:tools/security_check.py::checks",
+        "test:tests/test_deploy_config.py::test_prod_env_example_passes_the_security_baseline_and_holds_no_secrets",
+        "test:tests/test_deploy_config.py::test_template_check_catches_a_committed_secret",
+        "probe:security_baseline",
+        "doc:docs/adr/0026-it-internal-control.md",
+        "code:app/services/changes.py::gate",
+        "test:tests/test_changes.py::test_gate_blocks_broken_release_even_in_record_mode",
+        "test:tests/test_changes.py::test_approval_needs_a_second_person_and_evidence",
+        "probe:change_control",
+        "auto:code:deploy/vm.sh#change_gate",
+        "record:docs/incidents/drills/incident-drill-20261102T131424.md"
+      ],
+      "note": "설정 기준선(근거 조항 포함) + 변경관리 배포 게이트 — 사전 영향 분석·자동 점검(구문·적용된 마이그레이션·정책)·요청자 ≠ 승인자·배포 금지 시간·긴급 변경 3일 사후 검토, 변경 기록은 앱이 지우거나 해시를 못 바꾼다",
+      "change": "변경관리 배포 게이트 — 깨진 설치본은 서비스를 멈추기 전에 차단·승인은 다른 사람만(훈련 실측)"
+    },
+    {
+      "id": "3.15",
+      "name": "비인가 소프트웨어 설치 및 실행 방지",
+      "csf": [
+        "PR.PS-05"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/adr/0020-segmented-least-privilege-runtime.md",
+        "code:Dockerfile",
+        "code:requirements.lock",
+        "code:deploy/outofstock-api.service",
+        "test:tests/test_deploy_config.py::test_dockerfile_runs_unprivileged_with_hash_pinned_deps",
+        "test:tests/test_deploy_config.py::test_vm_units_are_sandboxed_and_egress_locked",
+        "probe:integrity",
+        "auto:rule:file_integrity",
+        "test:tests/test_integrity.py::test_changed_missing_and_new_files_are_detected_against_the_baseline"
+      ],
+      "note": "해시 고정 설치·읽기 전용 컨테이너·코드 읽기 전용 샌드박스 + 배포 기준선 밖의 새 파일·변경을 10분마다 탐지",
+      "change": "배포 기준선 대비 새 파일(웹셸)·변경 감시"
+    },
+    {
+      "id": "3.16",
+      "name": "무선 네트워크 보호",
+      "csf": [
+        "PR.IR-01"
+      ],
+      "excluded": "무선망 자산이 없다(클라우드·VM 서비스)"
+    },
+    {
+      "id": "3.17",
+      "name": "원격 접속 보안 관리",
+      "csf": [
+        "PR.AA-03",
+        "PR.IR-01"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 6. 접근 통제",
+        "code:deploy/vm.sh#PermitRootLogin",
+        "code:deploy/pki/make-pki.sh",
+        "test:tests/test_zero_trust.py::test_admin_actions_need_management_device_certificate_when_required",
+        "test:tests/test_deploy_config.py::test_tls_edges_require_modern_tls_and_device_certs_for_admin",
+        "auto:code:deploy/vm.sh#ufw_q limit"
+      ],
+      "note": "SSH 키·관리자 대역·root 원격 금지·시도 제한 · 관리 화면은 기기 인증서(선택) + TOTP + JIT"
+    },
+    {
+      "id": "3.18",
+      "name": "단말기 보안",
+      "csf": [
+        "PR.AA-03",
+        "DE.CM-09"
+      ],
+      "target": 3,
+      "cap": 3,
+      "cap_reason": "이용자 단말의 보안 상태(MDM·EDR)는 관리 대상이 아니다",
+      "evidence": [
+        "doc:docs/adr/0024-device-bound-sessions-and-dlp.md",
+        "code:app/security/dpop.py::verify",
+        "code:web/assets/oos/runtime.js#dpopProof",
+        "test:tests/test_dpop.py::test_stolen_cookies_on_another_device_cannot_refresh_or_move_money",
+        "auto:rule:dpop_mismatch"
+      ],
+      "note": "세션을 브라우저의 꺼낼 수 없는 키에 결속 — 쿠키를 다른 기기로 옮기면 실패·세션 종료"
+    },
+    {
+      "id": "3.19",
+      "name": "가용성 유지를 위한 복원력 확보",
+      "csf": [
+        "PR.IR-03",
+        "PR.IR-04"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0023-operational-resilience.md",
+        "code:app/services/capacity.py::admit",
+        "code:app/services/controls.py::pause",
+        "test:tests/test_capacity.py::test_alert_level_sheds_low_tier_first_and_keeps_core_transactions",
+        "test:tests/test_resilience.py::test_db_outage_returns_503_with_retry_after",
+        "test:tests/test_capacity.py::test_pool_exhaustion_fails_fast_with_503",
+        "probe:capacity",
+        "auto:code:app/services/capacity.py::admit",
+        "record:docs/perf/overload_test_2026-11-02.md",
+        "record:docs/perf/load_test_2026-10-20.md",
+        "code:app/services/incidents.py::run_check",
+        "test:tests/test_incidents.py::test_availability_coverage_and_probe",
+        "probe:uptime_slo",
+        "auto:job:uptime",
+        "code:app/services/dbhealth.py::forecast",
+        "test:tests/test_dbhealth.py::test_forecast_fits_the_growth_trend_and_days_to_full",
+        "test:tests/test_db_types.py::test_retype_converts_legacy_values_quarantines_broken_ones_and_reconciles",
+        "probe:db_capacity",
+        "auto:job:db_daily",
+        "record:docs/perf/db_space_2026-11-03.md"
+      ],
+      "note": "용량 4단계 · 우선순위 대량접속제어 · 풀 빠른 실패 · 과부하 실측(핵심 거래 p95 899 → 354ms) · 1분 합성 모니터링·30일 가용률(목표 99.5%)·감시 범위 · DB 용량 관리(일일 크기·디스크 소진 예측·비대화·XID 경보, 1년 규모 1,182 → 807MB, 서버 설정 자동 적용)"
+    },
+    {
+      "id": "3.20",
+      "name": "오픈소스 관리",
+      "csf": [
+        "ID.RA-09",
+        "PR.PS-02"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/third_party_register.md### 2. 소프트웨어 공급망",
+        "code:tools/check_lock.py",
+        "code:requirements.lock",
+        "test:tests/test_deploy_config.py::test_requirements_lock_matches_requirements",
+        "auto:code:.github/workflows/ci.yml#cyclonedx"
+      ],
+      "note": "해시 고정 잠금 파일 · SBOM(CycloneDX) · 주 1회 취약점 점검",
+      "next": "라이선스 점검 · SBOM 서명"
+    },
+    {
+      "id": "4.1",
+      "name": "네트워크 환경 모니터링",
+      "csf": [
+        "DE.CM-01"
+      ],
+      "target": 3,
+      "cap": 3,
+      "cap_reason": "네트워크 IDS·NDR 은 범위 밖 — 앱·프록시 계층에서 감시",
+      "evidence": [
+        "doc:docs/security/zero_trust.md",
+        "code:app/services/observability.py",
+        "code:app/security/egress.py::_report",
+        "test:tests/test_egress.py::test_first_block_right_after_boot_is_recorded",
+        "test:tests/test_capacity.py::test_prometheus_exposes_capacity_gauges",
+        "probe:capacity",
+        "auto:rule:login_fail"
+      ],
+      "note": "막힌 외부 연결 기록 · 요청량·지연·부하 단계 지표 · IP 단위 대입 공격 자동 차단"
+    },
+    {
+      "id": "4.2",
+      "name": "내부자 활동 모니터링",
+      "csf": [
+        "DE.CM-03"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 8. 접속기록 보관 및 점검",
+        "code:app/services/privacy.py::access_review",
+        "code:app/services/audit.py::record",
+        "test:tests/test_zero_trust.py::test_pii_view_needs_purpose_is_logged_and_reviewable",
+        "probe:audit_chain",
+        "auto:rule:pii_access"
+      ],
+      "note": "관리자 개인정보 열람은 목적 필수·기록 · 월 점검 리포트(야간·대량·반복) · 하루 50명↑ 자동 경보"
+    },
+    {
+      "id": "4.3",
+      "name": "외부 연결구간 모니터링",
+      "csf": [
+        "DE.CM-06",
+        "DE.CM-01"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/third_party_register.md### 3. 통제",
+        "code:app/security/egress.py::status",
+        "test:tests/test_egress.py::test_circuit_breaker_fails_fast_then_recovers",
+        "test:tests/test_egress.py::test_monitor_mode_records_without_blocking",
+        "auto:code:app/security/egress.py::breaker"
+      ],
+      "note": "원천별 서킷 브레이커 상태 · 허용 목록 밖 연결 기록 · 적재 품질 게이트"
+    },
+    {
+      "id": "4.4",
+      "name": "소프트웨어 및 시스템 파일 모니터링",
+      "csf": [
+        "DE.CM-09"
+      ],
+      "target": 3,
+      "evidence": [
+        "code:tools/make_installer.py::build",
+        "test:tests/test_deploy_scripts.py::test_update_rejects_files_that_are_not_our_installer",
+        "doc:docs/adr/0025-autonomous-security-assessment.md",
+        "code:app/security/integrity.py::check",
+        "test:tests/test_integrity.py::test_changed_missing_and_new_files_are_detected_against_the_baseline",
+        "test:tests/test_integrity.py::test_tampered_baseline_row_is_itself_a_violation",
+        "probe:integrity",
+        "auto:rule:file_integrity",
+        "auto:job:integrity"
+      ],
+      "note": "배포 직후 기준선(파일별 SHA-256 — 소유자 계정만 기록) 대비 10분마다 변경·삭제·새 파일 → 심각 이벤트·경보, 기준선 행 변조도 위반",
+      "next": "실시간 감시(inotify)·기준선 서명(외부 키)",
+      "change": "파일 무결성 감시(FIM) — 웹셸·승인 안 된 변경 탐지"
+    },
+    {
+      "id": "4.5",
+      "name": "탐지된 이벤트 분석 및 사고 판단",
+      "csf": [
+        "DE.AE-02",
+        "DE.AE-03",
+        "DE.AE-04",
+        "DE.AE-08",
+        "DE.AE-06"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0016-fds-rules-and-outbox.md",
+        "code:app/security/events.py::RULES",
+        "code:app/services/fds.py",
+        "test:tests/test_zero_trust.py::test_probing_other_peoples_sessions_auto_revokes_the_session",
+        "test:tests/test_fds.py::test_account_takeover_drain_is_blocked_and_recorded",
+        "auto:rule:login_fail",
+        "record:docs/models/fds_eval.md",
+        "code:app/services/incidents.py::evaluate",
+        "test:tests/test_incidents.py::test_outage_is_opened_marked_reportable_and_closed",
+        "auto:job:uptime"
+      ],
+      "note": "탐지 규칙(같은 주체의 짧은 반복 기준)·자동 대응 · FDS 10개 규칙 — 합성 평가로 탐지율·오탐률 실측 · 장애 자동 판정(10분)·보고 대상(30분 — 시행세칙 제7조의4)·중대 IT 장애 5개 지표"
+    },
+    {
+      "id": "5.1",
+      "name": "사고대응대책 운영",
+      "csf": [
+        "RS.MA-01",
+        "RS.MA-02",
+        "RS.MA-03",
+        "ID.IM-04"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 12. 유출사고 대응",
+        "doc:docs/dr/README.md### 5. 사고별 대응",
+        "code:app/services/controls.py::pause",
+        "code:app/services/alerts.py::notify",
+        "test:tests/test_controls.py::test_admin_api_pause_and_two_person_resume",
+        "test:tests/test_incident_response.py::test_scheduler_job_failure_sends_alert",
+        "auto:rule:ledger_tamper",
+        "record:docs/incidents/2026-10-10-krx-load-rollback.md",
+        "code:app/services/alerts.py::escalate_unacked",
+        "test:tests/test_alerts_ops.py::test_unacked_error_alert_escalates_once_and_ack_clears_it",
+        "probe:alerts_acked",
+        "auto:job:watch"
+      ],
+      "note": "사고 대응 절차 · 기능별 비상 차단(멈춤 1인·재개 2인) · 실제 사고 사후 보고서 1건 · 경보 확인(ack)·15분 미확인 상향·MTTA"
+    },
+    {
+      "id": "5.2",
+      "name": "보안사고 분석·관리",
+      "csf": [
+        "RS.AN-03",
+        "RS.AN-06",
+        "RS.AN-07",
+        "RS.AN-08",
+        "DE.AE-07",
+        "RS.CO-03",
+        "RC.CO-03"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/security/internal_management_plan.md### 12. 유출사고 대응",
+        "code:app/security/context.py",
+        "code:app/services/audit.py::record",
+        "test:tests/test_zero_trust.py::test_request_id_links_response_events_and_audit",
+        "probe:audit_chain",
+        "record:docs/incidents/2026-10-10-krx-load-rollback.md",
+        "doc:docs/adr/0026-it-internal-control.md",
+        "code:app/services/incidents.py::report_md",
+        "test:tests/test_incidents.py::test_security_incident_is_reportable_from_the_start_and_report_draft_has_all_fields",
+        "test:tests/test_incidents.py::test_report_deadline_reminders_warn_then_escalate_when_overdue",
+        "probe:incident_reports",
+        "auto:job:watch",
+        "record:docs/incidents/drills/incident-drill-20261102T131424.md"
+      ],
+      "note": "요청 ID 로 응답·보안 이벤트·감사 기록을 잇는다 · 증거(감사 체인) 무결성 점검 · 장애·침해 사건 기록 → 보고서 초안(별지 제2호 12개 항목, 사건 전 변경 = 변경시점 후보 자동 첨부) · 최초 보고 기한 알림",
+      "change": "장애·침해 사건 판정·보고서 초안·보고 기한 알림 — 장애 판정·보고 훈련 실측"
+    },
+    {
+      "id": "5.3",
+      "name": "보안사고 조치",
+      "csf": [
+        "RS.MI-01",
+        "RS.MI-02",
+        "RS.MA-04",
+        "RS.CO-02"
+      ],
+      "target": 4,
+      "evidence": [
+        "doc:docs/adr/0023-operational-resilience.md",
+        "code:app/services/controls.py::auto_pause",
+        "code:app/security/events.py::lock_account",
+        "test:tests/test_controls.py::test_ledger_tamper_pauses_money_features_automatically",
+        "test:tests/test_zero_trust.py::test_credential_stuffing_from_one_ip_blocks_login_temporarily",
+        "auto:rule:ledger_tamper",
+        "auto:rule:login_fail",
+        "record:docs/incidents/drills/incident-drill-20261102T131424.md"
+      ],
+      "note": "세션 종료·계정 잠금·IP 차단·기능 자동 중지(되돌릴 수 있는 조치만 자동) — 모의훈련으로 차단까지 걸린 시간을 실측",
+      "change": "사고 대응 모의훈련 5개 시나리오 — 탐지 → 차단 → 복구 실측"
+    },
+    {
+      "id": "5.4",
+      "name": "사고대응·복구 훈련 수행",
+      "csf": [
+        "ID.IM-02",
+        "ID.IM-04"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/dr/README.md### 4. 정기 훈련",
+        "code:tools/dr.py::drill",
+        "test:tests/test_dr.py::test_full_restore_drill_passes_and_catches_an_empty_backup",
+        "probe:dr_drill_recent",
+        "record:docs/dr/drills/drill-20261020T084147.md",
+        "code:app/security/drill.py::run",
+        "test:tests/test_incident_drill.py::test_drill_contains_and_recovers_every_scenario",
+        "probe:drill_recent",
+        "record:docs/incidents/drills/incident-drill-20261102T131424.md"
+      ],
+      "note": "복구 훈련(분기, 실측 RTO ≤ 목표 3시간) + 사고 대응 모의훈련 7개 시나리오(격리 DB, 신호 → 탐지 → 차단 → 복구 — 장애 판정·보고, 깨진 배포 차단 포함, 단계별 시간 기록)",
+      "next": "훈련 일정 자동화(분기 스케줄)와 사람 참여 훈련(도상 훈련) 기록"
+    },
+    {
+      "id": "6.1",
+      "name": "복구 시 보안요건 반영",
+      "csf": [
+        "RC.RP-01",
+        "RC.RP-03",
+        "RC.RP-05"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/dr/README.md",
+        "code:tools/dr.py::verify",
+        "test:tests/test_dr.py::test_verify_process_cannot_fall_back_to_production_db_urls",
+        "test:tests/test_dr.py::test_encrypted_backup_detects_tampering_and_wrong_keys",
+        "probe:dr_drill_recent",
+        "auto:code:tools/dr.py::drill",
+        "record:docs/dr/drills/drill-20261020T084147.md",
+        "test:tests/test_incidents.py::test_dr_rto_over_target_fails_the_drill_probe"
+      ],
+      "note": "복원 전 manifest·암호문 검증 → 새 DB 에 복원 → 체인·키 링·행 수 확인 통과 시에만 교체 · 실측 RTO 가 목표(감독규정 제23조 3시간)를 넘으면 점검 실패"
+    },
+    {
+      "id": "7.1",
+      "name": "공급사 선정기준 및 계약 요건 정의",
+      "csf": [
+        "GV.SC-05",
+        "GV.SC-06",
+        "ID.RA-10"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/third_party_register.md",
+        "doc:docs/security/third_party_register.md## 0. 선정 기준",
+        "code:app/security/assets.py::supplier_problems",
+        "test:tests/test_risk_register.py::test_every_supplier_row_answers_the_selection_criteria",
+        "probe:egress_register"
+      ],
+      "note": "선정 기준·이용 요건 S1~S8 — 데이터 최소화·중요도·대체·빠져나오기는 등록부 행마다 채워야 시험 통과",
+      "change": "선정 기준·이용 요건(S1~S8) + 행마다 기준 칸 시험"
+    },
+    {
+      "id": "7.2",
+      "name": "공급사 현황 관리",
+      "csf": [
+        "GV.SC-04",
+        "GV.SC-07",
+        "GV.SC-10"
+      ],
+      "target": 3,
+      "evidence": [
+        "doc:docs/security/third_party_register.md### 1. 외부 데이터·서비스",
+        "code:app/security/egress.py::ALLOWED",
+        "test:tests/test_egress.py::test_every_external_host_in_code_is_allowlisted",
+        "auto:code:app/security/egress.py::breaker",
+        "test:tests/test_risk_register.py::test_allowlist_and_register_never_drift_apart",
+        "probe:egress_register"
+      ],
+      "note": "허용 목록(코드) ↔ 등록부 호스트 표가 한 줄도 어긋나지 않게(시험·운영 점검) · 원천 장애는 서킷 브레이커"
+    }
+  ]
+}

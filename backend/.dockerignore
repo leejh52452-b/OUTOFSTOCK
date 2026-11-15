@@ -1,0 +1,29 @@
+# 이미지에 넣지 않을 것 — 빌드 슬림화 + 윈도우 venv/비밀 제외.
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.git/
+.gitignore
+.env
+.env.*
+.seeded
+deploy/
+initdb/
+tests/
+conftest.py
+frontend/
+content-algo/
+node_modules/
+*.md
+env.prod.example
+snapshots/
+# 실행에 필요 없는 것·로컬 상태(백업·훈련 보고서)·문서
+var/
+docs/
+tools/e2e_web.py
+tools/loadtest.py
+*.log
+dist/

@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학습 및 실습하기 - OUTOFSTOCK</title>
+    <link rel="icon" type="image/png" href="assets/logo-mark.png">
+    <style>
+        body[data-theme="brand-light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
+            --accent-blue: #3730a3;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --input-bg: #ffffff;
+            --hover-bg: #e0e7ff;
+            --item-bg: #f8fafc;
+            --art-plate: transparent;
+            --login-bg: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%);
+            --badge-mid-bg: #fef08a; --badge-mid-text: #854d0e;
+            --badge-hard-bg: #fecdd3; --badge-hard-text: #9f1239;
+            --guide-bg: #dbeafe; --guide-text: #1e40af;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 이미지 공통: 어두운 테마에서는 밝은 판 위에 올려 외곽선이 묻히지 않게 */
+        .art-plate { background-color: var(--art-plate); border-radius: 12px; }
+        img { display: block; max-width: 100%; }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 244px; background-color: var(--card-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+        }
+        .sidebar.collapsed { width: 72px; }
+        .sidebar-header {
+            height: 76px; display: flex; align-items: center;
+            padding: 0 16px; gap: 10px; border-bottom: 1px solid var(--card-border);
+        }
+        .sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        .toggle-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background-color: var(--hover-bg); }
+        .logo { display: flex; align-items: center; min-width: 0; }
+        .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+        .nav-menu { list-style: none; padding: 16px 10px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; white-space: nowrap;
+        }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px 0; }
+        .nav-link svg { width: 18px; height: 18px; stroke: var(--text-secondary); flex-shrink: 0; }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 600;
+        }
+        .nav-link:hover svg, .nav-link.active svg { stroke: var(--accent-blue); }
+
+        /* 메인 */
+        .main-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        header {
+            position: relative; height: 76px; padding: 0 28px; display: flex; align-items: center;
+            border-bottom: 1px solid var(--card-border); background-color: var(--card-bg);
+        }
+        .header-logo {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center;
+        }
+        .header-logo img { height: 56px; width: auto; padding: 3px 12px; box-sizing: content-box; }
+        .search-box { position: relative; width: 320px; max-width: 100%; }
+        .search-box input {
+            width: 100%; padding: 8px 16px 8px 36px; background-color: var(--item-bg);
+            border: 1px solid var(--card-border); border-radius: 8px;
+            color: var(--text-primary); outline: none; font-size: 13px;
+        }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex;
+        }
+        .search-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+        .content-container {
+            padding: 20px 28px; display: flex; flex-direction: column; gap: 20px;
+            width: 100%; max-width: 1440px; margin: 0 auto;
+        }
+
+        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px 18px; }
+
+
+        [hidden] { display: none !important; }
+        .card-header { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+        .card-title svg { width: 17px; height: 17px; stroke: var(--accent-blue); flex-shrink: 0; }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; width: fit-content; }
+        .badge-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .badge-hard { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        .up { color: var(--accent-red); }
+        .down { color: #2563eb; }
+        .flat { color: var(--text-secondary); }
+        svg.ico { width: 16px; height: 16px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ===== 공통 버튼 ===== */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+            padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;
+            border: 1px solid var(--card-border); background-color: var(--card-bg); color: var(--text-secondary);
+            transition: background-color .15s, border-color .15s, color .15s, filter .15s, transform .1s;
+        }
+        .btn:hover:not(:disabled) { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn:active:not(:disabled) { transform: translateY(1px); }
+        .btn.primary { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+        .btn.primary:hover:not(:disabled) { filter: brightness(1.1); color: #fff; }
+        .btn.outline { background-color: #fff; border-color: var(--accent-blue); color: var(--accent-blue); }
+        .btn.outline:hover:not(:disabled) { background-color: var(--hover-bg); }
+        .btn.buy { background-color: var(--accent-red); border-color: var(--accent-red); color: #fff; }
+        .btn.sell { background-color: #2563eb; border-color: #2563eb; color: #fff; }
+        .btn.buy:hover:not(:disabled), .btn.sell:hover:not(:disabled) { filter: brightness(1.08); color: #fff; }
+        .btn:disabled { opacity: .38; cursor: not-allowed; }
+        .btn.lg { padding: 14px 18px; font-size: 15px; border-radius: 8px; }
+        .btn.sm { padding: 8px 14px; font-size: 12.5px; }
+        .btn.block { width: 100%; }
+        .link-btn { background: none; border: none; color: var(--text-muted); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 6px 4px; }
+        .link-btn:hover { color: var(--accent-blue); }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700;
+            color: var(--text-secondary); background: none; border: none; cursor: pointer; padding: 4px 8px 4px 0; margin-bottom: 6px;
+        }
+        .back-btn:hover { color: var(--accent-blue); }
+        .icon-btn {
+            width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--card-border); background: var(--card-bg);
+            color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .icon-btn.on { background: var(--hover-bg); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .seg-group { display: inline-flex; border: 1px solid var(--card-border); border-radius: 6px; overflow: hidden; background: var(--card-bg); }
+        .seg { background: none; border: none; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; }
+        .seg + .seg { border-left: 1px solid var(--card-border); }
+        .seg.active { background: var(--hover-bg); color: var(--accent-blue); }
+        .chip {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; padding: 3px 8px;
+            border-radius: 999px; background: var(--item-bg); border: 1px solid var(--card-border); color: var(--text-secondary);
+        }
+        .chip svg.ico { width: 12px; height: 12px; }
+
+        .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .page-title { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .page-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+        .view { display: flex; flex-direction: column; gap: 20px; }
+        .content-container { word-break: keep-all; overflow-wrap: break-word; }
+        .num { font-variant-numeric: tabular-nums; }
+
+        /* ===== 실습 목록 ===== */
+        .tech-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .tech-card { display: flex; flex-direction: column; gap: 12px; padding: 18px; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; }
+        .tech-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(55, 48, 163, 0.09); }
+        .tech-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .tech-top-left { display: flex; align-items: center; gap: 10px; }
+        .tech-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--hover-bg); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; }
+        .tech-icon svg.ico { width: 20px; height: 20px; }
+        .tech-title { font-size: 16px; font-weight: 800; letter-spacing: -0.4px; }
+        .tech-summary { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+        .tech-illust { background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 6px 8px; }
+        .tech-illust svg { width: 100%; height: auto; display: block; }
+        .tech-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tech-cta { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .tech-record { font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+        .tech-record b { color: var(--accent-blue); }
+
+        .mascot-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; background: var(--login-bg); }
+        .mascot-card img { width: 150px; height: auto; }
+        .mascot-card .m-title { font-size: 14px; font-weight: 800; }
+        .mascot-card .m-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+        .step-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .step-item { display: flex; gap: 10px; align-items: flex-start; }
+        .step-no {
+            width: 24px; height: 24px; border-radius: 50%; background: var(--hover-bg); color: var(--accent-blue);
+            font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .step-item b { font-size: 12.5px; display: block; margin-bottom: 1px; }
+        .step-item span { font-size: 11.5px; color: var(--text-secondary); line-height: 1.5; }
+        .record-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 6px; background: var(--item-bg); font-size: 12px; }
+        .record-row + .record-row { margin-top: 8px; }
+        .record-row b { font-weight: 700; }
+
+        /* ===== 기법 설명 ===== */
+        .intro-hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: center; padding: 22px; }
+        .intro-hero .tech-title { font-size: 21px; margin: 8px 0 8px; }
+        .intro-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .intro-summary { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); }
+        .intro-illust { background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; }
+        .intro-illust svg { width: 100%; height: auto; display: block; }
+        .guide-text { font-size: 13.5px; line-height: 1.75; color: var(--text-primary); }
+        .guide-lead { font-size: 12px; font-weight: 800; color: var(--accent-blue); margin-bottom: 6px; }
+        .rr-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+        .rr-ratio { font-size: 13px; font-weight: 800; color: var(--accent-blue); }
+        .rr-bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin-bottom: 14px; font-size: 11.5px; font-weight: 800; }
+        .rr-bar span { display: flex; align-items: center; justify-content: center; }
+        .rr-bar .risk { background: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .rr-bar .reward { background: var(--accent-blue); color: #fff; }
+        .rr-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .rr-box { border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 14px; background: var(--item-bg); }
+        .rr-box h4 { font-size: 12.5px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .rr-box.risk-box { border-color: #fde68a; background: #fffbeb; }
+        .rr-box.risk-box h4 { color: var(--badge-mid-text); }
+        .rr-box.reward-box { border-color: #c7d2fe; background: #eef2ff; }
+        .rr-box.reward-box h4 { color: var(--accent-blue); }
+        .rr-box p { font-size: 12.5px; line-height: 1.65; color: var(--text-secondary); }
+        .start-card { text-align: center; display: flex; flex-direction: column; gap: 12px; background: var(--login-bg); }
+        .start-card img { width: 170px; height: auto; margin: 0 auto; }
+        .start-info { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+        .start-info .kv { padding: 7px 10px; background: rgba(255,255,255,.75); border: 1px solid var(--card-border); border-radius: 6px; }
+
+        /* ===== 실습 방식 선택 모달 ===== */
+        .mode-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .mode-overlay[hidden] { display: none; }
+        .mode-modal {
+            position: relative; width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto;
+            background-color: var(--card-bg); border-radius: 16px; padding: 30px 28px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+        }
+        .mode-modal-close {
+            position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+            border: none; background: none; color: var(--text-secondary); cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        }
+        .mode-modal-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .mode-modal-close svg { width: 18px; height: 18px; }
+        .mode-modal-head { margin-bottom: 22px; padding-right: 30px; }
+        .mode-modal-head h2 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 4px; }
+        .mode-modal-head p { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+        .mode-section { padding: 20px 0; border-top: 1px solid var(--card-border); }
+        .mode-section:first-of-type { border-top: none; padding-top: 0; }
+        .mode-section-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; letter-spacing: -0.2px; margin-bottom: 14px; }
+        .mode-section-title svg.ico { width: 18px; height: 18px; stroke: var(--accent-blue); flex-shrink: 0; }
+
+        /* ===== 실전 모드 (SOXL 실제 데이터) ===== */
+        .mode-ticker {
+            display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--text-secondary);
+            background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 999px; padding: 3px 10px; margin-bottom: 12px;
+        }
+        .mode-ticker b { color: var(--accent-blue); font-weight: 800; }
+        .real-case-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        .real-group + .real-group { margin-top: 14px; }
+        .real-group .mode-ticker { margin-bottom: 8px; }
+        .real-case {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%;
+            padding: 14px 8px; border: 1px solid var(--card-border); border-radius: 9px; background: var(--item-bg);
+            cursor: pointer; text-align: center; font-family: inherit;
+        }
+        .real-case:hover { border-color: var(--accent-blue); background: var(--hover-bg); }
+        .real-case .rc-label { font-size: 13.5px; font-weight: 800; color: var(--text-primary); }
+        .real-case .rc-range { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; font-weight: 600; }
+        @media (max-width: 480px) { .real-case-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+        /* ===== 실습 진행 ===== */
+        .chart-card { padding: 14px 16px 16px; }
+        .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .chart-legend { display: flex; gap: 6px; flex-wrap: wrap; }
+        .lg-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .lg-box { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+        .chip.pulse { animation: pulse 1.1s ease-in-out infinite; border-color: var(--accent-blue); color: var(--accent-blue); background: var(--hover-bg); }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(55,48,163,.35); } 50% { box-shadow: 0 0 0 6px rgba(55,48,163,0); } }
+        .chart-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .chart-progress { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); margin-right: 2px; }
+        .progress-track { height: 4px; background: var(--item-bg); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+        .progress-fill { height: 100%; width: 0; background: var(--accent-blue); transition: width .3s linear; }
+        .chart-wrap { position: relative; width: 100%; height: 500px; background: #fff; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; }
+        .chart-wrap.result { height: 460px; }
+        .chart-wrap canvas { position: absolute; left: 0; top: 0; }
+        .chart-tip {
+            position: absolute; pointer-events: none; z-index: 4; background: rgba(15,23,42,.92); color: #fff;
+            font-size: 11px; line-height: 1.55; padding: 7px 9px; border-radius: 6px; white-space: nowrap;
+        }
+        .chart-tip b { font-weight: 700; }
+        .overlay-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+        .tutorial-layer {
+            position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 16px;
+            background: rgba(248, 250, 252, 0.78); backdrop-filter: blur(1.5px);
+        }
+        /* 손절선/목표가를 차트에서 드래그할 수 있어야 하는 안내는 전체를 가리지 않고, 카드만 떠 있는 토스트로 보여줌 */
+        .tutorial-layer.info-toast { background: none; backdrop-filter: none; align-items: flex-start; justify-content: flex-end; pointer-events: none; }
+        .tutorial-layer.info-toast .tutorial-card { max-width: 340px; pointer-events: auto; }
+        .tutorial-card {
+            display: flex; gap: 14px; align-items: flex-start; width: 100%; max-width: 500px; background: #fff;
+            border: 1.5px solid var(--accent-blue); border-radius: 14px; padding: 16px 18px 14px 12px;
+            box-shadow: 0 14px 40px rgba(55, 48, 163, 0.18);
+        }
+        .tutorial-mascot { width: 92px; height: auto; flex-shrink: 0; align-self: center; }
+        .tutorial-body { min-width: 0; flex: 1; }
+        .tutorial-step { font-size: 11.5px; font-weight: 800; color: var(--accent-blue); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .tutorial-dots { display: inline-flex; gap: 4px; }
+        .tutorial-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--card-border); display: block; }
+        .tutorial-dots i.on { background: var(--accent-blue); }
+        .tutorial-text { font-size: 13.5px; line-height: 1.65; font-weight: 600; }
+        .tutorial-text em { font-style: normal; font-weight: 800; color: var(--accent-blue); }
+        .tutorial-illust { margin-top: 10px; background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 4px 6px; }
+        .tutorial-illust svg { width: 100%; height: auto; display: block; }
+        .tutorial-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+        .tutorial-actions-left { display: flex; align-items: center; gap: 4px; }
+        .tutorial-actions-left .link-btn svg.ico { width: 12px; height: 12px; }
+        .tutorial-card.gameover-card { border-color: var(--accent-red); box-shadow: 0 14px 40px rgba(220, 38, 38, 0.18); }
+
+        .asset-total { font-size: 24px; font-weight: 800; letter-spacing: -0.6px; }
+        .asset-rate { font-size: 13px; font-weight: 800; margin: 2px 0 12px; }
+        .kv { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; padding: 6px 0; border-top: 1px solid var(--card-border); }
+        .kv:first-child { border-top: none; }
+        .kv span { color: var(--text-secondary); }
+        .kv b { font-weight: 700; }
+        .kv-list { display: flex; flex-direction: column; }
+        .mini-guide { display: flex; flex-direction: column; gap: 10px; }
+        .mini-row { display: flex; gap: 9px; align-items: flex-start; font-size: 12px; line-height: 1.5; color: var(--text-secondary); }
+        .mini-row .mi { width: 24px; height: 24px; border-radius: 7px; background: var(--hover-bg); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .mini-row .mi.warn { background: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .mini-row b { color: var(--text-primary); font-weight: 700; }
+        .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .trade-hint { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-top: 10px; text-align: center; }
+        .status-pill { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: var(--item-bg); border: 1px solid var(--card-border); color: var(--text-secondary); }
+        .status-pill.hold { background: #fee2e2; border-color: #fecaca; color: #b91c1c; }
+        .status-pill.done { background: var(--hover-bg); border-color: #c7d2fe; color: var(--accent-blue); }
+
+        /* ===== 결과 복기 ===== */
+        .sum-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+        .sum-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; }
+        .sum-card.best { border-color: #c7d2fe; background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%); }
+        .sum-label { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700; color: var(--text-secondary); }
+        .sum-label .si { width: 24px; height: 24px; border-radius: 7px; background: var(--hover-bg); color: var(--accent-blue); display: flex; align-items: center; justify-content: center; }
+        .sum-label .si svg.ico { width: 14px; height: 14px; }
+        .sum-value { font-size: 26px; font-weight: 800; letter-spacing: -0.7px; margin-top: 6px; }
+        .sum-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .sum-quote { font-size: 11.5px; color: var(--accent-blue); font-weight: 700; font-style: italic; line-height: 1.45; }
+        .bubble {
+            position: absolute; width: 214px; display: flex; gap: 8px; align-items: flex-start; background: #fff;
+            border: 1.5px solid var(--accent-blue); border-radius: 10px; padding: 8px 10px 8px 8px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16); font-size: 11.5px; line-height: 1.45; font-weight: 600; pointer-events: none;
+        }
+        .bubble::after {
+            content: ''; position: absolute; left: var(--px, 50%); width: 10px; height: 10px; background: #fff;
+            border: 1.5px solid var(--accent-blue); transform: translateX(-50%) rotate(45deg);
+        }
+        .bubble.below::after { top: -6.5px; border-right: none; border-bottom: none; }
+        .bubble.above::after { bottom: -6.5px; border-left: none; border-top: none; }
+        .bubble .b-ico { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .bubble .b-ico svg.ico { width: 14px; height: 14px; }
+        .bubble.buy .b-ico { background: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .bubble.exit .b-ico { background: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        .bubble b { color: var(--accent-blue); font-weight: 800; }
+        .b-conn { position: absolute; width: 0; border-left: 1.5px dashed var(--accent-blue); pointer-events: none; }
+        .result-legend { display: flex; gap: 8px; flex-wrap: wrap; }
+        .feedback-card { display: flex; gap: 18px; align-items: center; padding: 18px 22px; background: var(--login-bg); }
+        .feedback-card img { width: 110px; height: auto; flex-shrink: 0; }
+        .fb-title { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 6px; }
+        .fb-body { font-size: 13.5px; line-height: 1.7; color: var(--text-primary); }
+        .fb-tips { list-style: none; display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .fb-tips li { font-size: 12.5px; color: var(--text-secondary); display: flex; gap: 7px; align-items: flex-start; line-height: 1.5; }
+        .fb-tips svg.ico { width: 14px; height: 14px; margin-top: 2px; color: var(--accent-blue); }
+        .result-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 4px 0 10px; }
+        .result-actions .btn { min-width: 190px; }
+
+        /* 우측 상단 영역 (마이페이지 / 가상머니 / 로그아웃) */
+        .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .header-balance {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+            background: linear-gradient(135deg, #fff7e3, #ffedbd); border: 1px solid #f0d888; color: #8a5f09;
+            font-size: 12.5px; font-weight: 800; white-space: nowrap;
+        }
+        .header-balance svg { width: 15px; height: 15px; stroke: #b9800f; flex-shrink: 0; }
+        .header-btn {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit;
+            color: var(--text-primary); font-size: 12.5px; font-weight: 700; text-decoration: none; white-space: nowrap;
+        }
+        .header-btn svg { width: 15px; height: 15px; stroke: currentColor; flex-shrink: 0; }
+        .header-btn-mypage:hover { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-btn-logout { color: var(--text-muted); }
+        .header-btn-logout:hover { border-color: #fca5a5; background-color: #fee2e2; color: #b91c1c; }
+        @media (max-width: 560px) {
+            .header-btn-label { display: none; }
+            .header-btn { padding: 7px; }
+            .header-balance { padding: 6px 10px; font-size: 11.5px; }
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+            .header-logo { display: none; }
+            .intro-hero { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 760px) {
+            .content-container { padding: 16px; }
+            .tech-grid, .sum-grid, .rr-cols { grid-template-columns: 1fr; }
+            .chart-wrap { height: 380px; }
+            .chart-wrap.result { height: 380px; }
+            .feedback-card { flex-direction: column; text-align: center; }
+            .tutorial-card { flex-direction: column; align-items: center; text-align: center; }
+            .tutorial-mascot { width: 72px; }
+            .result-actions .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body data-theme="brand-light">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="toggle-btn" id="toggleBtn" title="메뉴 접기/열기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="logo">
+                <img class="logo-img art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span class="nav-text">홈</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html#survey" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg>
+                    <span class="nav-text">투자 성향 분석</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="learn.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span class="nav-text">용어사전</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="practice.html" class="nav-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span class="nav-text">학습 및 실습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="stocks.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="nav-text">실시간 종목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="invest.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    <span class="nav-text">모의투자</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="news.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path><path d="M21 7h-4v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2V7z"></path><line x1="7" y1="8" x2="13" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line><line x1="7" y1="16" x2="11" y2="16"></line></svg>
+                    <span class="nav-text">뉴스</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <a href="index.html" class="header-logo" title="OUTOFSTOCK 홈">
+                <img class="art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </a>
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
+            </div>
+
+            <div class="header-actions" id="headerProfile">
+                <div class="header-balance" title="가상머니 잔액">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+                    <span id="headerBalanceAmt">1,000,000</span>원
+                </div>
+                <a href="mypage.html" class="header-btn header-btn-mypage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                    <span class="header-btn-label">마이페이지</span>
+                </a>
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span class="header-btn-label">로그아웃</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="content-container">
+
+            <!-- 1) 실습 목록 -->
+            <section id="view-list" class="view">
+                <div class="page-head">
+                    <div>
+                        <h1 class="page-title">학습 및 실습하기</h1>
+                        <p class="page-sub">과거 시장 데이터로 매매 판단을 연습해요. 배우고 싶은 기법을 골라 양봉이와 함께 시작해 보세요.</p>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="left-column">
+                        <div class="tech-grid" id="techGrid"></div>
+                    </div>
+                    <div class="right-column">
+                        <div class="card mascot-card">
+                            <img src="assets/study.png" alt="공부하는 양봉이">
+                            <div class="m-title">양봉이와 함께 연습해요</div>
+                            <div class="m-desc">실제 과거 차트가 빠르게 흘러가요.<br>신호를 잘 보고 매수·매도 타이밍을 직접 골라 보세요.</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div class="card-title" id="stepsTitle">실습은 이렇게 진행돼요</div></div>
+                            <ol class="step-list" id="stepList"></ol>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div class="card-title" id="recordTitle">나의 실습 기록</div></div>
+                            <div id="recordList"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2) 기법 설명 -->
+            <section id="view-intro" class="view" hidden></section>
+
+            <!-- 3) 실습 진행 -->
+            <section id="view-play" class="view" hidden>
+                <div class="page-head">
+                    <div>
+                        <button class="back-btn" type="button" data-act="quit"><svg class="ico"><use href="#i-arrow-left"/></svg>실습 목록으로</button>
+                        <h1 class="page-title"><span id="playTitle"></span><span class="badge" id="playLevel"></span><span class="chip" id="playModeChip"></span></h1>
+                        <p class="page-sub" id="playSub"></p>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="left-column">
+                        <div class="card chart-card">
+                            <div class="chart-head">
+                                <div class="chart-legend" id="playLegend"></div>
+                                <span class="chip" id="myRatioChip" hidden></span>
+                                <div class="chart-tools">
+                                    <span class="chart-progress num" id="playProgress"></span>
+                                    <div class="seg-group" id="speedGroup">
+                                        <button class="seg active" type="button" data-speed="1">1x</button>
+                                        <button class="seg" type="button" data-speed="2">2x</button>
+                                        <button class="seg" type="button" data-speed="4">4x</button>
+                                        <button class="seg" type="button" data-speed="8">8x</button>
+                                    </div>
+                                    <button class="icon-btn" type="button" id="btnPause" title="일시정지 / 재생"></button>
+                                    <button class="icon-btn" type="button" id="btnHelp" title="양봉이 가이드 다시 보기"><svg class="ico"><use href="#i-help"/></svg></button>
+                                </div>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill" id="playBar"></div></div>
+                            <div class="chart-wrap" id="playWrap">
+                                <canvas id="playCanvas"></canvas>
+                                <div class="chart-tip" id="playTip" hidden></div>
+                                <div class="tutorial-layer" id="tutorialLayer" hidden></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right-column">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title"><svg class="ico"><use href="#i-wallet"/></svg>내 자산</div>
+                                <span class="status-pill" id="statusPill">대기 중</span>
+                            </div>
+                            <div class="asset-total num" id="aTotal">10,000,000원</div>
+                            <div class="asset-rate num flat" id="aRate">0.00%</div>
+                            <div class="kv-list">
+                                <div class="kv"><span>보유 현금</span><b class="num" id="aCash"></b></div>
+                                <div class="kv"><span>보유 수량</span><b class="num" id="aQty"></b></div>
+                                <div class="kv"><span>평균 매수가</span><b class="num" id="aAvg"></b></div>
+                                <div class="kv"><span>현재가</span><b class="num" id="aPrice"></b></div>
+                                <div class="kv"><span>평가 손익</span><b class="num" id="aPnl"></b></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><div class="card-title"><svg class="ico"><use href="#i-target"/></svg>이번 실습 가이드</div></div>
+                            <div class="mini-guide" id="miniGuide"></div>
+                        </div>
+                        <div class="card">
+                            <button class="btn outline block" type="button" id="btnDrawBox" hidden style="margin-bottom:10px"><svg class="ico"><use href="#i-edit"/></svg>손절선 그리기</button>
+                            <div class="trade-grid">
+                                <button class="btn buy lg" type="button" id="btnBuy"><svg class="ico"><use href="#i-trending-up"/></svg>매수</button>
+                                <button class="btn sell lg" type="button" id="btnSell"><svg class="ico"><use href="#i-trending-down"/></svg>매도</button>
+                            </div>
+                            <div class="trade-hint">매수는 보유 현금 전액으로 체결돼요.<br>매도하면 이번 실습이 끝나고 복기 화면으로 넘어가요.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4) 결과 복기 -->
+            <section id="view-result" class="view" hidden>
+                <div class="page-head">
+                    <div>
+                        <button class="back-btn" type="button" data-act="quit"><svg class="ico"><use href="#i-arrow-left"/></svg>실습 목록으로</button>
+                        <h1 class="page-title" id="resTitle"></h1>
+                        <p class="page-sub">내 매매 판단과 기법에 따른 결과를 즉시 비교해 볼 수 있어요.</p>
+                    </div>
+                </div>
+                <div class="sum-grid" id="sumGrid"></div>
+                <div class="card chart-card">
+                    <div class="chart-head">
+                        <div class="card-title"><svg class="ico"><use href="#i-search"/></svg>양봉이의 밀착 복기 차트</div>
+                        <div class="result-legend" id="resLegend"></div>
+                    </div>
+                    <div class="chart-wrap result" id="resWrap">
+                        <canvas id="resCanvas"></canvas>
+                        <div class="overlay-layer" id="resOverlay"></div>
+                        <div class="chart-tip" id="resTip" hidden></div>
+                    </div>
+                </div>
+                <div class="card feedback-card" id="feedbackCard"></div>
+                <div class="result-actions">
+                    <button class="btn outline lg" type="button" data-act="retry"><svg class="ico"><use href="#i-refresh"/></svg>다시 실습하기</button>
+                    <button class="btn primary lg" type="button" data-act="quit"><svg class="ico"><use href="#i-list"/></svg>실습 페이지로 돌아가기</button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- 실습 방식 선택 모달 -->
+    <div class="mode-overlay" id="modeOverlay" hidden data-on-self="closeModeModal()">
+        <div class="mode-modal" role="dialog" aria-modal="true" aria-labelledby="modeModalTitle">
+            <button class="mode-modal-close" type="button" data-act="close-mode" aria-label="닫기">
+                <svg class="ico"><use href="#i-x"/></svg>
+            </button>
+            <div class="mode-modal-head">
+                <h2 id="modeModalTitle">튜토리얼</h2>
+                <p>어떤 방식으로 연습할지 골라주세요. 둘 중 뭘 먼저 해도 괜찮아요!</p>
+            </div>
+            <div class="mode-section">
+                <div class="mode-section-title"><svg class="ico"><use href="#i-book"/></svg>양봉이의 설명과 함께 연습해보기</div>
+                <button class="btn primary lg block" type="button" id="modeStartPractice" data-act="start"><svg class="ico"><use href="#i-play"/></svg>시작하기</button>
+            </div>
+            <div class="mode-section" id="modeRealSection">
+                <div class="mode-section-title"><svg class="ico"><use href="#i-activity"/></svg>과거 데이터로 실전연습하기</div>
+                <div id="modeRealCaseList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 아이콘 스프라이트 (기존 UI와 동일한 2px 라운드 라인 스타일) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+            <symbol id="i-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+            <symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol>
+            <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+            <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+            <symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+            <symbol id="i-trending-down" viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></symbol>
+            <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+            <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></symbol>
+            <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></symbol>
+            <symbol id="i-list" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></symbol>
+            <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></symbol>
+            <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+            <symbol id="i-activity" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+            <symbol id="i-bars" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+            <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></symbol>
+            <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+            <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+            <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+            <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+            <symbol id="i-scale" viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 8l-3 7a4 4 0 0 0 6 0z"/><path d="M19 8l-3 7a4 4 0 0 0 6 0z"/><line x1="5" y1="8" x2="19" y2="8"/></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+            <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/><path d="M15 5l4 4"/></symbol>
+        </defs>
+    </svg>
+
+    <script src="assets/oos/runtime.js"></script>
+    <script src="assets/soxl-real.js"></script>
+    <script src="assets/real-stocks-kr.js"></script>
+    <script>
+'use strict';
+// ============================================================
+//  OUTOFSTOCK 실습하기 (프론트 전용)
+//  - 차트 데이터는 교육용 "예시 데이터"를 시드 기반으로 생성 (백엔드 연동 시 getData()만 API로 교체)
+//  - 차트는 외부 라이브러리 없이 Canvas로 직접 그림 (이동평균선 / RSI / 매매 마커 / 손익비 가이드선)
+// ============================================================
+const START_CASH = 10000000;
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const ico = (n) => `<svg class="ico"><use href="#i-${n}"/></svg>`;
+const num = (v) => Math.round(v).toLocaleString('ko-KR');
+const won = (v) => num(v) + '원';
+// 실전 모드(SOXL 실제 데이터)는 달러 가격이라 "원"으로 보여주면 오해가 생겨 $ 표기로 분리
+const priceFmt = (v, usd) => usd ? '$' + v.toFixed(2) : num(v);
+const priceWon = (v, usd) => usd ? '$' + v.toFixed(2) : won(v);
+// 받침에 따라 조사 고르기: josa('RSI 과매도 반등', '은', '는') → '은'
+const josa = (word, withBatchim, without) => { const ch = word.charCodeAt(word.length - 1); return ch >= 0xAC00 && ch <= 0xD7A3 && (ch - 0xAC00) % 28 ? withBatchim : without; };
+const pct = (v, d = 2) => (v > 0.00004 ? '+' : '') + (Math.abs(v) < 0.00004 ? '0.00' : (v * 100).toFixed(d)) + '%';
+const dirCls = (v) => (v > 0.00004 ? 'up' : v < -0.00004 ? 'down' : 'flat');
+const p2 = (v) => String(v).padStart(2, '0');
+const fmtMD = (d) => p2(d.getMonth() + 1) + '.' + p2(d.getDate());
+const fmtYMD = (d) => String(d.getFullYear()).slice(2) + '.' + p2(d.getMonth() + 1) + '.' + p2(d.getDate());
+const fmtFull = (d) => d.getFullYear() + '.' + p2(d.getMonth() + 1) + '.' + p2(d.getDate());
+
+const COLOR = { up: '#dc2626', down: '#2563eb', grid: '#e8edf3', axis: '#94a3b8', text: '#64748b', sma5: '#f59e0b', sma20: '#4f46e5', rsi: '#3730a3', risk: '#ca8a04', reward: '#3730a3', entry: '#64748b' };
+
+// ---------- 예시 차트 데이터 생성 (시드 고정) ----------
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0, v = 0; while (u === 0) u = r(); while (v === 0) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function buildCandles(cfg) {
+    const r = mulberry32(cfg.seed); const c = []; let p = cfg.start;
+    cfg.phases.forEach(ph => {
+        for (let i = 0; i < ph.n; i++) {
+            const ret = (ph.drift + gauss(r) * ph.vol) / 100; const o = p; const cl = Math.max(1000, o * (1 + ret));
+            const hi = Math.max(o, cl) * (1 + Math.abs(gauss(r)) * ph.vol * 0.35 / 100);
+            const lo = Math.min(o, cl) * (1 - Math.abs(gauss(r)) * ph.vol * 0.35 / 100);
+            c.push({ o, h: hi, l: lo, c: cl }); p = cl;
+        }
+    });
+    c.forEach(k => { ['o', 'h', 'l', 'c'].forEach(key => { k[key] = Math.round(k[key] / 10) * 10; }); k.h = Math.max(k.h, k.o, k.c); k.l = Math.min(k.l, k.o, k.c); });
+    return c;
+}
+function calcSMA(c, n) { return c.map((_, i) => i < n - 1 ? null : c.slice(i - n + 1, i + 1).reduce((s, k) => s + k.c, 0) / n); }
+function calcRSI(c, n) {
+    const out = new Array(c.length).fill(null); let g = 0, l = 0;
+    for (let i = 1; i < c.length; i++) {
+        const d = c[i].c - c[i - 1].c, up = Math.max(d, 0), dn = Math.max(-d, 0);
+        if (i <= n) { g += up; l += dn; if (i === n) { g /= n; l /= n; out[i] = 100 - 100 / (1 + (l === 0 ? 1e9 : g / l)); } }
+        else { g = (g * (n - 1) + up) / n; l = (l * (n - 1) + dn) / n; out[i] = 100 - 100 / (1 + (l === 0 ? 1e9 : g / l)); }
+    }
+    return out;
+}
+function makeDates(startStr, n) {
+    const d = new Date(startStr + 'T00:00:00'); const out = [];
+    while (out.length < n) { const w = d.getDay(); if (w !== 0 && w !== 6) out.push(new Date(d)); d.setDate(d.getDate() + 1); }
+    return out;
+}
+
+// ---------- 기법 정의 (텍스트는 제미나이 기획안 기준) ----------
+const TECH = {
+    golden: {
+        id: 'golden', name: '골든크로스 매매 실습', short: '골든크로스', level: '중급', levelClass: 'badge-mid', icon: 'trending-up',
+        tags: ['추세 추종', '이동평균선'], ratio: 2, ratioText: '1 : 2', oneLine: '손실은 짧게, 수익은 길게',
+        summary: '단기 주가 흐름(5일선)이 장기 주가 흐름(20일선)을 아래에서 위로 강하게 뚫고 올라가는 상승 전환 시점을 포착하는 추세 추종 기법이에요.',
+        how: '주식에는 5일 동안의 평균 주가를 이은 <b>\'빠른 선\'</b>과 20일 동안의 평균을 이은 <b>\'느린 선\'</b>이 있어요. 빠른 선이 느린 선을 밑에서 위로 교차하며 올라가는 순간을 <b>\'골든크로스\'</b>라고 불러요. 최근 사람들이 주식을 비싸게라도 사려고 몰려들고 있다는 상승 신호로 보고, 이때 <b>매수 버튼</b>을 누르는 실습을 해볼 거예요! (신호가 틀릴 때도 많아서 손절선과 꼭 같이 써요)',
+        risk: '매수 후 주가가 매수가보다 약 3% 떨어지면(3배 레버리지 SOXL 실전은 약 9%) 미련 없이 손절합니다. 골든크로스는 속임수 신호도 자주 나와서 손절이 꼭 필요해요. (손실 최소화)',
+        reward: '한 번 상승 추세를 타면 주가가 계속 오르는 경향이 있어요. 목표가를 정해두고 거기서 파는 게 아니라, 반대로 빠른 선이 느린 선 아래로 꺾이는 \'데드크로스\'가 나올 때까지 길게 들고 가며 수익을 극대화합니다. 잃을 땐 찔끔 잃고, 먹을 땐 끝까지 먹는 추세추종의 정석이에요.',
+        showMA: true, showRSI: false, stopPct: 0.03, stopMode: 'pct', exitMode: 'signal',
+        gen: { seed: 1, start: 61200, startDate: '2021-03-02', playStart: 45, phases: [{ n: 34, drift: -0.05, vol: 1.15 }, { n: 12, drift: -0.30, vol: 1.05 }, { n: 12, drift: 0.05, vol: 1.0 }, { n: 32, drift: 0.85, vol: 1.25 }, { n: 14, drift: 0.0, vol: 1.4 }, { n: 26, drift: -0.95, vol: 1.35 }] },
+        guideRows: [
+            ['trending-up', '', '<b>매수 신호</b> 5일선이 20일선을 아래에서 위로 돌파'],
+            ['scissors', 'warn', '<b>청산 신호</b> 데드크로스(추세 꺾임) 또는 손절선 이탈'],
+            ['flag', '', '<b>목표가 없음</b> 데드크로스가 뜰 때까지 길게 들고 가요 (손절선만 차트에 표시돼요)']
+        ],
+        tutorial: [
+            { text: '백문이 불여일견! 지금부터 과거 사례를 본뜬 연습 차트를 빠르게 돌려보며 <em>골든크로스 매매</em>를 연습해볼게요.', img: 'study' },
+            { text: '차트에서 <em>노란색 선(5일선)</em>이 <em>파란색 선(20일선)</em>을 아래에서 위로 뚫는 순간을 잘 노려야 해요!', img: 'study', illust: 'golden', pulse: true },
+            { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 신호가 오면 우측의 <em>[매수]</em> 버튼을 누르고, 추세가 꺾이면 <em>[매도]</em>를 눌러 수익을 내보세요. 준비되셨나요?', img: 'happy' }
+        ],
+        idealBuy: '이때 샀어야 했어요! (골든크로스 돌파)',
+        idealExit: '<b>데드크로스 발생!</b> 추세가 꺾였어요, 여기서 정리했어야 해요!',
+        signalName: '골든크로스'
+    },
+    rsi: {
+        id: 'rsi', name: 'RSI 과매도 반등 매매 실습', short: 'RSI 과매도 반등', level: '고급', levelClass: 'badge-hard', icon: 'thermo',
+        tags: ['역추세', 'RSI 지표'], ratio: 3, ratioText: '1 : 3', oneLine: '1의 위험으로 3 이상의 수익을 노려요',
+        summary: '시장의 공포 심리로 주가가 비정상적으로 폭락한 \'과매도\' 구간(RSI 30 이하)에서 탈출할 때, 바닥을 잡고 반등하는 타이밍을 노리는 기법이에요.',
+        how: 'RSI는 주식 시장의 <b>\'온도계\'</b> 같아요. 악재가 터져서 사람들이 공포에 질려 주식을 마구 던지면 RSI 온도가 <b>30 밑으로</b> 뚝 떨어집니다(과매도). 하지만 영원히 떨어지는 주식은 없죠! 온도가 30 밑에서 허우적대다가 고개를 쑥 내밀고 <b>\'30을 돌파하며 올라오는 순간\'</b>, 투매가 멈추고 반등이 시작되었다고 판단하여 매수하는 실습이에요.',
+        risk: '바닥인 줄 알고 샀는데 지하실이 있을 수 있어요. 따라서 매수할 때 찍었던 최저점 가격을 이탈하면 칼같이 손절해야 합니다. (리스크가 크기 때문에 고급 기법이에요.)',
+        reward: '공포에 질려 지나치게 많이 떨어진 상태에서 샀기 때문에, 정해둔 가격이 아니라 RSI가 정상 궤도(50~70 부근)로 회복하는 신호가 뜰 때까지 들고 가면 큰 반등을 노릴 수 있어요. 다만 바닥이 아닐 수도 있어서 손절선을 꼭 같이 지켜야 해요.',
+        showMA: false, showRSI: true, stopPct: 0.03, stopLookback: 12, exitMode: 'signal',
+        gen: { seed: 6, start: 84300, startDate: '2021-09-01', playStart: 32, phases: [{ n: 30, drift: 0.32, vol: 0.9 }, { n: 14, drift: -2.1, vol: 1.5 }, { n: 6, drift: -0.15, vol: 1.7 }, { n: 26, drift: 1.25, vol: 1.3 }, { n: 20, drift: -0.1, vol: 1.2 }, { n: 12, drift: -0.3, vol: 1.2 }] },
+        guideRows: [
+            ['thermo', '', '<b>매수 신호</b> RSI가 30 밑으로 내려갔다가 30을 다시 돌파'],
+            ['scissors', 'warn', '<b>청산 신호</b> 매수 직전 최저점 이탈(손절) 또는 RSI 70 부근 도달'],
+            ['flag', '', '<b>목표가 없음</b> RSI가 70 부근에 닿을 때까지 들고 가요 (손절선만 차트에 표시돼요)']
+        ],
+        tutorial: [
+            { text: '백문이 불여일견! 지금부터 과거 사례를 본뜬 연습 차트를 빠르게 돌려보며 <em>RSI 과매도 반등 매매</em>를 연습해볼게요.', img: 'study' },
+            { text: '차트 아래 <em>RSI 온도계</em>가 <em>30 밑으로 뚝 떨어졌다가</em>, 다시 <em>30을 위로 돌파하는 순간</em>을 찾아야 해요!', img: 'study', illust: 'rsi' },
+            { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 반등 신호가 오면 우측의 <em>[매수]</em> 버튼을 누르고, 충분히 오르거나 저점을 깨면 <em>[매도]</em>를 눌러 마무리하세요. 준비되셨나요?', img: 'happy' }
+        ],
+        idealBuy: '이때 샀어야 했어요! (RSI 30 돌파)',
+        idealExit: '<b>수익 실현 구간!</b> RSI가 70에 닿았어요. 여기서 정리했어야 해요!',
+        signalName: 'RSI 30 돌파'
+    },
+    pullback: {
+        id: 'pullback', name: '눌림목 매매 실습', short: '눌림목 매매', level: '중급', levelClass: 'badge-mid', icon: 'bars',
+        tags: ['추세 추종', '되돌림'], ratio: 2, ratioText: '1 : 2', oneLine: '추세는 길게, 손익비는 국룰 1:2',
+        summary: '상승 추세인 종목이 20일 이동평균선까지 잠깐 눌렸다가(조정받았다가) 다시 반등하는 지점을 노리는, 손익비를 미리 정해두고 들어가는 기법이에요.',
+        how: '주가가 쭉 오르다가 잠깐 \'눌림목\'(조정)을 주며 <b>20일선</b> 근처까지 내려오는 구간이 있어요. 이때 20일선을 깨지 않고 <b>양봉으로 반등</b>하면, 상승 추세가 아직 살아있다는 신호로 보고 매수해요. 데드크로스 같은 뚜렷한 반전 신호를 기다리는 기법이 아니라서, 매수할 때 <b>손절선과 목표가를 미리 정해두고</b> 거래해요!',
+        risk: '눌림목인 줄 알았는데 추세 자체가 꺾여서 20일선 아래로 더 내려갈 수 있어요. 눌림목 저점을 깨면 바로 손절해야 합니다.',
+        reward: '눌림목 매매는 반전 신호를 기다리는 대신, 매수할 때 손익비를 미리 정해요. 가장 흔히 쓰는 기준은 손익비 <b>1 : 2</b> — 손절폭의 2배를 목표로 잡는 거예요.',
+        showMA: true, showRSI: false, stopPct: 0.04, stopLookback: 8, exitMode: 'ratio',
+        gen: { seed: 74, start: 42000, startDate: '2021-01-04', playStart: 30, phases: [{ n: 20, drift: 0.05, vol: 1.0 }, { n: 40, drift: 0.9, vol: 1.1 }, { n: 10, drift: -0.5, vol: 0.9 }, { n: 20, drift: 0.3, vol: 1.1 }, { n: 20, drift: -0.2, vol: 1.2 }] },
+        guideRows: [
+            ['bars', '', '<b>매수 신호</b> 상승 추세 중 20일선까지 눌렸다가 양봉으로 반등'],
+            ['scissors', 'warn', '<b>청산 신호</b> 눌림목 저점 이탈(손절) 또는 목표가 도달'],
+            ['scale', '', '<b>손익비 1 : 2</b> (국룰) — 매수하면 차트에 표시돼요']
+        ],
+        tutorial: [
+            { text: '백문이 불여일견! 지금부터 과거 사례를 본뜬 연습 차트를 빠르게 돌려보며 <em>눌림목 매매</em>를 연습해볼게요.', img: 'study' },
+            { text: '상승하던 주가가 <em>20일선</em>까지 내려왔다가, <em>양봉으로 반등</em>하는 순간을 잘 노려야 해요!', img: 'study', illust: 'pullback', pulse: true },
+            { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 신호가 오면 <em>[매수]</em>를 누르고, 손절선이나 목표가에 닿으면 <em>[매도]</em>를 눌러 마무리하세요. 준비되셨나요?', img: 'happy' }
+        ],
+        idealBuy: '이때 샀어야 했어요! (20일선 눌림목 반등)',
+        idealExit: (c, an) => c[an.exit].c > c[an.entry].c
+            ? '<b>목표가 도달!</b> 여기서 수익 실현했어야 해요!'
+            : '<b>손절선 이탈!</b> 여기서 칼손절 했어야 해요!',
+        signalName: '눌림목 반등'
+    },
+    support: {
+        id: 'support', name: '지지선 매매 실습', short: '지지선 매매', level: '중급', levelClass: 'badge-mid', icon: 'shield',
+        tags: ['역추세', '지지저항'], ratio: 2, ratioText: '1 : 2', oneLine: '지지선은 믿고, 손익비는 국룰 1:2',
+        summary: '주가가 과거에 여러 번 버텨낸 지지선 근처까지 내려왔다가 다시 반등하는 지점을 노리는, 손익비를 미리 정해두고 들어가는 기법이에요.',
+        how: '차트를 보면 주가가 특정 가격대(<b>지지선</b>)에서 여러 번 반등한 걸 볼 수 있어요. 주가가 그 지지선 근처까지 다시 내려왔다가 <b>양봉으로 반등</b>하면, 이번에도 지지선이 버텨줄 거라 보고 매수해요. 손절선은 지지선 바로 아래, 목표가는 <b>손익비 기준으로 미리</b> 정해둬요!',
+        risk: '지지선이라고 믿었는데 이번엔 뚫리고 더 내려갈 수 있어요(지지선 붕괴). 지지선 아래로 완전히 이탈하면 바로 손절해야 합니다.',
+        reward: '목표가를 저항선에 맞추기보다, 손익비 <b>1 : 2</b>처럼 미리 정해둔 비율로 기계적으로 수익을 실현하는 게 지지선 매매의 기본이에요.',
+        showMA: false, showRSI: false, stopPct: 0.03, stopLookback: 30, exitMode: 'ratio',
+        gen: { seed: 22, start: 38000, startDate: '2021-02-01', playStart: 35, phases: [{ n: 20, drift: -0.3, vol: 1.2 }, { n: 15, drift: 0.0, vol: 0.9 }, { n: 25, drift: -0.25, vol: 1.1 }, { n: 15, drift: 0.0, vol: 0.85 }, { n: 35, drift: 0.5, vol: 1.15 }] },
+        guideRows: [
+            ['shield', '', '<b>매수 신호</b> 지지선 근처까지 내려왔다가 양봉으로 반등'],
+            ['scissors', 'warn', '<b>청산 신호</b> 지지선 이탈(손절) 또는 목표가 도달'],
+            ['scale', '', '<b>손익비 1 : 2</b> (국룰) — 매수하면 차트에 표시돼요']
+        ],
+        tutorial: [
+            { text: '백문이 불여일견! 지금부터 과거 사례를 본뜬 연습 차트를 빠르게 돌려보며 <em>지지선 매매</em>를 연습해볼게요.', img: 'study' },
+            { text: '주가가 과거에 여러 번 버텨낸 <em>지지선</em> 근처까지 내려왔다가, <em>양봉으로 반등</em>하는 순간을 잘 노려야 해요!', img: 'study', illust: 'support', pulse: true },
+            { text: '초기 투자금 <em>1,000만 원</em>이 주어졌어요. 신호가 오면 <em>[매수]</em>를 누르고, 손절선이나 목표가에 닿으면 <em>[매도]</em>를 눌러 마무리하세요. 준비되셨나요?', img: 'happy' }
+        ],
+        idealBuy: '이때 샀어야 했어요! (지지선 반등)',
+        idealExit: (c, an) => c[an.exit].c > c[an.entry].c
+            ? '<b>목표가 도달!</b> 여기서 수익 실현했어야 해요!'
+            : '<b>손절선 이탈!</b> 여기서 칼손절 했어야 해요!',
+        signalName: '지지선 반등'
+    }
+};
+
+// ---------- 실전 모드: 실제 데이터 ----------
+// SOXL: assets/soxl-real.js 의 SOXL_REAL (달러, 3배 레버리지 ETF)
+// 국내 종목: assets/real-stocks-kr.js 의 REAL_STOCKS_KR (원) — 눌림목·지지선 실전 구간
+const REAL_SETS = Object.assign(
+    { SOXL: { name: 'SOXL', desc: '반도체 3배 레버리지 ETF', usd: true, rows: SOXL_REAL } },
+    Object.fromEntries(Object.entries(typeof REAL_STOCKS_KR !== 'undefined' ? REAL_STOCKS_KR : {})
+        .map(([code, v]) => [code, { name: v.name, desc: '코스피', usd: false, rows: v.data }]))
+);
+// 지표(이동평균·RSI)는 종목별 전체 구간에 대해 "딱 한 번만" 계산해서 캐시해둔다.
+// (구간을 잘라낸 뒤 그 안에서만 다시 계산하면, 워밍업이 짧아 RSI 등이 실제 흐름과 달라지는 문제가 있었음 — 그래서 반드시 전체 계산 후 슬라이스만 한다.)
+const _realCandles = {}, _realInd = {};
+function realCandles(tk) {
+    return _realCandles[tk] || (_realCandles[tk] = REAL_SETS[tk].rows.map(r => ({ date: new Date(r[0] + 'T00:00:00'), o: r[1], h: r[2], l: r[3], c: r[4] })));
+}
+function realInd(tk) {
+    if (_realInd[tk]) return _realInd[tk];
+    const rc = realCandles(tk);
+    return (_realInd[tk] = { sma5: calcSMA(rc, 5), sma20: calcSMA(rc, 20), rsi: calcRSI(rc, 14) });
+}
+function findRealIndex(tk, dateStr) {
+    const rc = realCandles(tk), target = new Date(dateStr + 'T00:00:00').getTime();
+    for (let i = 0; i < rc.length; i++) if (rc[i].date.getTime() >= target) return i;
+    return rc.length - 1;
+}
+const REAL_PLAYLEN = 90, REAL_LEAD = 10, REAL_CONTEXT = 15;
+// 실전 구간을 통째로 슬라이스(전체 계산된 지표를 그대로 잘라 쓰므로 수치가 실제 흐름과 100% 일치함)
+// searchStartAbs: analyze() 탐색이 시작되는 지점(신호가 뜨기 REAL_LEAD거래일 전부터 — RSI는 '30 하향→30 복귀' 2단계라 미리 보고 있어야 함)
+// sliceFromAbs: 거기서 REAL_CONTEXT만큼 더 앞서, 차트에 약간의 사전 흐름과 재생 커서(P.cur)의 시작 지점을 확보
+// context: 차트 앞쪽에 붙일 사전 흐름 (지지선 매매는 과거 30일 최저가로 지지선을 찾으므로 30일치가 있어야 함)
+function buildRealData(tk, entryIdxAbs, context) {
+    const rc = realCandles(tk), ind = realInd(tk);
+    const searchStartAbs = Math.max(0, entryIdxAbs - REAL_LEAD);
+    const sliceFromAbs = Math.max(0, searchStartAbs - (context != null ? context : REAL_CONTEXT));
+    const toAbs = Math.min(rc.length - 1, searchStartAbs + REAL_PLAYLEN - 1);
+    const candles = rc.slice(sliceFromAbs, toAbs + 1);
+    const slice = (arr) => arr.slice(sliceFromAbs, toAbs + 1);
+    return { candles, ind: { sma5: slice(ind.sma5), sma20: slice(ind.sma20), rsi: slice(ind.rsi) }, playStart: searchStartAbs - sliceFromAbs };
+}
+function realWindowLabel(tk, entryDate) {
+    const rc = realCandles(tk), entryIdxAbs = findRealIndex(tk, entryDate);
+    const playStartAbs = Math.max(0, entryIdxAbs - REAL_LEAD);
+    const toAbs = Math.min(rc.length - 1, playStartAbs + REAL_PLAYLEN - 1);
+    return `${fmtFull(rc[playStartAbs].date)} ~ ${fmtFull(rc[toAbs].date)}`;
+}
+// 추천 구간: 실제로 신호가 났던 지점을 직접 분석해 검증한 날짜만 등록함 (ticker 없으면 SOXL)
+// (아래 entryDate는 전체 구간에서 한 번만 계산한 지표로 교차검증을 마친 값 — 게임 내 계산과 100% 일치)
+// 눌림목·지지선은 국내 대형주 30개 2016~2026 신호를 게임과 같은 규칙으로 전수 조사해서,
+// 기법이 통한 구간 1개 + 안 통한 구간 1개를 서로 다른 종목으로 골랐음
+// 결과(승/패)는 일부러 알려주지 않음 — 직접 플레이해서 확인하도록
+const REAL_PICKS = {
+    pullback: [
+        { ticker: '005380', entryDate: '2020-11-23', label: '2020년 11월' },
+        { ticker: '051910', entryDate: '2024-10-14', label: '2024년 10월' },
+        { ticker: '006400', entryDate: '2020-12-16', label: '2020년 12월' },
+        { ticker: '068270', entryDate: '2021-08-23', label: '2021년 8월' }
+    ],
+    support: [
+        { ticker: '035420', entryDate: '2023-07-03', label: '2023년 7월' },
+        { ticker: '035720', entryDate: '2021-08-04', label: '2021년 8월' },
+        { ticker: '066570', entryDate: '2021-12-01', label: '2021년 12월' },
+        { ticker: '000660', entryDate: '2024-07-24', label: '2024년 7월' }
+    ],
+    golden: [
+        { entryDate: '2019-01-10', label: '2019년 1월' },
+        { entryDate: '2018-07-18', label: '2018년 7월' },
+        { entryDate: '2020-05-08', label: '2020년 5월' },
+        { entryDate: '2021-12-27', label: '2021년 12월' },
+        { entryDate: '2023-05-16', label: '2023년 5월' },
+        { entryDate: '2026-02-11', label: '2026년 2월' }
+    ],
+    rsi: [
+        { entryDate: '2016-02-12', label: '2016년 2월' },
+        { entryDate: '2019-05-21', label: '2019년 5월' },
+        { entryDate: '2020-03-13', label: '2020년 3월' },
+        { entryDate: '2022-01-28', label: '2022년 1월' },
+        { entryDate: '2025-04-09', label: '2025년 4월' }
+    ]
+};
+
+// ---------- 데이터 / 분석 ----------
+const _cache = {};
+function getData(id) {
+    if (_cache[id]) return _cache[id];
+    const t = TECH[id], g = t.gen;
+    const raw = buildCandles(g); const dates = makeDates(g.startDate, raw.length);
+    const candles = raw.map((k, i) => Object.assign({}, k, { date: dates[i] }));
+    const ind = { sma5: calcSMA(candles, 5), sma20: calcSMA(candles, 20), rsi: calcRSI(candles, 14) };
+    return (_cache[id] = { candles, ind, an: analyze(t, candles, ind) });
+}
+// 눌림목/지지선 같은 '손익비 기법'의 진입 지점 탐지
+function findRatioEntry(t, c, ind, s) {
+    if (t.id === 'pullback') {
+        for (let i = s; i < c.length; i++) {
+            const ma = ind.sma20[i], maPrev = ind.sma20[i - 10];
+            if (ma == null || maPrev == null) continue;
+            if (ma > maPrev * 1.01 && c[i].l <= ma * 1.02 && c[i].c > ma && c[i].c > c[i].o) return i;
+        }
+    } else if (t.id === 'support') {
+        const lb = t.stopLookback;
+        for (let i = s; i < c.length; i++) {
+            if (i - lb < 0) continue;
+            let support = Infinity;
+            for (let j = i - lb; j <= i - 2; j++) support = Math.min(support, c[j].l);
+            if (c[i].l <= support * 1.015 && c[i].c > support && c[i].c > c[i].o) return i;
+        }
+    }
+    return -1;
+}
+// 양봉이의 원칙 매매: 신호에 진입 → 손절선 · 목표가(손익비 기법) · 청산 신호 중 먼저 닿는 곳에서 청산
+// 손절선/목표가는 장중에 닿으면 그 가격에 체결 (시가가 이미 넘어서 출발했으면 시가), 청산 신호는 그날 종가
+// reason: 'stop' 손절 · 'target' 목표가 · 'signal' 청산 신호 · 'end' 구간 끝까지 보유
+function analyze(t, c, ind, playStartOverride, usd) {
+    const s = playStartOverride != null ? playStartOverride : t.gen.playStart; let entry = -1;
+    if (t.id === 'golden') {
+        for (let i = s; i < c.length; i++) {
+            if (ind.sma20[i - 1] == null || ind.sma5[i - 1] == null) continue;   // 이동평균이 아직 없는 구간은 건너뜀
+            if (ind.sma5[i - 1] <= ind.sma20[i - 1] && ind.sma5[i] > ind.sma20[i]) { entry = i; break; }
+        }
+    } else if (t.id === 'rsi') {
+        let dn = -1;
+        for (let i = s; i < c.length; i++) {
+            const R = ind.rsi;
+            if (dn < 0 && R[i - 1] >= 30 && R[i] < 30) dn = i;
+            else if (dn >= 0 && R[i - 1] < 30 && R[i] >= 30) { entry = i; break; }
+        }
+    } else if (t.exitMode === 'ratio') {
+        entry = findRatioEntry(t, c, ind, s);
+    }
+    if (entry < 0) return { entry: -1, exit: -1 };
+    const g = guideFor(t, c, entry, !!usd);
+    return Object.assign({ entry }, principleExitFrom(t, c, ind, entry, g.stop, g.target));
+}
+// from(매수일) 이후 원칙대로라면 언제·얼마에 팔았을지 — 원칙 매매와 '내 매매 복기'가 같은 규칙을 쓴다
+function principleExitFrom(t, c, ind, from, stop, target) {
+    for (let i = from + 1; i < c.length; i++) {
+        const k = c[i];
+        if (k.l <= stop) return { exit: i, exitPrice: Math.min(k.o, stop), reason: 'stop' };
+        if (t.exitMode === 'ratio' && k.h >= target) return { exit: i, exitPrice: Math.max(k.o, target), reason: 'target' };
+        if (t.id === 'golden' && ind.sma5[i - 1] >= ind.sma20[i - 1] && ind.sma5[i] < ind.sma20[i]) return { exit: i, exitPrice: k.c, reason: 'signal' };
+        if (t.id === 'rsi' && ind.rsi[i - 1] < 70 && ind.rsi[i] >= 70) return { exit: i, exitPrice: k.c, reason: 'signal' };
+    }
+    return { exit: c.length - 1, exitPrice: c[c.length - 1].c, reason: 'end' };
+}
+// 손절선/목표가 (손익비 가이드)
+const RSI_DEFAULT_STOP_PCT = 0.02;
+// 실전 모드 SOXL은 3배 레버리지 ETF라 하루 움직임도 일반 주식의 약 3배 → 손절폭도 3배로 잡음
+// (일반 주식 기준 −3% 손절을 그대로 쓰면 매수 1~3일 만에 흔들림만으로 손절돼 기법을 연습할 수 없음)
+const REAL_LEVERAGE = 3;
+function guideFor(t, c, idx, usd, ratioOverride, stopPctOverride) {
+    const p = c[idx].c, ratio = ratioOverride != null ? ratioOverride : t.ratio, lev = usd ? REAL_LEVERAGE : 1; let stop;
+    if (t.stopMode === 'pct') {
+        const pct = stopPctOverride != null ? stopPctOverride : t.stopPct * lev;
+        stop = p * (1 - pct);
+    } else {
+        const lb = t.stopLookback || 12;
+        let low = Infinity; for (let i = Math.max(0, idx - lb); i <= idx; i++) low = Math.min(low, c[i].l);
+        const pct = stopPctOverride != null ? stopPctOverride : (t.id === 'rsi' ? RSI_DEFAULT_STOP_PCT : t.stopPct) * lev;
+        stop = Math.min(low, p * (1 - pct));
+    }
+    if (usd) {
+        stop = Math.round(stop * 100) / 100;
+        const target = Math.round((p + (p - stop) * ratio) * 100) / 100;
+        return { stop, target };
+    }
+    stop = Math.round(stop / 10) * 10;
+    const target = Math.round((p + (p - stop) * ratio) / 10) * 10;
+    return { stop, target };
+}
+function simulate(c, b, s, exitPrice) {
+    const p = c[b].c, q = Math.floor(START_CASH / p), cash = START_CASH - q * p, final = cash + q * (exitPrice != null ? exitPrice : c[s].c);
+    return { qty: q, final, ret: final / START_CASH - 1 };
+}
+
+// ---------- 기록 ----------
+//  로그인 전: 이 브라우저(localStorage outofstock_practice_records — 로그아웃하면 지움)
+//  [백엔드 연동] 로그인 후: 계정에 한 판씩 저장(/practice/records) — 마이페이지 '실습 이력'과 같은 기록.
+//   매매 계산은 이 화면(브라우저)에서 하므로 서버는 값의 범위·종류만 확인해 기록한다(보상과 무관 — 가상머니 없음).
+const REC_KEY = 'outofstock_practice_records';
+let serverRecords = null;                                    // 로그인 상태: 서버 집계 { 기법: { tries, best, realTries, realBest } }
+function loadRecords() {
+    if (OOS.loggedIn()) return serverRecords || {};
+    const r = OOS.readJSON(REC_KEY);
+    return r && typeof r === 'object' ? r : {};
+}
+function fromServer(summary) {
+    const out = {};
+    Object.entries(summary || {}).forEach(([k, v]) => { out[k] = { tries: v.tries || 0, best: v.best, realTries: v.real_tries || 0, realBest: v.real_best }; });
+    return out;
+}
+async function loadServerRecords() {
+    if (!OOS.loggedIn()) { serverRecords = null; return; }
+    try { serverRecords = fromServer((await OOS.api('/practice/records?limit=1')).summary); } catch (e) { return; }
+    if (!$('#view-list').hidden) renderList();
+}
+function saveRecord(id, ret, traded, mode) {
+    const r = loadRecords(); const cur = r[id] || { tries: 0, best: null, realTries: 0, realBest: null };
+    if (mode === 'real') { cur.realTries = (cur.realTries || 0) + 1; if (traded && (cur.realBest === null || ret > cur.realBest)) cur.realBest = ret; }
+    else { cur.tries += 1; if (traded && (cur.best === null || ret > cur.best)) cur.best = ret; }
+    r[id] = cur;
+    if (!OOS.loggedIn()) { OOS.writeJSON(REC_KEY, r); return; }
+    serverRecords = r;                                       // 화면은 바로 반영, 서버 집계로 다시 맞춘다
+    OOS.api('/practice/records', { method: 'POST', body: { tech: id, mode: mode === 'real' ? 'real' : 'practice', traded: !!traded,
+        ret: traded && isFinite(ret) ? Number(ret.toFixed(6)) : null, entry_date: mode === 'real' ? P.realEntryDate : null } })
+        .then((d) => { if (d && d.summary) serverRecords = fromServer(d.summary); })
+        .catch((e) => OOS.notice('실습 기록을 계정에 저장하지 못했어요 — ' + (e.message || ''), true));
+}
+
+// ---------- 일러스트 (SVG) ----------
+function smoothPath(pts) {
+    let d = 'M' + pts[0][0] + ' ' + pts[0][1];
+    for (let i = 1; i < pts.length - 1; i++) {
+        const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+        d += ' Q' + pts[i][0] + ' ' + pts[i][1] + ' ' + mx + ' ' + my;
+    }
+    const l = pts[pts.length - 1]; d += ' L' + l[0] + ' ' + l[1];
+    return d;
+}
+function illust(kind) {
+    const F = "font-family=\"'Pretendard','Malgun Gothic',sans-serif\"";
+    if (kind === 'golden') {
+        const xs = [14, 42, 70, 98, 126, 154, 182, 210, 232];
+        const slow = [58, 60, 62, 61, 58, 53, 47, 42, 38].map((y, i) => [xs[i], y]);
+        const fast = [88, 96, 92, 80, 64, 48, 34, 24, 16].map((y, i) => [xs[i], y]);
+        const t = (64 - 58) / ((64 - 58) + (53 - 48)); const cx = 126 + t * 28, cy = 64 + (48 - 64) * t;
+        return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="골든크로스 예시">
+            <g stroke="#e8edf3" stroke-width="1"><line x1="8" y1="30" x2="234" y2="30"/><line x1="8" y1="60" x2="234" y2="60"/><line x1="8" y1="90" x2="234" y2="90"/></g>
+            <path d="${smoothPath(slow)}" fill="none" stroke="${COLOR.sma20}" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="${smoothPath(fast)}" fill="none" stroke="${COLOR.sma5}" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="${cx}" cy="${cy}" r="11" fill="rgba(220,38,38,.13)"/><circle cx="${cx}" cy="${cy}" r="4.2" fill="#dc2626"/>
+            <g transform="translate(${cx - 34} ${cy + 16})"><rect width="68" height="17" rx="8.5" fill="#dc2626"/><text x="34" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>골든크로스</text></g>
+            <text x="16" y="108" fill="${COLOR.sma5}" font-size="9" font-weight="800" ${F}>5일선 (빠른 선)</text>
+            <text x="16" y="47" fill="${COLOR.sma20}" font-size="9" font-weight="800" ${F}>20일선 (느린 선)</text>
+        </svg>`;
+    }
+    if (kind === 'pullback') {
+        const xs = [14, 42, 70, 98, 126, 154, 182, 210, 232];
+        const ma = [95, 88, 82, 76, 70, 64, 58, 52, 46].map((y, i) => [xs[i], y]);
+        const price = [100, 78, 58, 74, 66, 38, 52, 26, 14].map((y, i) => [xs[i], y]);
+        const cx = xs[4], cy = price[4][1];
+        return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="눌림목 매매 예시">
+            <g stroke="#e8edf3" stroke-width="1"><line x1="8" y1="30" x2="234" y2="30"/><line x1="8" y1="60" x2="234" y2="60"/><line x1="8" y1="90" x2="234" y2="90"/></g>
+            <path d="${smoothPath(ma)}" fill="none" stroke="${COLOR.sma20}" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="${smoothPath(price)}" fill="none" stroke="${COLOR.up}" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="${cx}" cy="${cy}" r="11" fill="rgba(220,38,38,.13)"/><circle cx="${cx}" cy="${cy}" r="4.2" fill="#dc2626"/>
+            <g transform="translate(${cx - 24} ${cy + 16})"><rect width="76" height="17" rx="8.5" fill="#dc2626"/><text x="38" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>눌림목 반등</text></g>
+            <text x="16" y="108" fill="${COLOR.up}" font-size="9" font-weight="800" ${F}>주가</text>
+            <text x="16" y="44" fill="${COLOR.sma20}" font-size="9" font-weight="800" ${F}>20일선</text>
+        </svg>`;
+    }
+    if (kind === 'support') {
+        const xs = [14, 42, 70, 98, 126, 154, 182, 210, 232];
+        const price = [30, 50, 74, 90, 70, 92, 66, 40, 20].map((y, i) => [xs[i], y]);
+        const supportY = 92, cx = xs[5], cy = price[5][1];
+        return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="지지선 매매 예시">
+            <g stroke="#e8edf3" stroke-width="1"><line x1="8" y1="30" x2="234" y2="30"/><line x1="8" y1="60" x2="234" y2="60"/></g>
+            <line x1="8" y1="${supportY}" x2="234" y2="${supportY}" stroke="${COLOR.risk}" stroke-width="1.6" stroke-dasharray="4 4"/>
+            <path d="${smoothPath(price)}" fill="none" stroke="${COLOR.up}" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="${cx}" cy="${cy}" r="11" fill="rgba(220,38,38,.13)"/><circle cx="${cx}" cy="${cy}" r="4.2" fill="#dc2626"/>
+            <g transform="translate(${cx - 24} ${cy + 16})"><rect width="76" height="17" rx="8.5" fill="#dc2626"/><text x="38" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>지지선 반등</text></g>
+            <text x="16" y="${supportY - 5}" fill="${COLOR.risk}" font-size="9" font-weight="800" ${F}>지지선</text>
+        </svg>`;
+    }
+    const xs = Array.from({ length: 13 }, (_, i) => 14 + i * 18.2);
+    const vals = [62, 68, 60, 44, 27, 14, 10, 22, 36, 52, 66, 74, 70];
+    const Y = (v) => 108 - v * 0.96;
+    const pts = vals.map((v, i) => [xs[i], Y(v)]);
+    const t = (30 - 22) / (36 - 22); const cx = xs[7] + t * (xs[8] - xs[7]), cy = Y(30);
+    return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RSI 예시">
+        <rect x="8" y="${Y(30)}" width="226" height="${Y(0) - Y(30)}" fill="rgba(79,70,229,.07)"/>
+        <g stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"><line x1="8" y1="${Y(70)}" x2="234" y2="${Y(70)}"/><line x1="8" y1="${Y(30)}" x2="234" y2="${Y(30)}"/></g>
+        <text x="10" y="${Y(70) - 3}" fill="#94a3b8" font-size="8.5" font-weight="700" ${F}>70 과매수</text>
+        <text x="10" y="${Y(30) + 11}" fill="#4f46e5" font-size="8.5" font-weight="700" ${F}>30 과매도</text>
+        <path d="${smoothPath(pts)}" fill="none" stroke="${COLOR.rsi}" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="${cx}" cy="${cy}" r="11" fill="rgba(220,38,38,.13)"/><circle cx="${cx}" cy="${cy}" r="4.2" fill="#dc2626"/>
+        <g transform="translate(${cx + 4} ${cy - 30})"><rect width="82" height="17" rx="8.5" fill="#dc2626"/><text x="41" y="12" text-anchor="middle" fill="#fff" font-size="9.5" font-weight="800" ${F}>30 돌파 시 매수</text></g>
+    </svg>`;
+}
+
+// ---------- 차트 엔진 (Canvas) ----------
+function niceStep(range, ticks) { const raw = range / ticks, mag = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / mag; return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag; }
+function createChart(canvas, wrap, tip) {
+    const ctx = canvas.getContext('2d');
+    const FONT = "11px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif";
+    const ch = { S: null, geom: null, hover: -1, mouse: null, onRender: null, dragKey: null };
+
+    function lineAtY(y) {
+        const g = ch.geom, S = ch.S; if (!g || !S || !S.dragEnabled) return null;
+        for (const L of (S.lines || [])) {
+            if (!L.draggable) continue;
+            if (Math.abs(y - g.yOf(L.price)) <= 7) return L;
+        }
+        return null;
+    }
+
+    function chip(text, x, y, bg, fg, align) {
+        ctx.font = "700 10.5px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif";
+        const w = ctx.measureText(text).width + 12, h = 17;
+        const x0 = align === 'right' ? x - w : align === 'center' ? x - w / 2 : x;
+        ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0, y - h / 2, w, h, 5) : ctx.rect(x0, y - h / 2, w, h); ctx.fill();
+        ctx.fillStyle = fg; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(text, x0 + 6, y + 0.5);
+        return { x0, w, h };
+    }
+
+    function render(S) {
+        if (S) ch.S = S; S = ch.S; if (!S) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const W = wrap.clientWidth, H = wrap.clientHeight; if (!W || !H) return;
+        canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+        canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+        const c = S.candles, ind = S.ind, last = S.upTo, total = c.length;
+        const padL = 10, padR = 68, padT = 14, padB = 26;
+        const plotW = W - padL - padR, totalH = H - padT - padB, gap = S.showRSI ? 18 : 0;
+        const mainH = S.showRSI ? Math.round((totalH - gap) * 0.66) : totalH, rsiH = S.showRSI ? totalH - gap - mainH : 0, rsiTop = padT + mainH + gap;
+        let start, slots;
+        if (S.full) { start = 0; slots = total; } else { slots = Math.min(72, Math.max(60, last + 15)); start = Math.max(0, last + 1 - (slots - 6)); }
+        const sw = plotW / slots, xOf = (i) => padL + (i - start + 0.5) * sw;
+        let lo = Infinity, hi = -Infinity;
+        for (let i = start; i <= last; i++) {
+            lo = Math.min(lo, c[i].l); hi = Math.max(hi, c[i].h);
+            if (S.showMA) [ind.sma5[i], ind.sma20[i]].forEach(v => { if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+        }
+        const padV = (hi - lo) * 0.08; lo -= padV; hi += padV;
+        const yOf = (p) => padT + (hi - p) / (hi - lo) * mainH;
+        ctx.font = FONT; ctx.textBaseline = 'middle';
+
+        // 가로 격자 + 가격 축
+        const step = niceStep(hi - lo, 5);
+        for (let p = Math.ceil(lo / step) * step; p <= hi; p += step) {
+            const y = yOf(p);
+            ctx.strokeStyle = COLOR.grid; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+            ctx.fillStyle = COLOR.axis; ctx.textAlign = 'left'; ctx.fillText(priceFmt(p, S.usd), W - padR + 8, y);
+        }
+        // 세로 격자 + 날짜 축
+        const every = Math.max(1, Math.ceil((last - start + 1) / Math.max(2, Math.floor(plotW / 66))));
+        for (let i = start; i <= last; i++) {
+            if ((i - start) % every !== 0) continue;
+            const x = xOf(i);
+            ctx.strokeStyle = COLOR.grid; ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + mainH + (S.showRSI ? gap + rsiH : 0)); ctx.stroke();
+            ctx.fillStyle = COLOR.axis; ctx.textAlign = 'center'; ctx.fillText(fmtMD(c[i].date), x, H - 10);
+        }
+        // 이동평균선
+        if (S.showMA) {
+            [['sma20', COLOR.sma20], ['sma5', COLOR.sma5]].forEach(([key, col]) => {
+                ctx.strokeStyle = col; ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.beginPath(); let started = false;
+                for (let i = start; i <= last; i++) { const v = ind[key][i]; if (v == null) continue; const x = xOf(i), y = yOf(v); if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y); }
+                ctx.stroke();
+            });
+        }
+        // 손익 박스(매수가~손절선은 항상 색칠, 손익비 기법은 매수가~목표가 보상 구간도 같이 색칠)
+        if (S.zone) {
+            const z = S.zone, x1 = z.from != null ? xOf(Math.max(z.from, start)) : padL, x2 = padL + plotW;
+            const yBuy = yOf(z.buyPrice), yStop = yOf(z.stop);
+            const alpha = z.active ? 0.16 : 0.08;
+            ctx.save();
+            if (z.target != null) {
+                const yTarget = yOf(z.target);
+                ctx.fillStyle = `rgba(55,48,163,${alpha})`; ctx.fillRect(x1, Math.min(yTarget, yBuy), x2 - x1, Math.abs(yBuy - yTarget));
+            }
+            ctx.fillStyle = `rgba(202,138,4,${alpha})`; ctx.fillRect(x1, Math.min(yBuy, yStop), x2 - x1, Math.abs(yStop - yBuy));
+            ctx.restore();
+        }
+        // 캔들
+        const bw = Math.max(1.6, Math.min(sw * 0.62, 14));
+        for (let i = start; i <= last; i++) {
+            const k = c[i], col = k.c >= k.o ? COLOR.up : COLOR.down, x = xOf(i);
+            ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(x, yOf(k.h)); ctx.lineTo(x, yOf(k.l)); ctx.stroke();
+            const yo = yOf(k.o), yc = yOf(k.c); ctx.fillRect(x - bw / 2, Math.min(yo, yc), bw, Math.max(1, Math.abs(yo - yc)));
+        }
+        // 손익비 가이드선
+        (S.lines || []).forEach(L => {
+            const inView = L.price >= lo && L.price <= hi; const label = L.label + ' ' + priceFmt(L.price, S.usd);
+            if (!inView) { chip((L.price > hi ? '▲ ' : '▼ ') + label, padL + plotW - 4, L.price > hi ? padT + 10 : padT + mainH - 10, L.color, '#fff', 'right'); return; }
+            const y = yOf(L.price);
+            const x1 = L.from != null ? xOf(Math.max(L.from, start)) : padL, x2 = L.to != null ? xOf(Math.min(L.to, last)) : padL + plotW;
+            ctx.save(); ctx.strokeStyle = L.color; ctx.lineWidth = 1.4; ctx.setLineDash(L.dash || [6, 4]);
+            ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke(); ctx.restore();
+            chip(label, Math.min(x2 + 4 + 0, padL + plotW - 4), y - 11, L.color, '#fff', x2 > padL + plotW - 140 ? 'right' : 'left');
+        });
+        // 현재가선
+        if (!S.full) {
+            const k = c[last], prev = last > 0 ? c[last - 1].c : k.o, y = yOf(k.c), col = k.c >= prev ? COLOR.up : COLOR.down;
+            ctx.save(); ctx.strokeStyle = col; ctx.globalAlpha = 0.55; ctx.setLineDash([2, 3]); ctx.beginPath(); ctx.moveTo(xOf(last), y); ctx.lineTo(padL + plotW, y); ctx.stroke(); ctx.restore();
+            ctx.fillStyle = col; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(W - padR + 2, y - 9, padR - 4, 18, 4) : ctx.rect(W - padR + 2, y - 9, padR - 4, 18); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = "700 10.5px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif"; ctx.fillText(priceFmt(k.c, S.usd), W - padR + 2 + (padR - 4) / 2, y + 0.5); ctx.font = FONT;
+        }
+        // 매매 마커 (B/S) + 링 마커
+        (S.rings || []).forEach(R => { if (R.i < start || R.i > last) return; const x = xOf(R.i), y = yOf(c[R.i].c); ctx.save(); ctx.fillStyle = '#fff'; ctx.strokeStyle = R.color; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore(); });
+        (S.markers || []).forEach(M => {
+            if (M.i < start || M.i > last) return;
+            const x = xOf(M.i), isB = M.type === 'B', y = isB ? yOf(c[M.i].l) + 15 : yOf(c[M.i].h) - 15, col = isB ? COLOR.up : COLOR.down;
+            ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, isB ? y - 13 : y + 13); ctx.lineTo(x - 5, isB ? y - 7 : y + 7); ctx.lineTo(x + 5, isB ? y - 7 : y + 7); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - 9, y - 8, 18, 16, 4) : ctx.rect(x - 9, y - 8, 18, 16); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = "800 11px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif"; ctx.fillText(M.type, x, y + 0.5); ctx.font = FONT;
+        });
+        // RSI 패널
+        if (S.showRSI) {
+            const yR = (v) => rsiTop + (100 - v) / 100 * rsiH;
+            ctx.fillStyle = 'rgba(79,70,229,0.07)'; ctx.fillRect(padL, yR(30), plotW, yR(0) - yR(30));
+            ctx.strokeStyle = COLOR.grid; ctx.strokeRect(padL, rsiTop, plotW, rsiH);
+            ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = COLOR.axis; ctx.lineWidth = 1;
+            [30, 70].forEach(v => { ctx.beginPath(); ctx.moveTo(padL, yR(v)); ctx.lineTo(padL + plotW, yR(v)); ctx.stroke(); }); ctx.restore();
+            ctx.fillStyle = COLOR.axis; ctx.textAlign = 'left'; [30, 70].forEach(v => ctx.fillText(String(v), W - padR + 8, yR(v)));
+            ctx.fillStyle = COLOR.text; ctx.font = "700 10.5px 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif"; ctx.fillText('RSI(14)', padL + 6, rsiTop + 11); ctx.font = FONT;
+            ctx.strokeStyle = COLOR.rsi; ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.beginPath(); let st = false;
+            for (let i = start; i <= last; i++) { const v = ind.rsi[i]; if (v == null) continue; const x = xOf(i), y = yR(v); if (!st) { ctx.moveTo(x, y); st = true; } else ctx.lineTo(x, y); }
+            ctx.stroke();
+            const cur = ind.rsi[last]; if (cur != null && !S.full) chip(cur.toFixed(1), W - padR + 2 + (padR - 4), yR(cur), cur < 30 ? COLOR.down : cur > 70 ? COLOR.up : COLOR.rsi, '#fff', 'right');
+        }
+        // 크로스헤어
+        if (ch.hover >= start && ch.hover <= last) {
+            const x = xOf(ch.hover);
+            ctx.save(); ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + mainH + (S.showRSI ? gap + rsiH : 0)); ctx.stroke(); ctx.restore();
+        }
+        ch.geom = { W, H, padL, padR, padT, padB, start, last, sw, xOf, yOf, lo, hi, plotW, mainH };
+        updateTip(S);
+        if (ch.onRender) ch.onRender(ch.geom);
+    }
+
+    function updateTip(S) {
+        const g = ch.geom;
+        if (!g || ch.hover < g.start || ch.hover > g.last || !ch.mouse) { tip.hidden = true; return; }
+        const k = S.candles[ch.hover], ind = S.ind, i = ch.hover;
+        let html = `<b>${fmtFull(k.date)}</b><br>시 ${priceFmt(k.o, S.usd)} · 고 ${priceFmt(k.h, S.usd)}<br>저 ${priceFmt(k.l, S.usd)} · 종 ${priceFmt(k.c, S.usd)}`;
+        if (S.showMA && ind.sma5[i] != null && ind.sma20[i] != null) html += `<br><span style="color:#fcd34d">5일선 ${priceFmt(ind.sma5[i], S.usd)}</span> · <span style="color:#a5b4fc">20일선 ${priceFmt(ind.sma20[i], S.usd)}</span>`;
+        if (S.showRSI && ind.rsi[i] != null) html += `<br>RSI ${ind.rsi[i].toFixed(1)}`;
+        tip.innerHTML = html; tip.hidden = false;
+        const tw = tip.offsetWidth, th = tip.offsetHeight;
+        let left = ch.mouse.x + 14, top = ch.mouse.y + 14;
+        if (left + tw > g.W - 4) left = ch.mouse.x - tw - 14; if (top + th > g.H - 4) top = ch.mouse.y - th - 14;
+        tip.style.left = Math.max(4, left) + 'px'; tip.style.top = Math.max(4, top) + 'px';
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+        const g = ch.geom; if (!g) return; const r = canvas.getBoundingClientRect();
+        const x = e.clientX - r.left, y = e.clientY - r.top;
+        if (ch.dragKey) {
+            const price = g.hi - (y - g.padT) / g.mainH * (g.hi - g.lo);
+            if (ch.S && ch.S.onDrag) ch.S.onDrag(ch.dragKey, price);
+            return;
+        }
+        const idx = Math.round((x - g.padL) / g.sw - 0.5 + g.start);
+        ch.hover = (idx >= g.start && idx <= g.last) ? idx : -1; ch.mouse = { x, y };
+        canvas.style.cursor = lineAtY(y) ? 'ns-resize' : 'default';
+        render();
+    });
+    canvas.addEventListener('mousedown', (e) => {
+        const g = ch.geom; if (!g) return; const r = canvas.getBoundingClientRect();
+        const y = e.clientY - r.top, L = lineAtY(y);
+        if (L) { ch.dragKey = L.key; e.preventDefault(); }
+    });
+    window.addEventListener('mouseup', () => { if (ch.dragKey) { ch.dragKey = null; render(); } });
+    canvas.addEventListener('mouseleave', () => { ch.hover = -1; ch.mouse = null; if (!ch.dragKey) render(); });
+    if (window.ResizeObserver) new ResizeObserver(() => render()).observe(wrap);
+    ch.render = render;
+    return ch;
+}
+
+// ---------- 화면 전환 ----------
+const VIEWS = ['list', 'intro', 'play', 'result'];
+function showView(name) {
+    VIEWS.forEach(v => { $('#view-' + v).hidden = v !== name; });
+    window.scrollTo(0, 0); const mw = $('.main-wrapper'); if (mw) mw.scrollTop = 0;
+}
+
+// ---------- 1) 목록 ----------
+function renderList() {
+    const rec = loadRecords();
+    $('#techGrid').innerHTML = Object.values(TECH).map(t => {
+        const r = rec[t.id];
+        return `<div class="card tech-card" data-act="open" data-id="${t.id}">`   // 카드 안에 버튼이 있어 카드 자체는 버튼 역할을 하지 않는다(중첩 버튼 금지 — 키보드는 안쪽 버튼으로)
+            + `
+            <div class="tech-top">
+                <div class="tech-top-left"><div class="tech-icon">${ico(t.icon)}</div><span class="badge ${t.levelClass}">난이도 ${t.level}</span></div>
+                ${t.exitMode === 'ratio' ? `<span class="chip">${ico('scale')}손익비 ${t.ratioText}</span>` : ''}
+            </div>
+            <div><div class="tech-title">${t.name}</div></div>
+            <div class="tech-summary">${t.summary}</div>
+            <div class="tech-illust">${illust(t.id)}</div>
+            <div class="tech-meta">${t.tags.map(x => `<span class="chip">#${x}</span>`).join('')}<span class="chip">${ico('clock')}약 ${Math.round((getData(t.id).candles.length - t.gen.playStart) * BASE_MS / 60000)}분 (1배속)</span></div>
+            <div class="tech-cta">
+                <span class="tech-record">${r ? `연습 <b>${r.tries}회</b>${r.best !== null ? ` · 최고 <b class="${dirCls(r.best)}">${pct(r.best, 1)}</b>` : ''}${r.realTries ? ` · 실전 <b>${r.realTries}회</b>${r.realBest != null ? ` 최고 <b class="${dirCls(r.realBest)}">${pct(r.realBest, 1)}</b>` : ''}` : ''}` : '아직 도전 전이에요'}</span>
+                <button class="btn primary sm" type="button" data-act="open" data-id="${t.id}">설명 보고 시작하기${ico('arrow-right')}</button>
+            </div>
+        </div>`;
+    }).join('');
+    $('#stepsTitle').innerHTML = ico('flag') + '실습은 이렇게 진행돼요';
+    $('#stepList').innerHTML = [
+        ['양봉이의 밀착 과외', '기법의 원리와 손익비를 쉽게 배워요.'],
+        ['실전 매매', '빠르게 흐르는 과거 차트에서 [매수]/[매도] 타이밍을 직접 골라요.'],
+        ['결과 복기', '내 판단 vs 양봉이의 원칙 매매 vs 단순 보유를 비교해요.']
+    ].map((s, i) => `<li class="step-item"><div class="step-no">${i + 1}</div><div><b>${s[0]}</b><span>${s[1]}</span></div></li>`).join('');
+    $('#recordTitle').innerHTML = ico('star') + '나의 실습 기록';
+    $('#recordList').innerHTML = Object.values(TECH).map(t => {
+        const r = rec[t.id];
+        return `<div class="record-row"><span>${t.short}</span><b class="${r && r.best !== null ? dirCls(r.best) : 'flat'}">${r ? (r.best !== null ? '최고 ' + pct(r.best, 1) : '매매 기록 없음') + ' · ' + r.tries + '회' + (r.realTries ? ` (실전 ${r.realTries}회${r.realBest != null ? ' · 최고 ' + pct(r.realBest, 1) : ''})` : '') : '기록 없음'}</b></div>`;
+    }).join('');
+    showView('list');
+}
+
+// ---------- 2) 기법 설명 ----------
+function renderIntro(id) {
+    const t = TECH[id], d = getData(id), total = d.candles.length - t.gen.playStart;
+    $('#view-intro').innerHTML = `
+        <div class="page-head"><div>
+            <button class="back-btn" type="button" data-act="quit">${ico('arrow-left')}실습 목록으로</button>
+            <h1 class="page-title">${t.name}</h1>
+            <p class="page-sub">시작하기 전에 기법이 어떤 원리인지, 손익은 어떻게 계산하는지 먼저 살펴봐요.</p>
+        </div></div>
+        <div class="dashboard-grid">
+            <div class="left-column">
+                <div class="card intro-hero">
+                    <div>
+                        <div class="intro-badges"><span class="badge ${t.levelClass}">난이도 ${t.level}</span>${t.tags.map(x => `<span class="chip">#${x}</span>`).join('')}</div>
+                        <div class="tech-title">핵심 요약</div>
+                        <p class="intro-summary">${t.summary}</p>
+                    </div>
+                    <div class="intro-illust">${illust(id)}</div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">${ico('bulb')}완전 쉬운 실습 가이드 <span style="color:var(--text-muted);font-weight:600">이렇게 적용하세요!</span></div></div>
+                    <div class="guide-lead">어떻게 하는 건가요?</div>
+                    <p class="guide-text">${t.how}</p>
+                </div>
+                <div class="card">
+                    <div class="rr-head">
+                        <div class="card-title">${ico('scale')}${t.exitMode === 'ratio' ? '추천 손익비율 (Risk/Reward)' : '매수·매도 기준'}</div>
+                        ${t.exitMode === 'ratio' ? `<div class="rr-ratio">${t.ratioText} (국룰)</div>` : ''}
+                    </div>
+                    ${t.exitMode === 'ratio' ? `<div class="rr-bar"><span class="risk" style="flex:1">위험 1</span><span class="reward" style="flex:${t.ratio}">보상 ${t.ratio}</span></div>` : ''}
+                    <div class="rr-cols">
+                        <div class="rr-box risk-box"><h4>${ico('scissors')}위험(손절)</h4><p>${t.risk}</p></div>
+                        <div class="rr-box reward-box"><h4>${ico('flag')}보상(수익)</h4><p>${t.reward}</p></div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-column">
+                <div class="card start-card">
+                    <img src="assets/study.png" alt="공부하는 양봉이">
+                    <div><div class="m-title" style="font-size:15px;font-weight:800">실습 시작하기</div>
+                    <div class="m-desc" style="font-size:12px;color:var(--text-secondary);margin-top:4px;line-height:1.55">${t.oneLine}</div></div>
+                    <div class="start-info">
+                        <div class="kv"><span>시작 자금</span><b class="num">10,000,000원</b></div>
+                        <div class="kv"><span>실습 구간</span><b class="num">약 ${total}거래일</b></div>
+                        <div class="kv"><span>매매 방식</span><b>전액 매수 · 전액 매도</b></div>
+                    </div>
+                    <button class="btn primary lg block" type="button" data-act="open-mode" data-id="${id}">${ico('play')}실습 시작하기</button>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">${ico('flag')}실습은 이렇게 진행돼요</div></div>
+                    <ol class="step-list">
+                        <li class="step-item"><div class="step-no">1</div><div><b>양봉이의 밀착 과외</b><span>차트 위에서 핵심 신호를 짚어줘요.</span></div></li>
+                        <li class="step-item"><div class="step-no">2</div><div><b>실전 매매</b><span>1~2봉씩 흘러가는 차트에서 직접 사고팔아요.</span></div></li>
+                        <li class="step-item"><div class="step-no">3</div><div><b>결과 복기</b><span>내 타점과 양봉이의 원칙 매매를 차트 위에서 비교해요.</span></div></li>
+                    </ol>
+                </div>
+            </div>
+        </div>`;
+    showView('intro');
+}
+
+// ---------- 2.5) 실습 방식 선택 (모달) ----------
+let modeReturnFocus = null;
+function openModeModal(id) {
+    $('#modeStartPractice').dataset.id = id;
+    const picks = REAL_PICKS[id] || [];
+    $('#modeRealSection').hidden = picks.length === 0;
+    // 종목별로 묶어서 '종목 ○○' 아래에 그 종목의 구간 버튼을 둔다 (구간이 1개여도 같은 모양)
+    const groups = {};
+    picks.forEach(p => { const tk = p.ticker || 'SOXL'; (groups[tk] = groups[tk] || []).push(p); });
+    $('#modeRealCaseList').innerHTML = Object.entries(groups).map(([tk, ps]) => `
+        <div class="real-group">
+            <div class="mode-ticker">종목 <b>${REAL_SETS[tk].name}</b></div>
+            <div class="real-case-list">${ps.map(p => `
+                <button class="real-case" type="button" data-act="start-real" data-id="${id}" data-ticker="${tk}" data-entry="${p.entryDate}">
+                    <span class="rc-label">${p.label}</span>
+                    <span class="rc-range num">${realWindowLabel(tk, p.entryDate)}</span>
+                </button>`).join('')}
+            </div>
+        </div>`).join('');
+    modeReturnFocus = document.activeElement;
+    $('#modeOverlay').hidden = false;
+    $('.mode-modal-close').focus();
+}
+function closeModeModal() {
+    if ($('#modeOverlay').hidden) return;
+    $('#modeOverlay').hidden = true;
+    if (modeReturnFocus && document.contains(modeReturnFocus)) modeReturnFocus.focus();
+}
+
+// ---------- 3) 실습 진행 ----------
+const chartPlay = createChart($('#playCanvas'), $('#playWrap'), $('#playTip'));
+const P = { tech: null, data: null, cur: 0, timer: null, speed: 1, paused: true, tut: -1, overlay: null, customStopPrice: null, customTargetPrice: null, editingBox: false, cash: START_CASH, shares: 0, avg: 0, buyIdx: null, sellIdx: null, closed: false, final: START_CASH, mode: 'practice', playStart: 0, realEntryDate: null, ticker: null, usd: false };
+const BASE_MS = 8000;   // 1배속 = 한 봉에 8초 (2배속 4초, 4배속 2초, 8배속 1초)
+
+function startPlay(id, opt) {
+    opt = opt || {};
+    stopTimer();
+    const t = TECH[id];
+    const tk = opt.real ? (opt.ticker || 'SOXL') : null, set = tk ? REAL_SETS[tk] : null;
+    let d, playStart;
+    if (opt.real) {
+        const rd = buildRealData(tk, findRealIndex(tk, opt.entryDate), t.id === 'support' ? Math.max(REAL_CONTEXT, t.stopLookback) : REAL_CONTEXT);
+        playStart = rd.playStart;
+        d = { candles: rd.candles, ind: rd.ind, an: analyze(t, rd.candles, rd.ind, playStart, set.usd) };
+    } else {
+        d = getData(id); playStart = t.gen.playStart;
+    }
+    Object.assign(P, { tech: t, data: d, playStart, cur: playStart - 1, speed: P.speed || 1, paused: true, tut: -1, overlay: null, customStopPrice: null, customTargetPrice: null, editingBox: false, cash: START_CASH, shares: 0, avg: 0, buyIdx: null, sellIdx: null, closed: false, final: START_CASH, mode: opt.real ? 'real' : 'practice', realEntryDate: opt.real ? opt.entryDate : null, ticker: opt.real ? tk : null, usd: !!(set && set.usd) });
+    $('#myRatioChip').hidden = true;
+    $('#playTitle').textContent = t.name;
+    const lv = $('#playLevel'); lv.textContent = '난이도 ' + t.level; lv.className = 'badge ' + t.levelClass;
+    const modeChip = $('#playModeChip'); if (modeChip) modeChip.textContent = opt.real ? set.name + ' 실전 데이터' : '연습용 예시 데이터';
+    const s = d.candles[0].date, e = d.candles[d.candles.length - 1].date;
+    $('#playSub').textContent = opt.real
+        ? `${set.name}(${set.desc}) 실제 데이터 · ${fmtFull(s)} ~ ${fmtFull(e)} · 시작 자금 1,000만 원`
+        : `과거 사례 차트 · ${fmtFull(s)} ~ ${fmtFull(e)} (예시 데이터) · 시작 자금 1,000만 원`;
+    $('#playLegend').innerHTML = (t.showMA
+        ? `<span class="chip" data-legend="ma"><i class="lg-dot" style="background:${COLOR.sma5}"></i>5일선</span><span class="chip" data-legend="ma"><i class="lg-dot" style="background:${COLOR.sma20}"></i>20일선</span>`
+        : `<span class="chip" data-legend="rsi"><i class="lg-dot" style="background:${COLOR.rsi}"></i>RSI(14)</span>`)
+        + `<span class="chip"><i class="lg-box" style="background:${COLOR.up}"></i>상승</span><span class="chip"><i class="lg-box" style="background:${COLOR.down}"></i>하락</span>`;
+    $('#miniGuide').innerHTML = t.guideRows.map(r => `<div class="mini-row"><div class="mi ${r[1]}">${ico(r[0])}</div><div>${r[2]}</div></div>`).join('');
+    $$('#speedGroup .seg').forEach(b => b.classList.toggle('active', +b.dataset.speed === P.speed));
+    showView('play');
+    updatePlayUI(); drawPlay();
+    if (opt.skipTutorial || opt.real) { hideTutorial(); resume(); } else { openTutorial(0); }
+}
+function currentGuide() {
+    const t = P.tech, c = P.data.candles, usd = P.usd;
+    const def = guideFor(t, c, P.buyIdx, usd);
+    const g = { stop: P.customStopPrice != null ? P.customStopPrice : def.stop };
+    if (t.exitMode === 'ratio') g.target = P.customTargetPrice != null ? P.customTargetPrice : def.target;
+    return g;
+}
+function playState() {
+    const t = P.tech, c = P.data.candles, lines = [], markers = [], usd = P.usd;
+    let zone = null;
+    if (P.buyIdx !== null && P.shares > 0) {
+        const g = currentGuide();
+        lines.push({ price: P.avg, color: COLOR.entry, label: '매수가', from: P.buyIdx, dash: [3, 4] });
+        lines.push({ price: g.stop, color: COLOR.risk, label: '손절선', from: P.buyIdx, draggable: true, key: 'stop' });
+        zone = { from: P.buyIdx, buyPrice: P.avg, stop: g.stop, active: P.editingBox };
+        if (t.exitMode === 'ratio') {
+            lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: P.buyIdx, draggable: true, key: 'target' });
+            zone.target = g.target;
+        }
+    }
+    if (P.buyIdx !== null) markers.push({ i: P.buyIdx, type: 'B' });
+    if (P.sellIdx !== null) markers.push({ i: P.sellIdx, type: 'S' });
+    return { candles: c, ind: P.data.ind, upTo: P.cur, full: false, showMA: t.showMA, showRSI: t.showRSI, lines, markers, rings: [], usd, zone, dragEnabled: P.editingBox, onDrag: handleLineDrag };
+}
+function drawPlay() { chartPlay.render(playState()); }
+function handleLineDrag(key, price) {
+    if (P.shares === 0 || P.closed) return;
+    const usd = P.usd, rounded = usd ? Math.round(price * 100) / 100 : Math.round(price / 10) * 10;
+    if (key === 'stop') { if (rounded >= P.avg) return; P.customStopPrice = rounded; }
+    else if (key === 'target') { if (rounded <= P.avg) return; P.customTargetPrice = rounded; }
+    drawPlay(); updateStopReadout();
+}
+function updateStopReadout() {
+    const chip = $('#myRatioChip');
+    if (P.shares === 0 || P.closed) { chip.hidden = true; return; }
+    const g = currentGuide(), stopPct = (P.avg - g.stop) / P.avg * 100;
+    if (P.tech.exitMode === 'ratio') {
+        const ratio = (g.target - P.avg) / (P.avg - g.stop);
+        chip.hidden = false;
+        chip.textContent = `내 손절 -${stopPct.toFixed(1)}% · 손익비 1:${ratio.toFixed(1)}`;
+        return;
+    }
+    chip.hidden = false;
+    chip.textContent = `내 손절 -${stopPct.toFixed(1)}%`;
+}
+
+function updatePlayUI() {
+    const c = P.data.candles, k = c[P.cur], price = k.c, total = P.cash + P.shares * price, ret = total / START_CASH - 1, usd = P.usd;
+    $('#aTotal').textContent = won(total);
+    const r = $('#aRate'); r.textContent = pct(ret); r.className = 'asset-rate num ' + dirCls(ret);
+    $('#aCash').textContent = won(P.cash); $('#aQty').textContent = num(P.shares) + '주';
+    $('#aAvg').textContent = P.shares > 0 ? priceWon(P.avg, usd) : '-'; $('#aPrice').textContent = priceWon(price, usd);
+    const pnl = P.shares > 0 ? (price - P.avg) * P.shares : (P.closed && P.buyIdx !== null ? P.final - START_CASH : 0);
+    const pe = $('#aPnl'); pe.textContent = (pnl > 0 ? '+' : '') + num(pnl) + '원'; pe.className = 'num ' + dirCls(pnl);
+    const play0 = P.playStart, n = c.length - play0, done = Math.max(0, P.cur - play0 + 1);
+    $('#playProgress').textContent = `${done} / ${n}일`; $('#playBar').style.width = (done / n * 100) + '%';
+    const pill = $('#statusPill');
+    if (P.closed) { pill.textContent = '매도 완료'; pill.className = 'status-pill done'; }
+    else if (P.shares > 0) { pill.textContent = '보유 중'; pill.className = 'status-pill hold'; }
+    else if (P.overlay === 'gameover') { pill.textContent = 'GAME OVER'; pill.className = 'status-pill hold'; }
+    else if (P.tut >= 0) { pill.textContent = '가이드 중'; pill.className = 'status-pill'; }
+    else { pill.textContent = P.paused ? '일시정지' : '관망 중'; pill.className = 'status-pill'; }
+    const inTut = P.tut >= 0 || !!P.overlay;
+    $('#btnBuy').disabled = inTut || P.closed || P.shares > 0;
+    $('#btnSell').disabled = inTut || P.closed || P.shares === 0;
+    $('#btnPause').innerHTML = ico(P.paused ? 'play' : 'pause'); $('#btnPause').classList.toggle('on', P.paused && P.tut < 0 && !P.closed);
+    $('#btnPause').disabled = inTut || P.closed;
+    const drawBtn = $('#btnDrawBox');
+    drawBtn.hidden = P.shares === 0 || P.closed;
+    drawBtn.disabled = P.tut >= 0 || P.overlay === 'gameover';
+    drawBtn.classList.toggle('primary', P.editingBox);
+    drawBtn.classList.toggle('outline', !P.editingBox);
+    const drawLabel = P.tech && P.tech.exitMode === 'ratio' ? '손절·목표 그리기' : '손절선 그리기';
+    drawBtn.innerHTML = P.editingBox ? ico('check') + '그리기 완료' : ico('edit') + drawLabel;
+}
+function stopTimer() { if (P.timer) { clearInterval(P.timer); P.timer = null; } }
+function resume() { if (P.closed || P.tut >= 0 || P.overlay) return; P.paused = false; stopTimer(); P.timer = setInterval(tick, BASE_MS / P.speed); updatePlayUI(); }
+function pause() { P.paused = true; stopTimer(); updatePlayUI(); }
+function tick() {
+    if (P.cur >= P.data.candles.length - 1) { finish('end'); return; }
+    P.cur++; updatePlayUI(); drawPlay();
+    if (P.cur >= P.data.candles.length - 1) finish('end');
+}
+function buy() {
+    if (P.closed || P.shares > 0 || P.tut >= 0 || P.overlay) return;
+    // 실전모드(실제 데이터)는 연습용 튜토리얼/GAME OVER 없이 실제 매매처럼 바로 진행하고, 판단은 복기 화면에서만 해줌
+    if (P.mode === 'real') {
+        const price = P.data.candles[P.cur].c, q = Math.floor(P.cash / price); if (q <= 0) return;
+        P.shares = q; P.cash -= q * price; P.avg = price; P.buyIdx = P.cur; updatePlayUI(); drawPlay();
+        updateStopReadout();
+        return;
+    }
+    const an = P.data.an;
+    if (an.entry >= 0 && P.cur < an.entry) { showGameOver(); return; }
+    const price = P.data.candles[P.cur].c, q = Math.floor(P.cash / price); if (q <= 0) return;
+    P.shares = q; P.cash -= q * price; P.avg = price; P.buyIdx = P.cur; updatePlayUI(); drawPlay();
+    showBuyInfo();
+}
+function sell() {
+    if (P.closed || P.shares === 0 || P.tut >= 0 || P.overlay) return;
+    finish('sold');
+}
+function finish(reason) {
+    if (P.closed) return;
+    stopTimer(); P.paused = true;
+    const price = P.data.candles[P.cur].c;
+    if (P.shares > 0) { P.cash += P.shares * price; P.shares = 0; P.sellIdx = P.cur; }
+    P.final = P.cash; P.closed = true; P.reason = reason;
+    updatePlayUI(); drawPlay();
+    setTimeout(showResult, reason === 'sold' ? 900 : 600);
+}
+
+// ---- 튜토리얼 (양봉이 밀착 과외) ----
+function openTutorial(i) {
+    P.tut = i; pause();
+    const t = P.tech, steps = t.tutorial, s = steps[i], last = i === steps.length - 1;
+    $('#tutorialLayer').innerHTML = `
+        <div class="tutorial-card">
+            <img class="tutorial-mascot" src="assets/${s.img}.png" alt="양봉이">
+            <div class="tutorial-body">
+                <div class="tutorial-step">${i + 1} / ${steps.length}<span class="tutorial-dots">${steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</span></div>
+                <p class="tutorial-text">${s.text}</p>
+                ${s.illust ? `<div class="tutorial-illust">${illust(s.illust)}</div>` : ''}
+                <div class="tutorial-actions">
+                    <div class="tutorial-actions-left">
+                        ${i > 0 ? `<button class="link-btn" type="button" data-act="tut-prev">${ico('arrow-left')}이전</button>` : ''}
+                        <button class="link-btn" type="button" data-act="tut-skip">건너뛰기</button>
+                    </div>
+                    <button class="btn primary sm" type="button" data-act="tut-next">${last ? '실전 돌입' : '다음'}${ico(last ? 'play' : 'arrow-right')}</button>
+                </div>
+            </div>
+        </div>`;
+    $('#tutorialLayer').classList.remove('info-toast');
+    $('#tutorialLayer').hidden = false;
+    $$('#playLegend [data-legend]').forEach(el => el.classList.toggle('pulse', !!s.pulse));
+    updatePlayUI();
+}
+function hideTutorial() { P.tut = -1; $('#tutorialLayer').hidden = true; $$('#playLegend [data-legend]').forEach(el => el.classList.remove('pulse')); updatePlayUI(); }
+function tutNext() { const steps = P.tech.tutorial; if (P.tut >= steps.length - 1) { hideTutorial(); resume(); } else openTutorial(P.tut + 1); }
+function tutPrev() { if (P.tut > 0) openTutorial(P.tut - 1); }
+function tutSkip() { hideTutorial(); resume(); }
+
+// ---- 신호 타이밍 체크 (GAME OVER) / 손익비 직접 설정 ----
+function showGameOver() {
+    P.overlay = 'gameover'; pause();
+    const t = P.tech;
+    $('#tutorialLayer').innerHTML = `
+        <div class="tutorial-card gameover-card">
+            <img class="tutorial-mascot" src="assets/sad.png" alt="우는 양봉이">
+            <div class="tutorial-body">
+                <div class="tutorial-step" style="color:var(--accent-red)">GAME OVER</div>
+                <p class="tutorial-text"><em>${t.signalName}</em> 신호가 나오기도 전에 매수해버렸어요! 신호를 끝까지 기다렸다가 매수하는 연습을 해봐요.</p>
+                <div class="tutorial-actions">
+                    <button class="link-btn" type="button" data-act="quit">실습 목록으로</button>
+                    <button class="btn primary sm" type="button" data-act="retry-inplay">${ico('refresh')}다시하기</button>
+                </div>
+            </div>
+        </div>`;
+    $('#tutorialLayer').classList.remove('info-toast');
+    $('#tutorialLayer').hidden = false;
+    updatePlayUI();
+}
+function buyTutorialSteps(t) {
+    // 실제로 차트에 그려지는 손절선 기준 % (지지선·눌림목·RSI는 '직전 저점'과 기본 %중 더 낮은 쪽이라 기본값과 다를 수 있음)
+    const g = currentGuide(), defStopPct = Math.round((P.avg - g.stop) / P.avg * 1000) / 10;
+    if (t.exitMode === 'ratio') {
+        return [
+            { text: `<em>${t.signalName}</em> 신호에 맞춰 잘 매수했어요! 이 기법은 미리 <em>손익비</em>를 정해두고 거래해요.`, img: 'happy' },
+            { text: `${t.short}의 국룰 손익비는 <em>1 : ${t.ratio}</em>예요! 손절은 매수가 대비 약 <em>-${defStopPct}%</em> 선으로 잡아요.`, img: 'happy' },
+            { text: `목표가에 닿으면 미련 없이 수익 실현하고, 손절선에 닿으면 바로 손절하세요. 손익비를 지키는 게 가장 중요해요!`, img: 'study' },
+            { text: `아래 <em>'손절·목표 그리기'</em> 버튼을 눌러서 직접 차트에 그려보세요!`, img: 'study' }
+        ];
+    }
+    const exitDesc = t.id === 'golden' ? '데드크로스(추세 꺾임)가 뜰 때까지' : 'RSI가 70 부근에 닿을 때까지';
+    return [
+        { text: `<em>${t.signalName}</em> 신호에 맞춰 잘 매수했어요! 이제 가장 중요한 <em>매도 원칙</em>을 지킬 차례예요!`, img: 'happy' },
+        { text: `${t.short}${josa(t.short, '은', '는')} ${exitDesc} 들고 가요. 손절선은 매수가 대비 <em>-${defStopPct}%</em>로 잡아요! (목표가는 따로 안 정해요)`, img: 'happy' },
+        { text: `운이 좋으면 원칙보다 늦게 팔아도 더 벌 수 있지만, 그건 매매 원칙을 지킨 게 아니라서 장기적으로 보면 위험해요.`, img: 'study' },
+        { text: `아래 <em>'손절선 그리기'</em> 버튼을 눌러서 손절선을 직접 그려보고, 신호가 뜨면 꼭 매도해 보세요!`, img: 'study' }
+    ];
+}
+function showBuyInfo() {
+    P.overlay = 'ratio'; pause();
+    P.buySteps = buyTutorialSteps(P.tech); P.buyStep = 0;
+    updateStopReadout();
+    renderBuyStep();
+}
+function renderBuyStep() {
+    const steps = P.buySteps, i = P.buyStep, s = steps[i], last = i === steps.length - 1;
+    $('#tutorialLayer').innerHTML = `
+        <div class="tutorial-card">
+            <img class="tutorial-mascot" src="assets/${s.img}.png" alt="양봉이">
+            <div class="tutorial-body">
+                <div class="tutorial-step">${i + 1} / ${steps.length}<span class="tutorial-dots">${steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</span></div>
+                <p class="tutorial-text">${s.text}</p>
+                <div class="tutorial-actions">
+                    <div class="tutorial-actions-left">${i > 0 ? `<button class="link-btn" type="button" data-act="buy-info-prev">${ico('arrow-left')}이전</button>` : ''}</div>
+                    <button class="btn primary sm" type="button" data-act="${last ? 'confirm-ratio' : 'buy-info-next'}">${last ? ico('check') + '확인' : '다음' + ico('arrow-right')}</button>
+                </div>
+            </div>
+        </div>`;
+    $('#tutorialLayer').classList.remove('info-toast');
+    $('#tutorialLayer').hidden = false;
+    updatePlayUI();
+}
+function buyInfoNext() { P.buyStep++; renderBuyStep(); }
+function buyInfoPrev() { if (P.buyStep > 0) { P.buyStep--; renderBuyStep(); } }
+function hideOverlay() { P.overlay = null; $('#tutorialLayer').classList.remove('info-toast'); $('#tutorialLayer').hidden = true; updatePlayUI(); }
+function retryInPlay() {
+    hideOverlay();
+    const id = P.tech.id;
+    startPlay(id, P.mode === 'real' ? { real: true, ticker: P.ticker, entryDate: P.realEntryDate, skipTutorial: true } : { skipTutorial: true });
+}
+function confirmRatio() {
+    hideOverlay();
+    resume();
+}
+
+// ---------- 4) 결과 복기 ----------
+const chartRes = createChart($('#resCanvas'), $('#resWrap'), $('#resTip'));
+let RES = null;
+function showResult() {
+    const t = P.tech, d = P.data, c = d.candles, an = d.an;
+    const traded = P.buyIdx !== null;
+    const my = { traded, ret: P.final / START_CASH - 1, final: P.final, buyIdx: P.buyIdx, sellIdx: P.sellIdx, reason: P.reason };
+    // 내가 직접 그린(드래그한) 손절선/목표가가 있으면 그걸 기준으로, 없으면 기본 추천값을 기준으로 "내가 세운 원칙"을 복기에 남겨둠
+    if (traded) {
+        const defG = guideFor(t, c, P.buyIdx, P.usd);
+        my.myStop = P.customStopPrice != null ? P.customStopPrice : defG.stop;
+        if (t.exitMode === 'ratio') my.myTarget = P.customTargetPrice != null ? P.customTargetPrice : defG.target;
+    }
+    const ideal = an.entry >= 0 ? simulate(c, an.entry, an.exit, an.exitPrice) : { ret: 0, final: START_CASH };
+    const hold = simulate(c, P.playStart - 1, c.length - 1);
+    RES = { my, ideal, hold, tech: t, data: d, mode: P.mode, usd: P.usd, ticker: P.ticker };
+    saveRecord(t.id, my.ret, traded, P.mode);
+    renderResult();
+    showView('result');
+    drawResultChart();
+}
+function renderResult() {
+    const { my, ideal, hold, tech: t, data: d, mode } = RES, c = d.candles, an = d.an, hasIdeal = an.entry >= 0;
+    $('#resTitle').innerHTML = t.short + (t.short.endsWith('매매') ? '법 실습 복기' : ' 매매법 실습 복기') + (mode === 'real' ? ` <span class="chip">${REAL_SETS[RES.ticker].name} 실전 데이터</span>` : '');
+    const gap = my.traded && hasIdeal ? (my.ret - ideal.ret) : null;
+    $('#sumGrid').innerHTML = `
+        <div class="card sum-card">
+            <div class="sum-label"><span class="si">${ico('flag')}</span>나의 매매 결과</div>
+            <div class="sum-value num ${my.traded ? dirCls(my.ret) : 'flat'}">${my.traded ? pct(my.ret) : '매매 없음'}</div>
+            <div class="sum-sub">${my.traded ? `최종 자산 <b class="num">${won(my.final)}</b>${gap !== null ? `<br>원칙 매매 대비 <b class="num ${dirCls(gap)}">${pct(gap, 1).replace('%', '%p')}</b>` : ''}` : '이번 실습에서는 매수하지 않았어요.'}</div>
+        </div>
+        <div class="card sum-card best">
+            <div class="sum-label"><span class="si">${ico('star')}</span>양봉이의 원칙 매매</div>
+            <div class="sum-value num ${hasIdeal ? dirCls(ideal.ret) : 'flat'}">${hasIdeal ? pct(ideal.ret) : '신호 없음'}</div>
+            <div class="sum-quote">${principleQuote(an, ideal, hold)}</div>
+            <div class="sum-sub num">${hasIdeal ? `${fmtYMD(c[an.entry].date)} 진입 → ${fmtYMD(c[an.exit].date)} 청산` : '-'}</div>
+        </div>
+        <div class="card sum-card">
+            <div class="sum-label"><span class="si">${ico('lock')}</span>단순 보유 (존버)</div>
+            <div class="sum-value num ${dirCls(hold.ret)}">${pct(hold.ret)}</div>
+            <div class="sum-sub">실습 시작일에 매수해<br>종료일까지 그대로 보유했을 때의 수익률이에요.</div>
+        </div>`;
+    $('#resLegend').innerHTML = `
+        <span class="chip"><i class="lg-box" style="background:${COLOR.up}"></i>내 매수 B</span>
+        <span class="chip"><i class="lg-box" style="background:${COLOR.down}"></i>내 매도 S</span>
+        <span class="chip"><i class="lg-dot" style="background:${COLOR.risk}"></i>이상적 진입</span>
+        <span class="chip"><i class="lg-dot" style="background:#be123c"></i>이상적 청산</span>
+        <span class="chip"><i class="lg-dot" style="background:${COLOR.risk}"></i>손절선</span>${t.exitMode === 'ratio' ? `<span class="chip"><i class="lg-dot" style="background:${COLOR.reward}"></i>목표가</span>` : ''}`;
+    const fb = makeFeedback();
+    $('#feedbackCard').innerHTML = `
+        <img src="assets/${fb.mood}.png" alt="양봉이">
+        <div><div class="fb-title">${fb.title}</div><div class="fb-body">${fb.body}</div>
+        <ul class="fb-tips">${fb.tips.map(x => `<li>${ico('check')}<span>${x}</span></li>`).join('')}</ul></div>`;
+}
+// 원칙 매매 카드 한마디: 기법이 통했는지, 손절로 막았는지에 따라 다르게
+function principleQuote(an, ideal, hold) {
+    if (an.entry < 0) return '"이 구간엔 뚜렷한 신호가 없었어요. 그래도 실제 가격으로 연습해본 거예요!"';
+    if (an.reason === 'stop') {
+        const gapDown = RES.data.candles[an.exit].o < guideFor(RES.tech, RES.data.candles, an.entry, RES.usd).stop;
+        return `"이번엔 기법이 통하지 않았어요. 그래도 손절선을 지켜서 손실을 ${pct(ideal.ret, 1)}에서 끊었어요!`
+            + (gapDown ? ' (시가가 손절선 아래로 떨어져 출발해서 손절선보다 낮게 팔렸어요)' : '')
+            + (hold.ret < ideal.ret ? ` 그냥 들고 있었다면 ${pct(hold.ret, 1)}였어요."` : '"');
+    }
+    if (an.reason === 'end') return '"청산 신호가 나오기 전에 실습 구간이 끝났어요. 구간 마지막 날 가격으로 계산했어요."';
+    return '"신호에 사고, 손절선을 지키며, 원칙대로 판 결과예요."';
+}
+// 복기 차트의 '청산' 말풍선 문구
+function exitBubble(t, c, an) {
+    if (an.reason === 'stop') return '<b>손절선 이탈!</b> 이번엔 기법이 통하지 않았어요. 원칙대로 여기서 손절했어야 해요!';
+    if (an.reason === 'target') return '<b>목표가 도달!</b> 여기서 수익 실현했어야 해요!';
+    if (an.reason === 'end') return '<b>구간 종료</b> 청산 신호 없이 실습 구간이 끝났어요.';
+    return typeof t.idealExit === 'function' ? t.idealExit(c, an) : t.idealExit;
+}
+function drawResultChart() {
+    const { my, tech: t, data: d } = RES, c = d.candles, an = d.an, hasIdeal = an.entry >= 0, usd = RES.usd;
+    const g = hasIdeal ? guideFor(t, c, an.entry, usd) : null;
+    const markers = []; if (my.buyIdx !== null) markers.push({ i: my.buyIdx, type: 'B' }); if (my.sellIdx !== null) markers.push({ i: my.sellIdx, type: 'S' });
+    chartRes.onRender = placeBubbles;
+    const lines = hasIdeal ? [{ price: g.stop, color: COLOR.risk, label: '손절선', from: an.entry, to: an.exit }] : [];
+    if (hasIdeal && t.exitMode === 'ratio') lines.push({ price: g.target, color: COLOR.reward, label: '목표가', from: an.entry, to: an.exit });
+    chartRes.render({
+        candles: c, ind: d.ind, upTo: c.length - 1, full: true, showMA: t.showMA, showRSI: t.showRSI, markers, usd,
+        rings: hasIdeal ? [{ i: an.entry, color: COLOR.risk }, { i: an.exit, color: '#be123c' }] : [],
+        lines
+    });
+}
+function placeBubbles(geom) {
+    const layer = $('#resOverlay'); if (!RES || !geom) return;
+    const { tech: t, data: d } = RES, c = d.candles, an = d.an;
+    if (an.entry < 0) { layer.innerHTML = ''; return; }
+    const exitHtml = exitBubble(t, c, an);
+    const defs = [
+        { kind: 'buy', icon: 'bulb', idx: an.entry, html: `<b>${t.idealBuy.split('!')[0]}!</b> ${t.idealBuy.split('!')[1] || ''}`, dir: 'below' },
+        { kind: 'exit', icon: 'scissors', idx: an.exit, html: exitHtml, dir: 'above' }
+    ];
+    layer.innerHTML = defs.map((b, n) => `<div class="bubble ${b.kind} ${b.dir}" data-n="${n}"><div class="b-ico">${ico(b.icon)}</div><div>${b.html}</div></div>`).join('');
+    $$('.bubble', layer).forEach((el, n) => {
+        const b = defs[n], ax = geom.xOf(b.idx), ay = geom.yOf(c[b.idx].c);
+        const bw = el.offsetWidth, bh = el.offsetHeight;
+        let left = Math.min(Math.max(ax - bw * (b.kind === 'buy' ? 0.78 : 0.5), 8), geom.W - geom.padR - bw + 20);
+        let top = b.dir === 'below' ? ay + 48 : ay - bh - 48;
+        top = Math.min(Math.max(top, 6), geom.padT + geom.mainH - bh - 4);
+        el.style.left = left + 'px'; el.style.top = top + 'px'; el.style.setProperty('--px', Math.min(Math.max(ax - left, 16), bw - 16) + 'px');
+        // 링 마커와 말풍선을 잇는 점선 연결선
+        const conn = document.createElement('div'); conn.className = 'b-conn'; conn.style.left = ax + 'px';
+        if (b.dir === 'below') { conn.style.top = (ay + 9) + 'px'; conn.style.height = Math.max(0, top - (ay + 9)) + 'px'; }
+        else { conn.style.top = (top + bh) + 'px'; conn.style.height = Math.max(0, (ay - 9) - (top + bh)) + 'px'; }
+        layer.appendChild(conn);
+    });
+}
+function makeFeedback() {
+    const { my, ideal, tech: t, data: d } = RES, c = d.candles, an = d.an, usd = RES.usd;
+    if (an.entry < 0) {
+        return my.traded
+            ? { mood: 'study', title: '이 구간에는 뚜렷한 신호가 없었어요', body: `이번에 고른 실제 구간에는 ${t.signalName} 신호가 뚜렷하게 나오지 않았어요. 그래도 실제 가격으로 매매 판단을 직접 내려본 좋은 경험이에요!`, tips: ['다른 실전 구간으로 다시 도전해보세요.'] }
+            : { mood: 'study', title: '이 구간에는 뚜렷한 신호가 없었어요', body: `이번에 고른 실제 구간에는 ${t.signalName} 신호가 뚜렷하게 나오지 않았어요. 다른 실전 구간으로 다시 도전해보는 건 어때요?`, tips: [] };
+    }
+    const g = guideFor(t, c, an.entry, usd);
+    const tips = []; const entryDate = fmtMD(c[an.entry].date), exitDate = fmtMD(c[an.exit].date);
+    const exitSignalName = { stop: '손절선 이탈', target: '목표가 도달', end: '구간 종료' }[an.reason]
+        || (t.id === 'golden' ? '데드크로스' : 'RSI 70 도달');
+    if (!my.traded) {
+        return { mood: 'study', title: '이번에는 매수하지 않았어요', body: `${t.short} 신호가 오는 걸 지켜보기만 했어요. 신호가 보이면 과감하게 <b>[매수]</b>를 눌러서 실전 감각을 키워 보세요!`,
+            tips: [`이번 구간의 이상적인 진입 시점은 <b>${entryDate}</b> 부근이었어요.`, `진입했다면 손절선은 ${priceWon(g.stop, usd)} 부근, 청산은 <b>${exitSignalName}</b> 시점(${exitDate})이었을 거예요.`] };
+    }
+    const diff = my.buyIdx - an.entry, profit = my.ret > 0; let mood, title, body;
+    if (profit) {
+        mood = 'happy';
+        if (diff < 0) { title = '수익은 났지만, 신호보다 먼저 들어갔어요'; body = `아직 ${t.signalName} 신호가 나오기 전에 미리 진입했어요. 이번에는 운 좋게 수익이 났지만, 확정되기 전 진입은 흔들릴 위험이 커요. 신호를 확인한 뒤 진입해 보세요!`; }
+        else if (diff <= 3) { title = '완벽에 가까운 타점이었어요!'; body = `신호가 나온 직후에 정확히 진입했어요! 양봉이의 원칙 매매 진입 시점(${entryDate})과 거의 같은 시점이에요. 이 감각을 기억해 두세요.`; }
+        else { title = '수익은 났지만, 진입이 조금 늦었어요!'; body = `수익은 났지만 신호가 나온 뒤 ${diff}일이나 지나서 진입했어요. 다음에는 <b>돌파 직후</b>를 노려보세요!`; }
+    } else {
+        mood = 'sad';
+        if (diff < 0) { title = '조금 성급했어요'; body = `${t.short}${josa(t.short, '이', '가')} 완전히 확정되기 전에 진입했어요. 신호가 확정된 후 진입해보는 건 어떨까요?`; }
+        else { title = '신호는 잡았지만, 결과가 아쉬웠어요'; body = `신호 이후에 진입했지만 손실로 마무리했어요. 손절선을 지켰는지, 추세가 꺾인 뒤에도 들고 있지는 않았는지 복기해 보세요.`; }
+    }
+    const EXIT_WINDOW = 4; // 기준 시점 ±4거래일까지는 봐줌
+    if (my.sellIdx !== null) {
+        // 손절선 준수 여부 — 내가 정한 손절선(드래그로 직접 그렸다면 그 값, 아니면 추천값) 아래로 내려간 적이 있었는데도 안 팔고 버텼다면, 결과(수익/손실)와 무관하게 짚어줌
+        const myStop = my.myStop;
+        const stopBreachIdx = c.slice(my.buyIdx, my.sellIdx + 1).findIndex(k => k.l <= myStop);
+        if (stopBreachIdx >= 0 && my.buyIdx + stopBreachIdx < my.sellIdx) {
+            tips.push(`매수 후 내가 정한 손절선(${priceWon(myStop, usd)}) 아래로 내려간 적이 있었는데 그때 팔지 않고 버텼어요. ${profit ? '이번엔 운 좋게 반등해서 수익으로 끝났지만' : '결국 손실로 이어졌어요'} — 손절선에 닿으면 미련 없이 파는 습관이 중요해요.`);
+        }
+        // 원칙보다 먼저 판 경우 — 손절선·목표가·청산 신호 어디에도 닿기 전에 감으로 팔았다면,
+        // 결과가 더 좋았더라도(운 좋게 손해를 줄였더라도) 원칙 위반으로 짚어줌
+        const pe = principleExitFrom(t, c, d.ind, my.buyIdx, myStop, my.myTarget);
+        const sk = c[my.sellIdx];
+        const onRule = sk.l <= myStop || (t.exitMode === 'ratio' && sk.h >= my.myTarget) || my.sellIdx >= pe.exit;
+        const earlySell = my.reason === 'sold' && !onRule;
+        if (earlySell) {
+            const buyP = c[my.buyIdx].c, sellP = sk.c, peRet = pe.exitPrice / buyP - 1;
+            const ruleName = { stop: `손절선(${priceWon(myStop, usd)})`, target: `목표가(${priceWon(my.myTarget, usd)})`, end: '구간 끝' }[pe.reason]
+                || (t.id === 'golden' ? '데드크로스' : 'RSI 70 도달');
+            const ruleText = t.exitMode === 'ratio' ? '손절선에도 목표가에도' : '손절선에도 청산 신호에도';
+            const sellDate = fmtMD(sk.date), peDate = fmtMD(c[pe.exit].date);
+            if (sellP > pe.exitPrice) {
+                tips.push(`<b>경고!</b> ${ruleText} 닿기 전인 <b>${sellDate}</b>에 팔았어요. 그 뒤에 더 떨어져서 이번엔 <b>운 좋게 ${sellP / buyP - 1 < 0 ? '손해를 줄였지만' : '원칙보다 더 벌었지만'}</b>(원칙대로였다면 ${peDate} ${ruleName}에서 ${pct(peRet, 1)}), 매매원칙에 어긋난 매도예요. 기준 없이 감으로 파는 습관은 다음엔 오를 종목도 일찍 팔게 만들어서 장기적으로 보면 위험해요.`);
+            } else {
+                tips.push(`원칙보다 일찍 팔았어요. ${ruleText} 닿기 전인 <b>${sellDate}</b>에 팔았는데, 원칙대로 ${peDate} ${ruleName}까지 들고 갔다면 ${pct(peRet, 1)}였어요. ${t.exitMode === 'ratio' ? '손절선이나 목표가' : '손절선이나 청산 신호'}에 닿을 때까지 기다리는 연습을 해 보세요.`);
+            }
+        }
+        if (t.exitMode === 'ratio') {
+            // 목표가(내가 정한 손익비) 준수 여부 — 목표가에 닿았는데도 더 들고 있었으면, 결과가 더 좋았더라도 원칙 위반으로 봄
+            const myTarget = my.myTarget;
+            const targetHitIdx = c.slice(my.buyIdx, my.sellIdx + 1).findIndex(k => k.h >= myTarget);
+            if (targetHitIdx >= 0 && my.buyIdx + targetHitIdx + EXIT_WINDOW < my.sellIdx) {
+                const hitDate = fmtMD(c[my.buyIdx + targetHitIdx].date), heldDays = my.sellIdx - (my.buyIdx + targetHitIdx);
+                tips.push(`<b>경고!</b> 내가 정한 목표가(${priceWon(myTarget, usd)}, <b>${hitDate}</b>) 도달 이후로 ${heldDays}일이나 더 들고 있었어요. 손익비를 가장 잘 지키는 것이 중요합니다! 이번엔 운이 좋았을 뿐 매매 원칙을 지킨 게 아니어서 장기적으로 보면 위험해요.`);
+            } else if (targetHitIdx < 0 && !profit && !earlySell) {
+                tips.push(`손절선(${priceWon(myStop, usd)}) 부근을 지키면 손실을 작게 막을 수 있어요.`);
+            }
+        } else {
+            // 청산 원칙 준수 여부 — 신호(데드크로스/RSI 70)가 뜨고도 한참 더 들고 있었다면, 결과가 더 좋았더라도 원칙을 어긴 것으로 봄
+            if (my.sellIdx > an.exit + EXIT_WINDOW) {
+                tips.push(`<b>경고!</b> 청산 신호(<b>${exitDate}</b>) 이후로 ${my.sellIdx - an.exit}일이나 더 들고 있었어요. 손익비를 가장 잘 지키는 것이 중요합니다! ${profit ? '이번엔 운이 좋았을 뿐 매매 원칙을 지킨 게 아니어서' : '청산 신호를 놓쳐서'} 장기적으로 보면 위험해요.`);
+            } else if (!earlySell && profit && my.sellIdx < an.exit - EXIT_WINDOW) {
+                tips.push(`양봉이는 <b>${exitDate}</b>까지 들고 갔어요. 조금 더 보유했다면 원칙 매매 수익률 ${pct(ideal.ret, 1)}에 가까워졌을 거예요.`);
+            } else if (!profit && !earlySell) {
+                tips.push(`손절선(${priceWon(myStop, usd)}) 부근을 지키면 손실을 작게 막을 수 있어요.`);
+            }
+        }
+    }
+    if (an.reason === 'stop') {
+        tips.push(`이번 구간은 <b>기법이 통하지 않은 경우</b>예요. 양봉이의 원칙 매매도 <b>${exitDate}</b>에 손절로 끝났어요(${pct(ideal.ret, 1)}). 어떤 기법도 항상 맞지는 않아서, 틀렸을 때 손실을 작게 끊는 손절선이 계좌를 지켜줘요.`);
+    }
+    if (t.exitMode === 'ratio') {
+        tips.push(`이 기법은 손익비 <b>1 : ${t.ratio}</b>을 미리 정해두고, 손절선(${priceWon(g.stop, usd)} 부근)이나 목표가(${priceWon(guideFor(t, c, an.entry, usd).target, usd)} 부근) 중 먼저 닿는 곳에서 정리하는 게 정석이에요!`);
+    } else {
+        tips.push(`이 기법은 목표가를 정해두지 않고, 손절선(${priceWon(g.stop, usd)} 부근)만 지키면서 <b>${t.id === 'golden' ? '데드크로스' : 'RSI 70 도달'}</b> 신호가 뜰 때까지 들고 가는 게 정석이에요!`);
+    }
+    return { mood, title, body, tips };
+}
+
+// ---------- 이벤트 ----------
+document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const act = b.dataset.act, id = b.dataset.id;
+    if (act === 'open') { e.stopPropagation(); renderIntro(id); }
+    else if (act === 'open-mode') openModeModal(id);
+    else if (act === 'close-mode') closeModeModal();
+    else if (act === 'start') { closeModeModal(); startPlay(id); }
+    else if (act === 'start-real') { closeModeModal(); startPlay(id, { real: true, ticker: b.dataset.ticker, entryDate: b.dataset.entry }); }
+    else if (act === 'quit') { stopTimer(); renderList(); }
+    else if (act === 'retry') startPlay(RES.tech.id, RES.mode === 'real' ? { real: true, ticker: P.ticker, entryDate: P.realEntryDate, skipTutorial: true } : { skipTutorial: true });
+    else if (act === 'tut-next') tutNext();
+    else if (act === 'tut-prev') tutPrev();
+    else if (act === 'tut-skip') tutSkip();
+    else if (act === 'retry-inplay') retryInPlay();
+    else if (act === 'buy-info-next') buyInfoNext();
+    else if (act === 'buy-info-prev') buyInfoPrev();
+    else if (act === 'confirm-ratio') confirmRatio();
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('tech-card')) { e.preventDefault(); renderIntro(e.target.dataset.id); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModeModal(); });
+$('#btnBuy').addEventListener('click', buy);
+$('#btnSell').addEventListener('click', sell);
+$('#btnDrawBox').addEventListener('click', () => { if (P.shares === 0 || P.closed) return; P.editingBox = !P.editingBox; updatePlayUI(); drawPlay(); });
+$('#btnPause').addEventListener('click', () => { if (P.closed || P.tut >= 0 || P.overlay) return; P.paused ? resume() : pause(); });
+$('#btnHelp').addEventListener('click', () => { if (!P.closed && !P.overlay) openTutorial(0); });
+$('#speedGroup').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-speed]'); if (!b) return;
+    P.speed = +b.dataset.speed; $$('#speedGroup .seg').forEach(x => x.classList.toggle('active', x === b));
+    if (!P.paused && !P.closed) resume();
+});
+const sidebar = $('#sidebar');
+if (window.innerWidth <= 760) sidebar.classList.add('collapsed');  // 좁은 화면에서는 사이드바를 접어서 시작
+$('#toggleBtn').addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+
+// 시작: ?t=golden | rsi 로 들어오면 해당 기법 설명으로 바로 이동 (홈의 추천 실습 카드에서 연결)
+(function init() {
+    const t = new URLSearchParams(location.search).get('t');
+    if (t && TECH[t]) renderIntro(t); else renderList();
+    loadServerRecords();
+})();
+// 다른 탭에서 로그인·로그아웃 → 그 계정(또는 이 브라우저)의 기록으로
+OOS.on('session', () => { serverRecords = null; if (!$('#view-list').hidden) renderList(); loadServerRecords(); });
+window.__P = { P, TECH, getData, startPlay, tick, buy, sell, finish, showResult, renderIntro, openModeModal, closeModeModal, renderList, tutNext, tutPrev, tutSkip, showGameOver, showBuyInfo, buyInfoNext, buyInfoPrev, confirmRatio, retryInPlay, handleLineDrag, currentGuide, drawPlay, chartPlay, RES: () => RES, guideFor, simulate };
+
+// 우측 상단 잔액·로그인/로그아웃은 공용 런타임(assets/oos/runtime.js)이 채운다
+OOS.actions({ closeModeModal });
+
+    </script>
+</body>
+</html>

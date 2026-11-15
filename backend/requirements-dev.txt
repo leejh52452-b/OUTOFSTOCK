@@ -1,0 +1,6 @@
+# 개발·시험(CI) — 운영 이미지에는 들어가지 않는다
+-r requirements.txt
+pytest>=8.0,<10
+ruff==0.15.11
+bandit>=1.7,<2
+pip-audit>=2.7,<3

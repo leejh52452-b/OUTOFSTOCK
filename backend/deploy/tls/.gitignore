@@ -1,0 +1,6 @@
+# 인증서·키는 저장소에 넣지 않는다(서버에서 deploy/pki/make-pki.sh compose 로 만든다)
+*
+!.gitignore
+!README.md
+!*/
+!*/.gitkeep

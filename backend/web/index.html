@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUTOFSTOCK - 과거 사례 기반 주식 학습 플랫폼</title>
+    <link rel="icon" type="image/png" href="assets/logo-mark.png">
+    <style>
+        body[data-theme="brand-light"] {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;   /* 시안 #94a3b8 → 글자 대비 4.5:1 이상(웹 접근성 KWCAG 1.4.3) */
+            --accent-blue: #3730a3;
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --input-bg: #ffffff;
+            --hover-bg: #e0e7ff;
+            --item-bg: #f8fafc;
+            --art-plate: transparent;
+            --login-bg: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%);
+            --badge-mid-bg: #fef08a; --badge-mid-text: #854d0e;
+            --badge-hard-bg: #fecdd3; --badge-hard-text: #9f1239;
+            --guide-bg: #dbeafe; --guide-text: #1e40af;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", Roboto, sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 이미지 공통: 어두운 테마에서는 밝은 판 위에 올려 외곽선이 묻히지 않게 */
+        .art-plate { background-color: var(--art-plate); border-radius: 12px; }
+        img { display: block; max-width: 100%; }
+
+        /* 사이드바 */
+        .sidebar {
+            width: 244px; background-color: var(--card-bg);
+            border-right: 1px solid var(--card-border);
+            display: flex; flex-direction: column; z-index: 100; flex-shrink: 0;
+        }
+        .sidebar.collapsed { width: 72px; }
+        .sidebar-header {
+            height: 76px; display: flex; align-items: center;
+            padding: 0 16px; gap: 10px; border-bottom: 1px solid var(--card-border);
+        }
+        .sidebar.collapsed .sidebar-header { justify-content: center; padding: 0; }
+        .toggle-btn {
+            background: none; border: none; color: var(--text-secondary);
+            cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; flex-shrink: 0;
+        }
+        .toggle-btn:hover { background-color: var(--hover-bg); }
+        .logo { display: flex; align-items: center; min-width: 0; }
+        .logo-img { height: 38px; width: auto; padding: 3px 7px; box-sizing: content-box; max-width: 100%; }
+        .sidebar.collapsed .logo { display: none; }
+        /* 접힌 메뉴: 글자는 화면에서만 숨기고 스크린리더에는 남긴다(아이콘만 있는 링크에 이름 — 접근성 2.4.4) */
+        .sidebar.collapsed .nav-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+        .nav-menu { list-style: none; padding: 16px 10px; }
+        .nav-item { margin-bottom: 4px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; color: var(--text-secondary);
+            text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; white-space: nowrap;
+        }
+        .sidebar.collapsed .nav-link { justify-content: center; padding: 10px 0; }
+        .nav-link svg { width: 18px; height: 18px; stroke: var(--text-secondary); flex-shrink: 0; }
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 600;
+        }
+        .nav-link:hover svg, .nav-link.active svg { stroke: var(--accent-blue); }
+
+        /* 메인 */
+        .main-wrapper { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        header {
+            position: relative; height: 76px; padding: 0 28px; display: flex; align-items: center;
+            border-bottom: 1px solid var(--card-border); background-color: var(--card-bg);
+        }
+        .header-logo {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center;
+        }
+        .header-logo img { height: 56px; width: auto; padding: 3px 12px; box-sizing: content-box; }
+        .search-box { position: relative; width: 320px; max-width: 100%; }
+        .search-box input {
+            width: 100%; padding: 8px 16px 8px 36px; background-color: var(--item-bg);
+            border: 1px solid var(--card-border); border-radius: 8px;
+            color: var(--text-primary); outline: none; font-size: 13px;
+        }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; display: flex;
+        }
+        .search-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); }
+        .content-container {
+            padding: 20px 28px; display: flex; flex-direction: column; gap: 20px;
+            width: 100%; max-width: 1440px; margin: 0 auto;
+        }
+
+        /* 지수 바 */
+        .indices-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .index-card {
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 8px; padding: 12px 16px;
+        }
+        .index-name { font-size: 12px; color: var(--text-secondary); margin-bottom: 2px; }
+        .index-value { font-size: 18px; font-weight: 700; }
+        .index-change { font-size: 12px; font-weight: 600; margin-top: 1px; }
+        .up { color: var(--accent-red); }
+        .down { color: #2563eb; }
+
+        .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 20px; }
+        .recommend-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.45fr); gap: 16px; }
+        .recommend-grid > .card { display: flex; flex-direction: column; }
+        .card {
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: 8px; padding: 16px 18px;
+        }
+        .card-header { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 14px; font-weight: 700; letter-spacing: -0.3px; }
+
+        /* 추천 종목 */
+        .top-stocks-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .top-stock-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 10px; background-color: var(--item-bg);
+            border-radius: 6px; border: 1px solid var(--card-border);
+        }
+        .rank-num { font-weight: 800; font-size: 13px; width: 18px; color: var(--accent-blue); }
+        .stock-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .stock-name { font-weight: 600; font-size: 13px; }
+        .stock-tag { font-size: 11px; color: var(--text-secondary); }
+
+
+        /* 양봉이의 투자원칙 (그림 전체가 보이도록 자르지 않음) */
+        .principle-box {
+            margin-top: auto; border-radius: 8px; overflow: hidden; border: 1px solid var(--card-border);
+            background: #fdfbf6;
+        }
+        .top-stocks-list + .principle-box { margin-top: 14px; }
+        /* 기준일 한 줄(연동 추가) — 서버가 고른 주가 언제 기준인지 · 불러오는 중/실패 안내 줄은 순번 없이 */
+        .picks-asof { font-size: 11px; color: var(--text-muted); margin: 8px 2px 0; }
+        .picks-asof:empty { display: none; }
+        .picks-asof + .principle-box { margin-top: 12px; }
+        .top-stock-item.picks-msg .rank-num { display: none; }
+        .top-stock-item.picks-msg .stock-name { font-weight: 500; color: var(--text-secondary); }
+        .principle-img { width: 100%; height: 128px; object-fit: contain; background: #fdfbf6; }
+        .principle-text { padding: 10px 12px 12px; }
+        .principle-title { font-size: 13.5px; font-weight: 800; color: var(--text-primary); }
+        .principle-desc { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+
+        /* 한 달 전 양봉이 바구니 결과 (5종목 × 20% 분산) */
+        .basket-body {
+            flex: 1; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 14px;
+            background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 14px;
+        }
+        .basket-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; justify-content: center; }
+        .yangbong-img-box {
+            width: 112px; height: 112px; display: flex; align-items: center; justify-content: center; padding: 6px;
+        }
+        .yangbong-img-box img { width: 100%; height: 100%; object-fit: contain; }
+        .sim-date { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+        .sim-result-row { display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .sim-result-label { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+        .sim-result-rate { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .sim-message { font-size: 12.5px; font-weight: 700; color: var(--text-secondary); line-height: 1.45; }
+        .basket-list-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .basket-list-title { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); display: flex; justify-content: space-between; }
+        .basket-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+        .basket-row {
+            display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px;
+            background: var(--card-bg); border: 1px solid var(--card-border); font-size: 12.5px;
+        }
+        .basket-row .w { font-size: 10.5px; font-weight: 700; color: var(--text-muted); width: 30px; flex-shrink: 0; }
+        .basket-row .n { flex: 1; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .basket-row .r { font-weight: 800; font-variant-numeric: tabular-nums; }
+        .basket-row.index-row { background: transparent; border-style: dashed; color: var(--text-secondary); }
+        .basket-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+        .basket-stat { border: 1px solid var(--card-border); border-radius: 8px; padding: 9px 10px; background: var(--card-bg); }
+        .basket-stat-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; }
+        .basket-stat-value { font-size: 18px; font-weight: 800; margin-top: 2px; letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
+        .basket-stat-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
+        .basket-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .basket-caption { font-size: 10.5px; color: var(--text-muted); }
+        .sim-btn-group { display: flex; gap: 6px; }
+        .sim-btn {
+            border: 1px solid var(--card-border); background-color: var(--card-bg);
+            padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+            cursor: pointer; color: var(--text-secondary);
+        }
+        .sim-btn:hover, .sim-btn.active { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        /* 로그인 */
+        .login-card { border: 1px solid var(--card-border); background: var(--login-bg); padding: 14px 16px; }
+        .login-header-row { display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .login-logo { height: 52px; width: auto; max-width: 100%; }
+        .login-form { display: flex; flex-direction: column; gap: 8px; }
+        .input-group input {
+            width: 100%; padding: 8px 10px; background-color: var(--input-bg);
+            border: 1px solid var(--card-border); border-radius: 4px; color: var(--text-primary); font-size: 12.5px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent-blue); }
+        .login-options { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+        .btn-login {
+            width: 100%; padding: 9px; background-color: var(--accent-blue);
+            border: none; border-radius: 4px; color: white; font-weight: 700; font-size: 13.5px; cursor: pointer; margin-top: 4px;
+        }
+        .btn-login:hover { filter: brightness(1.1); }
+        .login-links { display: flex; justify-content: center; gap: 10px; margin-top: 8px; font-size: 11.5px; color: var(--text-secondary); }
+        .login-links a { color: var(--text-secondary); text-decoration: none; }
+        .login-links a:hover { text-decoration: underline; }
+
+        /* 로그인 후 상태 카드 (디자인 시안) */
+        .login-done-head { display: flex; align-items: center; gap: 14px; }
+        .login-done-avatar {
+            width: 76px; height: 76px; border-radius: 18px; background: var(--hover-bg); border: 1px solid var(--card-border);
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08); padding: 9px; flex-shrink: 0; object-fit: contain;
+        }
+        .login-done-avatar.stable { background: #eaf1ff; border-color: #d3e3ff; }
+        .login-done-avatar.neutral { background: #fffaea; border-color: #f3e6a8; }
+        .login-done-avatar.aggressive { background: #fdecec; border-color: #f7cfcb; }
+        /* [백엔드 연동] 꾸민 양봉이(양봉이 꾸미기에서 산 옷을 입은 모습) — 몸값 수저 등급마다 배경 */
+        .login-done-avatar.av { padding: 4px; background: linear-gradient(180deg, #f7f4ee, #ece3d4); border-color: #e7e5e4; }
+        .login-done-avatar.av.k-2 { background: linear-gradient(180deg, #fff8f0, #fcdcbc); border-color: #fed7aa; }
+        .login-done-avatar.av.k-3 { background: linear-gradient(180deg, #ffffff, #dfe6ef); border-color: #cbd5e1; }
+        .login-done-avatar.av.k-4 { background: radial-gradient(circle at 50% 40%, #fffdf2, #fde68a 58%, #f3c24a); border-color: #f3c24a; }
+        .login-done-avatar.av.k-5 { background: radial-gradient(circle at 50% 38%, #f5feff, #bae6fd 52%, #a5b4fc); border-color: #67e8f9; }
+        .login-done-avatar-link { position: relative; display: block; flex-shrink: 0; border-radius: 18px; text-decoration: none; }
+        .login-done-avatar-link:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
+        .login-done-avatar-link .av-edit {
+            position: absolute; right: -7px; bottom: -6px; display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px;
+            border-radius: 999px; background: var(--accent-blue); color: #fff; font-size: 10.5px; font-weight: 800; white-space: nowrap;
+            box-shadow: 0 3px 8px rgba(55, 48, 163, 0.3);
+        }
+        .login-done-avatar-link .av-edit svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linejoin: round; flex-shrink: 0; }
+        .login-done-avatar-link:hover .av-edit { filter: brightness(1.12); }
+        .login-done-info { min-width: 0; }
+        .login-done-name { font-size: 17px; font-weight: 800; letter-spacing: -0.3px; }
+        .login-done-streak {
+            display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; padding: 4px 10px 4px 8px;
+            border-radius: 999px; background: #fff1de; color: #b4530a; font-size: 11.5px; font-weight: 800; white-space: nowrap;
+        }
+        .login-done-streak svg { width: 13px; height: 13px; stroke: #e2740f; flex-shrink: 0; }
+        .login-done-wallet {
+            margin-top: 16px; padding: 14px 16px; border-radius: 12px;
+            background: linear-gradient(135deg, #211d52, #3730a3); box-shadow: 0 8px 20px rgba(55, 48, 163, 0.22);
+        }
+        .login-done-wallet-top { display: flex; align-items: center; gap: 6px; }
+        .login-done-wallet-top svg { width: 13px; height: 13px; stroke: #c7d2fe; flex-shrink: 0; }
+        .login-done-wallet-label { font-size: 11px; font-weight: 700; color: #c7d2fe; letter-spacing: 0.1px; }
+        .login-done-wallet-amt { margin-top: 4px; font-size: 23px; font-weight: 800; color: #fde68a; letter-spacing: -0.4px; }
+        .login-done-actions { margin-top: 10px; }
+        .login-done-btn {
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px;
+            border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); color: var(--text-primary);
+            font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none;
+        }
+        .login-done-btn:hover { border-color: var(--accent-blue); background: var(--hover-bg); color: var(--accent-blue); }
+        .login-done-btn.primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+        .login-done-btn.primary:hover { filter: brightness(1.08); }
+        .login-done-btn:disabled { cursor: default; opacity: 0.6; filter: none; }
+        .login-done-reward { font-size: 10.5px; font-weight: 700; opacity: 0.85; }
+        .login-done-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .login-done-stat {
+            display: flex; align-items: center; gap: 9px; padding: 10px 11px; border-radius: 10px;
+            background: var(--item-bg); border: 1px solid var(--card-border);
+        }
+        .login-done-stat-ico {
+            width: 30px; height: 30px; border-radius: 8px; background: var(--hover-bg); color: var(--accent-blue);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .login-done-stat-ico svg { width: 15px; height: 15px; stroke: currentColor; }
+        .login-done-stat-body { min-width: 0; }
+        .login-done-stat-num { font-size: 15px; font-weight: 800; color: var(--text-primary); line-height: 1.1; }
+        .login-done-stat-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; margin-top: 1px; white-space: nowrap; }
+        .login-done-logout { text-align: center; margin-top: 10px; }
+        .login-done-logout a { font-size: 11.5px; color: var(--text-muted); text-decoration: none; }
+        .login-done-logout a:hover { text-decoration: underline; color: var(--text-secondary); }
+
+        /* 양봉이의 1분 용어 학습 */
+        .word-card {
+            background-color: var(--card-bg); border: 1px solid var(--card-border);
+            border-left: 4px solid var(--accent-blue); border-radius: 6px;
+            padding: 10px 14px 10px 10px; display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
+        .word-card:hover { border-color: var(--accent-blue); }
+        a.word-card { text-decoration: none; color: inherit; }
+        .word-art { width: 96px; height: 78px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 4px; }
+        .word-art img { width: 100%; height: 100%; object-fit: contain; }
+        .word-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .word-title { font-size: 11.5px; color: var(--accent-blue); font-weight: 700; }
+        .word-desc { font-size: 12.5px; font-weight: 600; }
+        .word-link { font-size: 11px; color: var(--accent-blue); font-weight: 700; margin-top: 2px; }
+
+        .profile-guide-card {
+            background-color: var(--item-bg); border: 1px dashed var(--card-border);
+            border-radius: 6px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+        }
+        .guide-badge {
+            background-color: var(--guide-bg); color: var(--guide-text);
+            font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 4px; white-space: nowrap;
+        }
+
+        /* 순위 */
+        .tab-group { display: flex; gap: 6px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-bottom: 8px; }
+        .tab-btn {
+            background: none; border: none; color: var(--text-secondary);
+            font-size: 12px; font-weight: 600; padding: 4px 8px; cursor: pointer; border-radius: 4px;
+        }
+        .tab-btn.active { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .ranking-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .ranking-table th, .ranking-table td { padding: 7px 4px; text-align: right; }
+        .ranking-table th:first-child, .ranking-table td:first-child { text-align: left; }
+        .ranking-table th { color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--card-border); }
+
+        /* 실습 / 뉴스 */
+        .practice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .practice-card {
+            background-color: var(--item-bg); border: 1px solid var(--card-border);
+            border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 6px;
+        }
+        a.practice-card { text-decoration: none; color: inherit; cursor: pointer; transition: border-color .15s, transform .15s, box-shadow .15s; }
+        a.practice-card:hover { border-color: var(--accent-blue); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(55, 48, 163, 0.09); }
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10.5px; font-weight: 700; width: fit-content; }
+        .badge-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .badge-hard { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        .news-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .news-item a {
+            color: var(--text-primary); text-decoration: none; font-size: 13px; display: block;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .news-item a:hover { color: var(--accent-blue); }
+        .news-meta { font-size: 11px; color: var(--text-secondary); margin-top: 1px; }
+        .news-more { font-size: 12px; font-weight: 700; color: var(--accent-blue); text-decoration: none; }
+        .news-more:hover { text-decoration: underline; }
+
+        /* 첫 접속 투자 유의 안내 (30일 동안 안 보기) */
+        .notice-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+            z-index: 2100; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .notice-overlay[hidden] { display: none; }
+        .notice-modal {
+            width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; text-align: center;
+            background-color: var(--card-bg); border-radius: 18px; padding: 26px 26px 22px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+        }
+        .notice-img { width: 200px; height: auto; margin: 0 auto 6px; }
+        .notice-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent-red); }
+        .notice-sub { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .notice-list { list-style: none; text-align: left; margin: 18px 0 20px; display: flex; flex-direction: column; gap: 10px; }
+        .notice-list li {
+            display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px;
+            background: #fff5f5; border: 1px solid #fecaca; font-size: 14.5px; font-weight: 700; line-height: 1.55; color: var(--text-primary);
+        }
+        .notice-num {
+            flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-red); color: #fff;
+            font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px;
+        }
+        .notice-actions { display: flex; flex-direction: column; gap: 8px; }
+        .notice-btn {
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 14.5px; font-weight: 800; cursor: pointer;
+            border: 1px solid var(--accent-blue); background: var(--accent-blue); color: #fff;
+        }
+        .notice-btn:hover { filter: brightness(1.1); }
+        .notice-btn.ghost { background: var(--card-bg); color: var(--text-secondary); border-color: var(--card-border); font-weight: 700; }
+        .notice-btn.ghost:hover { filter: none; border-color: var(--accent-blue); color: var(--accent-blue); }
+
+        /* 투자 성향 분석 설문 모달 */
+        .survey-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .survey-overlay[hidden] { display: none; }
+        .survey-modal {
+            position: relative; width: 100%; min-width: 0; max-width: 460px; max-height: 88vh; overflow-y: auto;
+            background-color: var(--card-bg); border-radius: 16px; padding: 26px 24px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+        }
+        .survey-close {
+            position: absolute; top: 14px; right: 14px; width: 30px; height: 30px;
+            border: none; background: none; color: var(--text-secondary); cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        }
+        .survey-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .survey-close svg { width: 18px; height: 18px; }
+        .survey-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; padding-right: 26px; }
+        .survey-header-icon { width: 34px; height: 34px; flex-shrink: 0; border-radius: 8px; }
+        .survey-header > div { min-width: 0; }
+        .survey-title { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+        .survey-subtitle { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
+        .survey-progress-label { font-size: 11.5px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; }
+        .survey-domain-tag { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+        .survey-progress-track { height: 6px; background-color: var(--item-bg); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
+        .survey-progress-fill { height: 100%; background-color: var(--accent-blue); border-radius: 3px; transition: width 0.25s ease; }
+        .survey-question { font-size: 15px; font-weight: 700; line-height: 1.45; margin-bottom: 14px; }
+        .survey-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+        .survey-option {
+            width: 100%; text-align: left; border: 1px solid var(--card-border); border-radius: 8px;
+            padding: 12px 14px; font-size: 13.5px; font-weight: 500; color: var(--text-primary);
+            background-color: var(--item-bg); cursor: pointer;
+        }
+        .survey-option:hover { border-color: var(--accent-blue); }
+        .survey-option.selected { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); font-weight: 700; }
+        .survey-nav-row { display: flex; justify-content: space-between; gap: 10px; }
+        .survey-btn {
+            padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;
+            border: 1px solid var(--card-border); background-color: var(--card-bg); color: var(--text-secondary);
+        }
+        .survey-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .survey-btn.primary { background-color: var(--accent-blue); border-color: var(--accent-blue); color: #ffffff; }
+        .survey-btn.primary:hover { filter: brightness(1.1); color: #ffffff; }
+        .survey-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+        .survey-result { text-align: center; }
+        .survey-result-img { width: 168px; height: auto; margin: 0 auto 14px; display: block; }
+        .survey-result-type { font-size: 21px; font-weight: 800; margin-bottom: 8px; }
+        .survey-result-type.stable { color: var(--accent-blue); }
+        .survey-result-type.neutral { color: var(--badge-mid-text); }
+        .survey-result-type.aggressive { color: var(--accent-red); }
+        .survey-result-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 18px; }
+        .survey-result-subtitle { font-size: 12.5px; font-weight: 700; text-align: left; margin-bottom: 8px; }
+        .survey-result-products { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .reco-product { background-color: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 10px 12px; text-align: left; }
+        .reco-product-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .reco-product-name { font-size: 13px; font-weight: 700; min-width: 0; overflow-wrap: break-word; }
+        .reco-product-head .badge { flex-shrink: 0; }
+        .risk-low { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .risk-mid { background-color: var(--badge-mid-bg); color: var(--badge-mid-text); }
+        .risk-high { background-color: var(--badge-hard-bg); color: var(--badge-hard-text); }
+        .reco-product-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.4; }
+        .profile-guide-card { cursor: pointer; }
+
+        /* 회원가입 모달 (디자인 전용) */
+        .auth-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            z-index: 2100; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-overlay[hidden] { display: none; }
+        .auth-modal {
+            position: relative; width: 100%; min-width: 0; max-width: 400px; max-height: 88vh; overflow-y: auto;
+            background-color: var(--card-bg); border-radius: 16px; padding: 26px 24px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+        }
+        .auth-close {
+            position: absolute; top: 14px; right: 14px; width: 30px; height: 30px;
+            border: none; background: none; color: var(--text-secondary); cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-close:hover { background-color: var(--hover-bg); color: var(--accent-blue); }
+        .auth-close svg { width: 18px; height: 18px; }
+        .auth-header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; margin-bottom: 20px; }
+        .auth-logo { height: 30px; width: auto; }
+        .auth-title { font-size: 17px; font-weight: 800; }
+        .auth-subtitle { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .auth-field { margin-bottom: 12px; }
+        .auth-field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; }
+        .auth-input-wrap { position: relative; }
+        .auth-input-wrap input {
+            width: 100%; padding: 10px 38px 10px 12px; background-color: var(--item-bg); border: 1px solid var(--card-border);
+            border-radius: 6px; color: var(--text-primary); font-size: 13px; outline: none; font-family: inherit;
+        }
+        .auth-input-wrap input:focus { border-color: var(--accent-blue); background: #fff; }
+        .auth-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; }
+        .auth-toggle:hover { color: var(--accent-blue); }
+        .auth-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .auth-hint.err { color: #b91c1c; }
+        .auth-hint.ok { color: #16a34a; }
+        .auth-submit { width: 100%; padding: 11px; background-color: var(--accent-blue); border: none; border-radius: 6px; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 6px; }
+        .auth-submit:hover { filter: brightness(1.1); }
+        .auth-notice { display: none; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 6px; background: var(--hover-bg); color: var(--accent-blue); font-size: 11.5px; line-height: 1.55; }
+        .auth-notice.show { display: flex; }
+        .auth-notice svg { width: 14px; height: 14px; margin-top: 1px; flex-shrink: 0; }
+        .auth-switch { text-align: center; margin-top: 14px; font-size: 11.5px; color: var(--text-secondary); }
+        .auth-switch a { color: var(--accent-blue); font-weight: 700; text-decoration: none; cursor: pointer; }
+        .auth-switch a:hover { text-decoration: underline; }
+
+        /* 반응형 */
+        /* 우측 상단 영역 (마이페이지 / 가상머니 / 로그아웃) */
+        .header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .header-balance {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+            background: linear-gradient(135deg, #fff7e3, #ffedbd); border: 1px solid #f0d888; color: #8a5f09;
+            font-size: 12.5px; font-weight: 800; white-space: nowrap;
+        }
+        .header-balance svg { width: 15px; height: 15px; stroke: #b9800f; flex-shrink: 0; }
+        .header-btn {
+            display: flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--card-border);
+            border-radius: 999px; background-color: var(--card-bg); cursor: pointer; font-family: inherit;
+            color: var(--text-primary); font-size: 12.5px; font-weight: 700; text-decoration: none; white-space: nowrap;
+        }
+        .header-btn svg { width: 15px; height: 15px; stroke: currentColor; flex-shrink: 0; }
+        .header-btn-mypage:hover { border-color: var(--accent-blue); background-color: var(--hover-bg); color: var(--accent-blue); }
+        .header-btn-logout { color: var(--text-muted); }
+        .header-btn-logout:hover { border-color: #fca5a5; background-color: #fee2e2; color: #b91c1c; }
+        @media (max-width: 560px) {
+            .basket-stats { grid-template-columns: 1fr; }
+            .header-btn-label { display: none; }
+            .header-btn { padding: 7px; }
+            .header-balance { padding: 6px 10px; font-size: 11.5px; }
+        }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+            .header-logo { display: none; }
+        }
+        @media (max-width: 760px) {
+            .indices-bar { grid-template-columns: repeat(2, 1fr); }
+            .recommend-grid, .practice-grid { grid-template-columns: 1fr; }
+            .basket-body { grid-template-columns: 1fr; }
+            .basket-stat-value { font-size: 15px; }
+            .content-container { padding: 16px; }
+            .survey-modal { padding: 22px 18px; max-height: 92vh; }
+        }
+    </style>
+</head>
+<body data-theme="brand-light">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="toggle-btn" id="toggleBtn" title="메뉴 접기/열기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="logo">
+                <img class="logo-img art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span class="nav-text">홈</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-on="openSurvey(event)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M9 14l2 2 4-4"></path></svg>
+                    <span class="nav-text">투자 성향 분석</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="learn.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span class="nav-text">용어사전</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="practice.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                    <span class="nav-text">학습 및 실습하기</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="stocks.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span class="nav-text">실시간 종목</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="invest.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                    <span class="nav-text">모의투자</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="news.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1"></path><path d="M21 7h-4v11a2 2 0 0 0 2 2 2 2 0 0 0 2-2V7z"></path><line x1="7" y1="8" x2="13" y2="8"></line><line x1="7" y1="12" x2="13" y2="12"></line><line x1="7" y1="16" x2="11" y2="16"></line></svg>
+                    <span class="nav-text">뉴스</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="avatar.html" class="nav-link">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>
+                    <span class="nav-text">양봉이 꾸미기</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <header>
+            <a href="#" class="header-logo" title="OUTOFSTOCK 홈">
+                <img class="art-plate" src="assets/logo.png" alt="OUTOFSTOCK">
+            </a>
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="text" placeholder="종목명 또는 종목코드 검색" aria-label="종목명 또는 종목코드 검색">
+            </div>
+
+            <div class="header-actions" id="headerProfile">
+                <div class="header-balance" title="가상머니 잔액">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"></ellipse><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"></path><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"></path></svg>
+                    <span id="headerBalanceAmt">1,000,000</span>원
+                </div>
+                <a href="mypage.html" class="header-btn header-btn-mypage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"></path></svg>
+                    <span class="header-btn-label">마이페이지</span>
+                </a>
+                <button type="button" class="header-btn header-btn-logout" data-on="headerLogout()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span class="header-btn-label">로그아웃</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="content-container">
+            <section class="indices-bar" id="indicesBar">
+                <div class="index-card">
+                    <div class="index-name">KOSPI</div>
+                    <div class="index-value">2,614.30</div>
+                    <div class="index-change up">▲ 10.94 (+0.42%)</div>
+                </div>
+                <div class="index-card">
+                    <div class="index-name">KOSDAQ</div>
+                    <div class="index-value">764.11</div>
+                    <div class="index-change down">▼ 1.38 (-0.18%)</div>
+                </div>
+                <div class="index-card">
+                    <div class="index-name">원/달러 환율</div>
+                    <div class="index-value">1,384.50</div>
+                    <div class="index-change up">▲ 3.20 (+0.23%)</div>
+                </div>
+                <div class="index-card">
+                    <div class="index-name">S&amp;P 500 (미국)</div>
+                    <div class="index-value">5,702.55</div>
+                    <div class="index-change up">▲ 22.10 (+0.39%)</div>
+                </div>
+            </section>
+
+            <div class="dashboard-grid">
+                <div class="left-column">
+                    <div class="recommend-grid">
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">이번 주 양봉이가 고른 5종목!</div></div>
+                            <ul class="top-stocks-list" id="weeklyPicks" aria-live="polite"></ul>
+                            <div class="picks-asof" id="picksAsOf"></div>
+                            <div class="principle-box">
+                                <img class="principle-img" src="assets/yangbong-cards.jpg" alt="투자 카드 5장을 앞에 두고 고민하는 양봉이">
+                                <div class="principle-text">
+                                    <div class="principle-title">양봉이의 투자원칙!</div>
+                                    <div class="principle-desc">양봉이는 리스크를 줄이기 위해 5종목을 분산투자해요!</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header"><div class="card-title">한 달 전 양봉이 바구니 결과는?</div></div>
+                            <div class="basket-body">
+                                <div class="basket-hero">
+                                    <div class="sim-date" id="simDate"></div>
+                                    <div class="yangbong-img-box art-plate">
+                                        <img id="yangbongImg" src="assets/happy.png" alt="웃고 있는 양봉이">
+                                    </div>
+                                    <div class="sim-result-row">
+                                        <span class="sim-result-label" id="simResultLabel">바구니 결과는!!</span>
+                                        <span class="sim-result-rate up" id="simResultRate"></span>
+                                    </div>
+                                    <div class="sim-message" id="simMessage"></div>
+                                </div>
+                                <div class="basket-list-wrap">
+                                    <div class="basket-list-title"><span>담았던 5종목</span><span>30일 수익</span></div>
+                                    <ul class="basket-list" id="basketList"></ul>
+                                </div>
+                            </div>
+                            <div class="basket-stats">
+                                <div class="basket-stat">
+                                    <div class="basket-stat-label">양봉이 승률</div>
+                                    <div class="basket-stat-value" id="statWin"></div>
+                                    <div class="basket-stat-sub" id="statWinSub"></div>
+                                </div>
+                                <div class="basket-stat">
+                                    <div class="basket-stat-label">누적 수익</div>
+                                    <div class="basket-stat-value up" id="statTotal"></div>
+                                    <div class="basket-stat-sub">매주 100만 원씩 담았다면</div>
+                                </div>
+                                <div class="basket-stat">
+                                    <div class="basket-stat-label">한 달 평균 수익</div>
+                                    <div class="basket-stat-value up" id="statAvg"></div>
+                                    <div class="basket-stat-sub">바구니 1개 기준</div>
+                                </div>
+                            </div>
+                            <div class="basket-foot">
+                                <span class="basket-caption" id="statCaption"></span>
+                                <div class="sim-btn-group">
+                                    <button class="sim-btn active" id="btnProfit" data-on="toggleSimResult(true)">수익 보기</button>
+                                    <button class="sim-btn" id="btnLoss" data-on="toggleSimResult(false)">손실 보기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">과거 사례 기반 추천 실습</div></div>
+                        <div class="practice-grid">
+                            <a class="practice-card" href="practice.html?t=golden">
+                                <span class="badge badge-mid">중급</span>
+                                <h3 style="font-size: 13.5px;">종목 A · 골든크로스 구간</h3>
+                                <p style="font-size: 11px; color: var(--text-secondary);">SMA 5가 SMA 20을 위로 통과하는 매수 시점 판단 연습</p>
+                            </a>
+                            <a class="practice-card" href="practice.html?t=rsi">
+                                <span class="badge badge-hard">고급</span>
+                                <h3 style="font-size: 13.5px;">NAVER · RSI 과매도 반등 구간</h3>
+                                <p style="font-size: 11px; color: var(--text-secondary);">RSI 30 이하 탈출 시 반등 매매 판단 연습</p>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><div class="card-title">주요 뉴스</div><a class="news-more" href="news.html">더보기 →</a></div>
+                        <ul class="news-list" id="homeNews">
+                            <li class="news-item">
+                                <a href="#">외국인 5거래일 연속 순매수... 반도체 업종 중심 상승세</a>
+                                <div class="news-meta">한국경제 · 10분 전</div>
+                            </li>
+                            <li class="news-item">
+                                <a href="#">한국은행 기준금리 동결, 채권시장 영향 제한적 전망</a>
+                                <div class="news-meta">연합뉴스 · 30분 전</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="card login-card">
+                        <div id="loginFormView">
+                            <div class="login-header-row">
+                                <img class="login-logo" src="assets/logo.png" alt="OUTOFSTOCK">
+                            </div>
+                            <form class="login-form" data-on-submit="doLogin(event)">
+                                <div class="input-group"><input type="text" id="loginId" placeholder="아이디 또는 이메일" autocomplete="username" maxlength="50" aria-label="아이디"></div>
+                                <div class="input-group"><input type="password" id="loginPw" placeholder="비밀번호" autocomplete="current-password" maxlength="128" aria-label="비밀번호"></div>
+                                <div class="login-options">
+                                    <label style="cursor: pointer;"><input type="checkbox" id="loginKeep"> 로그인 유지</label>
+                                </div>
+                                <button class="btn-login">로그인</button>
+                            </form>
+                            <div class="login-links"><a href="#" data-on="openSignup(event)">회원가입</a><span>|</span><a href="#" data-on="findPassword(event)">비밀번호 찾기</a></div>
+                        </div>
+
+                        <!-- 로그인 후 상태 (디자인 시안 — 실제 로그인 연동 전까지는 목업 데이터예요) -->
+                        <div id="loginDoneView" hidden>
+                            <div class="login-done-head">
+                                <a class="login-done-avatar-link" href="avatar.html" title="양봉이 꾸미기">
+                                    <img class="login-done-avatar" id="loginDoneImg" src="assets/risk-aggressive.png" alt="">
+                                    <span class="av-edit"><svg viewBox="0 0 24 24"><path d="M8 3L3 6.5L5.5 10.5L7.5 9.5V21H16.5V9.5L18.5 10.5L21 6.5L16 3C15.2 4.8 13.8 5.8 12 5.8C10.2 5.8 8.8 4.8 8 3Z"></path></svg>꾸미기</span>
+                                </a>
+                                <div class="login-done-info">
+                                    <div class="login-done-name"><strong id="loginDoneId">1234</strong>님!</div>
+                                    <span class="login-done-streak">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+                                        연속 출석 <strong id="loginDoneStreak">3</strong>일
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="login-done-wallet">
+                                <div class="login-done-wallet-top">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg>
+                                    <span class="login-done-wallet-label">내 지갑 (가상머니)</span>
+                                </div>
+                                <div class="login-done-wallet-amt"><span id="loginDoneBalance">1,000,000</span>원</div>
+                            </div>
+                            <div class="login-done-actions">
+                                <button type="button" class="login-done-btn primary" id="btnAttendance" data-on="doAttendanceCheck()">출석 체크 <span class="login-done-reward">+500원</span></button>
+                            </div>
+                            <div class="login-done-stats">
+                                <div class="login-done-stat">
+                                    <span class="login-done-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+                                    <div class="login-done-stat-body"><div class="login-done-stat-num" id="loginDoneFriendReq">2</div><div class="login-done-stat-label">친구 요청</div></div>
+                                </div>
+                                <div class="login-done-stat">
+                                    <span class="login-done-stat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+                                    <div class="login-done-stat-body"><div class="login-done-stat-num" id="loginDoneUnread">5</div><div class="login-done-stat-label">안 읽은 메시지</div></div>
+                                </div>
+                            </div>
+                            <div class="login-done-logout"><a href="#" data-on="doLogout(event)">로그아웃</a></div>
+                        </div>
+                    </div>
+
+                    <a class="word-card" id="wordCard" href="learn.html?term=골든크로스">
+                        <div class="word-art art-plate">
+                            <img src="assets/study.png" alt="공부하는 양봉이">
+                        </div>
+                        <div class="word-body">
+                            <div class="word-title">양봉이의 1분 용어 학습</div>
+                            <div class="word-desc">"골든크로스(Golden Cross)란?"</div>
+                            <div class="word-link">학습하기 →</div>
+                        </div>
+                    </a>
+
+                    <div class="profile-guide-card" id="profileGuideCard" data-on="openSurvey(event)">
+                        <span class="guide-badge">투자 성향</span>
+                        <div style="font-size: 11.5px; color: var(--text-primary);">
+                            설문 완료 후 <strong>맞춤 실습</strong> 받기!
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" style="margin-bottom: 6px;"><div class="card-title">실시간 종목 순위</div></div>
+                        <div class="tab-group">
+                            <button class="tab-btn active" data-on="switchTab(this)">거래대금</button>
+                            <button class="tab-btn" data-on="switchTab(this)">상승</button>
+                            <button class="tab-btn" data-on="switchTab(this)">하락</button>
+                        </div>
+                        <table class="ranking-table">
+                            <thead>
+                                <tr><th>종목명</th><th>현재가</th><th>등락률</th></tr>
+                            </thead>
+                            <tbody id="rankBody">
+                                <tr><td>SK하이닉스</td><td>178,400</td><td class="up">+2.04%</td></tr>
+                                <tr><td>삼성전자</td><td>71,900</td><td class="up">+1.12%</td></tr>
+                                <tr><td>HD현대일렉트릭</td><td>312,500</td><td class="up">+3.10%</td></tr>
+                                <tr><td>한미반도체</td><td>97,400</td><td class="down">-0.90%</td></tr>
+                                <tr><td>카카오</td><td>41,150</td><td class="down">-1.21%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 첫 접속 투자 유의 안내: '확인했습니다'는 이번 방문 동안, '30일 동안 안 보기'는 30일 동안 다시 안 뜸 -->
+    <div class="notice-overlay" id="noticeOverlay" hidden>
+        <div class="notice-modal" role="alertdialog" aria-modal="true" aria-labelledby="noticeTitle">
+            <img class="notice-img" src="assets/yangbong-warning.jpg" alt="경고 표지판을 든 양봉이">
+            <div class="notice-title" id="noticeTitle">잠깐! 투자 전에 꼭 확인해 주세요</div>
+            <div class="notice-sub">OUTOFSTOCK은 주식 공부를 돕는 학습 서비스예요.</div>
+            <ol class="notice-list">
+                <li><span class="notice-num">1</span><span>추천 주식은 보조 참고 자료이므로, 실제 투자 책임은 본인에게 있습니다.</span></li>
+                <li><span class="notice-num">2</span><span>매매기법의 승률은 100%가 아닙니다. 매매기법의 사용과 책임은 본인에게 있습니다.</span></li>
+            </ol>
+            <div class="notice-actions">
+                <button type="button" class="notice-btn" id="noticeConfirm" data-on="closeNotice(false)">확인했습니다</button>
+                <button type="button" class="notice-btn ghost" data-on="closeNotice(true)">30일 동안 안 보기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 투자 성향 분석 설문 모달 -->
+    <div class="survey-overlay" id="surveyOverlay" hidden data-on-self="closeSurvey()">
+        <div class="survey-modal" role="dialog" aria-modal="true" aria-label="투자 성향 분석">
+            <button class="survey-close" data-on="closeSurvey()" aria-label="닫기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="survey-header">
+                <img class="survey-header-icon art-plate" src="assets/logo-mark.png" alt="">
+                <div>
+                    <div class="survey-title">투자 성향 분석</div>
+                    <div class="survey-subtitle">10가지 질문에 답하고 나에게 맞는 투자 스타일을 확인해요</div>
+                </div>
+            </div>
+            <div id="surveyQuestionView"></div>
+            <div id="surveyResultView" hidden></div>
+        </div>
+    </div>
+
+    <div class="auth-overlay" id="signupOverlay" hidden data-on-self="closeSignup()">
+        <div class="auth-modal" role="dialog" aria-modal="true" aria-label="회원가입">
+            <button class="auth-close" data-on="closeSignup()" aria-label="닫기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div class="auth-header">
+                <img class="auth-logo" src="assets/logo.png" alt="OUTOFSTOCK">
+                <div class="auth-title">회원가입</div>
+                <div class="auth-subtitle">아이디와 비밀번호를 설정해주세요</div>
+            </div>
+            <form id="signupForm" data-on-submit="event.preventDefault(); submitSignup();" novalidate>
+                <div class="auth-field">
+                    <label for="suId">아이디</label>
+                    <div class="auth-input-wrap"><input type="text" id="suId" placeholder="아이디" autocomplete="username"></div>
+                    <div class="auth-hint" id="suIdHint">영문·숫자로 4자 이상 입력해주세요.</div>
+                </div>
+                <div class="auth-field">
+                    <label for="suPw">비밀번호 설정</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" id="suPw" placeholder="영문·숫자 포함 8자 이상" autocomplete="new-password">
+                        <button class="auth-toggle" type="button" data-on="toggleAuthPw('suPw', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                    <div class="auth-hint" id="suPwHint">영문, 숫자를 포함해 8자 이상 입력해주세요.</div>
+                </div>
+                <div class="auth-field">
+                    <label for="suPw2">비밀번호 확인</label>
+                    <div class="auth-input-wrap">
+                        <input type="password" id="suPw2" placeholder="비밀번호 다시 입력" autocomplete="new-password">
+                        <button class="auth-toggle" type="button" data-on="toggleAuthPw('suPw2', this)" aria-label="비밀번호 표시"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+                    </div>
+                    <div class="auth-hint" id="suPw2Hint"></div>
+                </div>
+                <button class="auth-submit" type="submit">저장</button>
+                <div class="auth-notice" id="signupNotice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span></span>
+                </div>
+            </form>
+            <div class="auth-switch">이미 계정이 있으신가요? <a data-on="closeSignup()">로그인하기</a></div>
+        </div>
+    </div>
+
+    <script src="assets/oos/runtime.js"></script>
+    <script src="assets/avatar-items.js"></script>
+    <script src="assets/news-mock.js"></script>
+    <script src="assets/news-api.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('toggleBtn').addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // 실시간 종목 순위 탭(거래대금 / 상승 / 하락) — [백엔드 연동] 누를 때마다 그 순위를 서버에서 다시 받는다
+        const RANK_SORTS = ['value', 'rise', 'fall'];
+        let rankSort = 'value';
+        function switchTab(element) {
+            element.parentElement.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            rankSort = RANK_SORTS[[...element.parentElement.querySelectorAll('.tab-btn')].indexOf(element)] || 'value';
+            fillRanking();
+        }
+
+        // ===== [백엔드 연동] 홈 데이터 — 서버 값이 오면 시안의 예시 값을 바꿔 넣는다(불러오지 못하면 예시 그대로) =====
+        const esc = OOS.esc;
+        const fmt2 = (v) => Number(v).toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const signCls = (v) => (v > 0 ? 'up' : v < 0 ? 'down' : '');
+        const pctText = (v, d = 2) => (v > 0 ? '+' : '') + Number(v).toFixed(d) + '%';
+
+        // 지수 띠: 코스피·코스닥·원/달러(/indices) + S&P 500(/overseas/indices) — 카드 순서 그대로
+        const INDEX_SLOTS = [['kr', 'KOSPI'], ['kr', 'KOSDAQ'], ['kr', 'USDKRW'], ['us', 'SPX']];
+        async function fillIndices() {
+            if (!OOS.online) return;                                // 파일로 연 화면은 시안 예시 그대로
+            const [kr, us] = await Promise.all([OOS.api('/indices').catch(() => null), OOS.api('/overseas/indices').catch(() => null)]);
+            const by = { kr: new Map(((kr && kr.items) || []).map((x) => [x.code, x])), us: new Map(((us && us.items) || []).map((x) => [x.code, x])) };
+            document.querySelectorAll('#indicesBar .index-card').forEach((card, i) => {
+                const slot = INDEX_SLOTS[i], x = slot && by[slot[0]].get(slot[1]);
+                if (!x || x.value == null) {                        // 못 받은 칸은 예시 숫자 대신 '-'
+                    if (card.dataset.live !== '1') { card.querySelector('.index-value').textContent = '-'; const c = card.querySelector('.index-change'); c.textContent = ''; c.className = 'index-change'; }
+                    return;
+                }
+                card.dataset.live = '1';
+                const ch = Number(x.change) || 0, rate = Number(x.change_rate) || 0;
+                card.querySelector('.index-value').textContent = fmt2(x.value);
+                const c = card.querySelector('.index-change');
+                c.textContent = `${ch > 0 ? '▲ ' : ch < 0 ? '▼ ' : ''}${fmt2(Math.abs(ch))} (${pctText(rate)})`;
+                c.className = 'index-change ' + signCls(ch);
+                card.title = x.status === 'sample' ? '표본(예시) 데이터' : (x.as_of ? `${x.as_of} 기준` : '');
+            });
+        }
+
+        // ===== 양봉이 주간 추천 (5종목 × 20% 분산) =====
+        // 규칙(팀 알고리즘 — 서버 app/services/yangbong_picks.py 원본 그대로): 코스피 시총 상위 200 중 ① 최근 60일 주가 흔들림 하위 30%
+        //   ② 200일선 위(장기 상승 흐름) → 큰 회사 순으로 고르되 5종목 모두 다른 업종. 다음 거래일 시가 매수 → 30일 뒤 종가로 채점
+        // [백엔드 연동] GET /yangbong/weekly — 서버 배치가 매주 고르고 30일 뒤 채점한 값(분석 계층 KRX 수정주가).
+        //   서버 없이 파일로 열면(시안 모드) 아래 예시 값 — backtest 프로그램으로 계산한 실제 값
+        let WEEKLY_PICKS = ['셀트리온', '메리츠금융지주', 'HMM', 'KT&G', '코웨이'];   // 2026-10-23 금요일 데이터 기준
+        let PICKS_AS_OF = '2026-10-23';
+
+        const BASKET = {
+            profit: {
+                buy: '2026.09.21', sell: '10.21', kospi: -17.33,
+                stocks: [['KB금융', -8.2], ['HMM', 11.4], ['KT&G', 12.9], ['DB손해보험', -0.2], ['대한항공', -6.5]]
+            },
+            loss: {
+                buy: '2026.09.28', sell: '10.28', kospi: -14.81,
+                stocks: [['KB금융', -9.9], ['HMM', 6.2], ['KT&G', 7.9], ['대한항공', -16.9], ['코웨이', 1.8]]
+            }
+        };
+        // 2022.01 ~ 2026.09 매주 같은 규칙으로 고른 바구니 247개 (과거 시뮬레이션)
+        let BASKET_STATS = { weeks: 247, wins: 136, avg: 1.51, total: 374, caption: '승률·수익: 2022~2026 과거 시뮬레이션 (바구니 247개)' };
+
+        const fmtPct = v => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+        const clsOf = v => v > 0 ? 'up' : (v < 0 ? 'down' : '');
+        const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+        function asOfText(iso) {                                  // '2026-10-23' → '2026.10.23(금) 장 마감 기준'
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(iso || '')) return '';
+            const [y, m, d] = iso.split('-').map(Number);
+            return `${iso.replaceAll('-', '.')}(${DOW[new Date(y, m - 1, d).getDay()]}) 장 마감 기준 · 투자 권유 아님`;
+        }
+        // 목록 한 줄(값은 textContent 로만 — 종목명은 서버 데이터)
+        function pickRow(rank, name, cls) {
+            const li = document.createElement('li');
+            li.className = 'top-stock-item' + (cls ? ' ' + cls : '');
+            li.innerHTML = '<span class="rank-num"></span><div class="stock-info"><span class="stock-name"></span></div>';
+            li.querySelector('.rank-num').textContent = rank;
+            li.querySelector('.stock-name').textContent = name;
+            return li;
+        }
+        function renderWeeklyPicks(message) {
+            const ul = document.getElementById('weeklyPicks');
+            ul.innerHTML = '';
+            if (message) { ul.appendChild(pickRow('', message, 'picks-msg')); }
+            else WEEKLY_PICKS.forEach((name, i) => ul.appendChild(pickRow(i + 1, name)));
+            document.getElementById('picksAsOf').textContent = message ? '' : asOfText(PICKS_AS_OF);
+        }
+
+        function renderBasketStats() {
+            const s = BASKET_STATS, none = !s || !s.weeks;
+            document.getElementById('statWin').textContent = none ? '-' : Math.round(s.wins / s.weeks * 100) + '%';
+            document.getElementById('statWinSub').textContent = none ? '' : s.weeks + '주 중 ' + s.wins + '주 수익';
+            const tot = document.getElementById('statTotal');
+            tot.textContent = none ? '-' : (s.total > 0 ? '+' : '') + s.total.toLocaleString('ko-KR') + '만 원';
+            tot.className = 'basket-stat-value ' + (none ? '' : clsOf(s.total));
+            const avg = document.getElementById('statAvg');
+            avg.textContent = none ? '-' : fmtPct(s.avg);
+            avg.className = 'basket-stat-value ' + (none ? '' : clsOf(s.avg));
+            document.getElementById('statCaption').textContent = none ? '' : s.caption;
+        }
+
+        // 수익 보기 / 손실 보기: 실제 과거 바구니 두 개 (서버 결과가 오기 전·시안 모드 예시)
+        function toggleSimResult(isProfit) {
+            document.getElementById('btnProfit').classList.toggle('active', isProfit);
+            document.getElementById('btnLoss').classList.toggle('active', !isProfit);
+            renderBasket(isProfit ? BASKET.profit : BASKET.loss);
+        }
+
+        // 바구니 하나 그리기 (바구니가 +면 웃는 양봉이, −면 우는 양봉이)
+        function renderBasket(b) {
+            const total = b.stocks.reduce((s, x) => s + x[1], 0) / b.stocks.length;   // 20%씩 → 단순 평균
+            const ups = b.stocks.filter(x => x[1] > 0).length;
+            const up = total > 0;
+            document.getElementById('simDate').textContent = b.buy + ' 매수 → ' + b.sell + ' 매도';
+            const img = document.getElementById('yangbongImg');
+            img.src = up ? 'assets/happy.png' : 'assets/sad.png';
+            img.alt = up ? '웃고 있는 양봉이' : '울고 있는 양봉이';
+            document.getElementById('simResultLabel').textContent = up ? '바구니 결과는!!' : '바구니 결과는..';
+            const rate = document.getElementById('simResultRate');
+            rate.textContent = fmtPct(total);
+            rate.className = 'sim-result-rate ' + clsOf(total);
+            document.getElementById('simMessage').textContent = total > 0
+                ? b.stocks.length + '종목 중 ' + ups + '종목이 올라서 바구니가 수익을 냈어요!'
+                : '이번 달은 손실이에요. 그래도 ' + ups + '종목은 올라서 손실을 줄여 줬어요.';
+            const ul = document.getElementById('basketList');
+            ul.innerHTML = '';
+            const w = Math.round(100 / b.stocks.length) + '%';
+            b.stocks.forEach(([name, r]) => {
+                const li = document.createElement('li');
+                li.className = 'basket-row';
+                li.innerHTML = '<span class="w"></span><span class="n"></span><span class="r"></span>';
+                li.querySelector('.w').textContent = w;
+                li.querySelector('.n').textContent = name;
+                const rEl = li.querySelector('.r');
+                rEl.textContent = fmtPct(r);
+                rEl.classList.add(clsOf(r) || 'flat');
+                ul.appendChild(li);
+            });
+            if (b.kospi == null) return;
+            const idx = document.createElement('li');
+            idx.className = 'basket-row index-row';
+            idx.innerHTML = '<span class="w"></span><span class="n">같은 기간 코스피</span><span class="r"></span>';
+            const iEl = idx.querySelector('.r');
+            iEl.textContent = fmtPct(b.kospi);
+            iEl.classList.add(clsOf(b.kospi) || 'flat');
+            ul.appendChild(idx);
+        }
+        // 서버 결과가 아직 없을 때(첫 30일) — 예시 바구니 대신 안내
+        function renderBasketEmpty(text) {
+            document.querySelector('.sim-btn-group').style.display = 'none';
+            document.getElementById('simDate').textContent = '';
+            document.getElementById('simResultLabel').textContent = text;
+            const rate = document.getElementById('simResultRate');
+            rate.textContent = ''; rate.className = 'sim-result-rate';
+            document.getElementById('simMessage').textContent = '';
+            document.getElementById('basketList').innerHTML = '';
+        }
+
+        // 서버 API 값으로 바꾸기 (수익률은 소수로 옴: 0.05 = +5%)
+        async function loadYangbongWeekly() {
+            if (!OOS.online) return;                          // 시안 모드(파일·다른 서버) — 예시 값 그대로, 없는 API 를 부르지 않는다
+            let d;
+            try { d = await OOS.api('/yangbong/weekly'); }
+            catch (e) {
+                renderWeeklyPicks('추천 종목을 불러오지 못했어요');
+                BASKET_STATS = null; renderBasketStats(); renderBasketEmpty('결과를 불러오지 못했어요');
+                return;
+            }
+            const pct = v => v == null ? 0 : v * 100;
+            const dot = s => String(s || '').replaceAll('-', '.');
+            if (d && d.picks && d.picks.length) {
+                WEEKLY_PICKS = d.picks.map(p => p.name);
+                PICKS_AS_OF = d.as_of;
+                renderWeeklyPicks();
+            } else renderWeeklyPicks('이번 주 추천을 준비하고 있어요');
+            if (d && d.stats && d.stats.weeks) {
+                BASKET_STATS = {
+                    weeks: d.stats.weeks, wins: d.stats.wins, avg: pct(d.stats.avg_return),
+                    total: Math.round(d.stats.total_won / 10000),
+                    caption: '승률·수익: ' + dot(d.stats.since) + '부터 매주 바구니 ' + d.stats.weeks + '개 (2022~2026 과거 시뮬레이션 포함)'
+                };
+            } else BASKET_STATS = null;
+            renderBasketStats();
+            const lb = d && d.last_basket;
+            const stocks = lb ? (lb.stocks || []).filter(s => s.return != null).map(s => [s.name, pct(s.return)]) : [];
+            if (stocks.length) {
+                renderBasket({ buy: dot(lb.buy_date), sell: dot(lb.sell_date).slice(5), kospi: lb.kospi_return == null ? null : pct(lb.kospi_return), stocks });
+                document.querySelector('.sim-btn-group').style.display = 'none';   // 실제 결과가 있으면 예시 버튼 숨김
+            } else renderBasketEmpty('한 달이 지나면 결과를 보여 드릴게요');
+        }
+
+        if (OOS.online) {                                     // 서버 값이 오기 전 — 예시 값을 실제처럼 보이지 않게
+            renderWeeklyPicks('불러오는 중…');
+            BASKET_STATS = null; renderBasketStats(); renderBasketEmpty('불러오는 중…');
+        } else {
+            renderWeeklyPicks();
+            renderBasketStats();
+            toggleSimResult(true);
+        }
+
+        // 실시간 종목 순위(/market/stocks?sort=value|rise|fall)
+        let rankSeq = 0;
+        async function fillRanking() {
+            if (!OOS.online) return;
+            const seq = ++rankSeq, sort = rankSort;
+            let d;
+            try { d = await OOS.api(`/market/stocks?sort=${sort}&limit=5`); }
+            catch (e) { if (seq === rankSeq) document.getElementById('rankBody').innerHTML = '<tr><td colspan="3">순위를 불러오지 못했어요</td></tr>'; return; }
+            if (seq !== rankSeq) return;                          // 탭을 빨리 바꾸면 늦게 온 이전 탭 응답은 버림
+            const items = (d && d.items) || [];
+            document.getElementById('rankBody').innerHTML = items.length ? items.map((r) => {
+                const cr = Number(r.change_rate) || 0;
+                return `<tr><td>${esc(r.name)}</td><td>${OOS.won(r.price)}</td><td class="${signCls(cr)}">${pctText(cr)}</td></tr>`;
+            }).join('') : '<tr><td colspan="3">순위 데이터가 아직 없어요</td></tr>';
+        }
+
+        // 양봉이의 1분 용어 학습(/learn/today) — 날짜(한국)마다 한 개, 누르면 그 용어로 바로
+        async function fillWordCard() {
+            if (!OOS.online) return;
+            let t;
+            try { t = await OOS.api('/learn/today'); } catch (e) { return; }
+            if (!t || !t.term) return;
+            const en = String(t.en || '').replace(/\s*\(.*\)\s*$/, '');
+            document.querySelector('#wordCard .word-desc').textContent = `"${t.term}${en ? `(${en})` : ''}란?"`;
+            document.getElementById('wordCard').href = 'learn.html?term=' + encodeURIComponent(t.term);
+        }
+
+        // ===== 투자 성향 분석 설문 =====
+        // OUTOFSTOCK_투자성향설문.docx 기준: 5개 영역 × 4문항 = 20문항 은행에서
+        // 영역별 2문항씩 무작위 추출 → 총 10문항, 보기는 0~3점, 총점 0~30점
+        const SURVEY_DOMAINS = [
+            { id: 'A', name: '투자 목적과 기대 수익' },
+            { id: 'B', name: '손실 감내도' },
+            { id: 'C', name: '투자 자금 성격과 투자 기간' },
+            { id: 'D', name: '투자 경험과 지식' },
+            { id: 'E', name: '종목 선택' }
+        ];
+
+        // 보기는 항상 문서 순서 그대로 0·1·2·3점 (안정 지향 → 공격 지향)
+        const SURVEY_BANK = [
+            { domain: 'A', q: '투자를 하는 가장 큰 이유는 무엇인가요?', options: [
+                '넣은 돈을 지키면서 은행 이자보다 조금이라도 더 벌고 싶어요',
+                '물가가 오르는 만큼은 내 돈도 따라가면 좋겠어요',
+                '은행 이자의 몇 배는 벌고 싶어요',
+                '크게 오르내려도 괜찮으니 높은 수익을 노리고 싶어요'
+            ]},
+            { domain: 'A', q: '100만 원을 넣었을 때, 1년 뒤에 얼마쯤 벌고 싶나요?', options: [
+                '은행 이자만큼(3만 원 정도)이면 충분해요',
+                '5만~10만 원 정도',
+                '10만~20만 원 정도',
+                '20만 원 이상, 두 배가 되는 것도 기대해요'
+            ]},
+            { domain: 'A', q: '100만 원을 넣었을 때, 가장 마음에 드는 결과는?', options: [
+                '매년 3만 원씩 꾸준히 벌고, 손해는 거의 없음',
+                '보통 5만~8만 원 벌고, 가끔 조금 손해',
+                '잘되면 20만 원 벌고, 안되면 10만 원 손해',
+                '잘되면 50만 원 벌고, 안되면 30만 원 손해'
+            ]},
+            { domain: 'A', q: '다음 중 내 생각과 가장 가까운 문장은?', options: [
+                '잃지 않는 것이 버는 것이다',
+                '천천히, 꾸준히 가는 게 최고다',
+                '위험 없이는 수익도 없다',
+                '크게 벌려면 크게 걸어야 한다'
+            ]},
+            { domain: 'B', q: '100만 원을 넣었다면, 얼마까지 줄어도 견딜 수 있나요?', options: [
+                '조금이라도 줄면 안 돼요',
+                '90만 원까지는 괜찮아요',
+                '70만 원까지는 견딜 수 있어요',
+                '50만 원 아래로 내려가도 기다릴 수 있어요'
+            ]},
+            { domain: 'B', q: '100만 원을 넣었는데 한 달 만에 80만 원이 됐어요. 어떻게 하시겠어요?', options: [
+                '더 잃기 전에 전부 팔아요',
+                '일부를 팔아서 손해를 줄여요',
+                '그대로 두고 다시 오르길 기다려요',
+                '싸졌으니 오히려 더 사요'
+            ]},
+            { domain: 'B', q: '손해가 났을 때 나의 마음 상태는?', options: [
+                '잠이 안 올 만큼 스트레스를 받아요',
+                '신경은 쓰이지만 일상에 지장은 없어요',
+                '투자하면 있을 수 있는 일이라 담담해요',
+                '오히려 다음 투자 기회로 느껴져요'
+            ]},
+            { domain: 'B', q: '둘 중 하나를 고를 수 있다면 무엇을 고르겠어요?', options: [
+                '확실하게 10만 원 받기',
+                '70% 확률로 20만 원, 30% 확률로 0원',
+                '50% 확률로 40만 원, 50% 확률로 0원',
+                '20% 확률로 80만 원, 80% 확률로 0원'
+            ]},
+            { domain: 'C', q: '투자한 돈을 언제쯤 쓸 계획인가요?', options: [
+                '3개월 안에 써야 해요',
+                '6개월~1년 뒤에 쓸 것 같아요',
+                '1~2년 뒤에 쓸 것 같아요',
+                '2년 이상 쓸 계획이 없어요'
+            ]},
+            { domain: 'C', q: '투자에 쓰는 돈은 어떤 돈인가요?', options: [
+                '없어지면 생활이 어려워지는 돈이에요',
+                '급할 때 쓸 돈(비상금)은 따로 두고, 남은 돈의 일부예요',
+                '당장 쓸 데 없는 돈의 대부분이에요',
+                '없어도 생활에 전혀 지장 없는 돈이에요'
+            ]},
+            { domain: 'C', q: '매달 들어오는 돈(용돈·알바비·월급) 중 투자에 넣을 수 있는 비율은?', options: [
+                '거의 없어요',
+                '10% 이하',
+                '10~30%',
+                '30% 이상'
+            ]},
+            { domain: 'C', q: '앞으로 매달 들어오는 돈은 어떻게 될 것 같나요?', options: [
+                '줄어들거나 불안정할 것 같아요',
+                '지금과 비슷할 것 같아요',
+                '조금씩 늘어날 것 같아요',
+                '크게 늘어날 것 같아요'
+            ]},
+            { domain: 'D', q: '지금까지 해 본 것 중 가장 위험한 투자는?', options: [
+                '예금·적금뿐이에요',
+                '여러 회사를 묶은 상품(펀드·ETF)이나 채권',
+                '주식을 직접 사고팔기',
+                '해외 주식, 코인, 선물·옵션 같은 고위험 상품'
+            ]},
+            { domain: 'D', q: '투자 경험은 얼마나 되나요?', options: [
+                '아직 없어요',
+                '3개월 미만',
+                '3개월 ~ 1년',
+                '1년 이상'
+            ]},
+            { domain: 'D', q: '"PER", "배당수익률" 같은 주식 용어를 보면?', options: [
+                '처음 들어봐요',
+                '들어는 봤지만 설명은 못 해요',
+                '대략 무슨 뜻인지 알아요',
+                '직접 계산해서 회사끼리 비교해 봐요'
+            ]},
+            { domain: 'D', q: '주식 시세나 경제 뉴스를 얼마나 자주 보나요?', options: [
+                '거의 안 봐요',
+                '큰 뉴스가 있을 때만 봐요',
+                '일주일에 몇 번은 챙겨봐요',
+                '매일 확인해요'
+            ]},
+            { domain: 'E', q: '방학 동안 알바해서 200만 원을 모았어요. 등록금은 장학금으로 해결됐고, 당장 쓸 데는 없어요. 이 돈을 어디에 넣으시겠어요?', options: [
+                '예금·적금에 넣어요',
+                '반은 예금에, 반은 큰 회사 여러 개를 묶은 상품(ETF)에 넣어요',
+                '대부분 회사 주식에 넣어요, 이름을 아는 큰 회사 위주로',
+                '전부 크게 오를 것 같은 회사 주식에 넣어요'
+            ]},
+            { domain: 'E', q: '두 회사 중 하나만 살 수 있어요. A회사는 매년 번 돈의 일부를 주주에게 나눠 주고(배당) 주식 값은 거의 안 움직여요. B회사는 나눠 주는 돈은 없지만 매출이 매년 빠르게 늘고, 주식 값도 크게 오르내려요. 어느 쪽을 고르시겠어요?', options: [
+                'A회사, 배당을 이자처럼 받는 게 좋아요',
+                'A회사를 더 많이, B회사는 조금만',
+                'B회사를 더 많이, A회사는 조금만',
+                'B회사, 크게 오를 가능성이 중요해요'
+            ]},
+            { domain: 'E', q: "요즘 '우주항공' 관련 주식이 며칠째 크게 오르고 있어요. 그런데 관련 회사 중에는 아직 매출이 거의 없는 작은 회사도 많아요. 주식을 산다면 무엇을 고르시겠어요?", options: [
+                '유행하는 주식은 안 사요',
+                '관련 회사를 묶은 ETF로 조금만 사요',
+                '그중 실제로 돈을 버는 큰 회사를 사요',
+                '크게 오를 수 있는 작은 회사를 사요'
+            ]},
+            { domain: 'E', q: '300만 원으로 주식을 처음 시작해요. 사고 싶은 회사를 적어 보니 10개나 돼요. 어떻게 투자하시겠어요?', options: [
+                '여러 회사를 묶은 상품(ETF) 하나로 한 번에 나눠 담아요',
+                '5~10개 회사에 골고루 나눠요',
+                '그중 확신 있는 2~3개에 집중해요',
+                '가장 좋아 보이는 한 회사에 전부 넣어요'
+            ]}
+        ];
+        // [백엔드 연동] 문항 번호(Q1~Q20) — 서버 문항 은행과 같은 순서·같은 문구(tests/test_web_front.py 가 확인).
+        // 채점은 서버가 한다(/survey/submit): 화면은 '어느 문항에 몇 번 보기'만 보내고, 점수·성향은 서버 결과를 쓴다.
+        SURVEY_BANK.forEach((item, i) => { item.id = 'Q' + (i + 1); });
+
+        // 등급 구분(0~10 안정형 / 11~20 중립형 / 21~30 공격형)과 추천 상품은
+        // OUTOFSTOCK_투자성향설문.docx · OUTOFSTOCK_추천상품_선정.docx 기준 그대로 반영
+        const RISK_PROFILES = {
+            stable: {
+                name: '안정형', img: 'assets/risk-stable.png',
+                desc: '원금 변동을 줄이는 쪽이에요. 저위험 자산 위주로 천천히 배워가요.',
+                products: [
+                    { name: 'PLUS KOFR금리', risk: '저위험', desc: '나라 채권을 담보로 하루짜리 이자를 받는 상품이에요. 거의 움직이지 않아요.' },
+                    { name: 'KODEX TRF3070', risk: '저위험', desc: '세계 주식 30%와 채권 70%를 섞었어요. 주식이 들어 있어도 채권이 많으면 덜 흔들려요.' },
+                    { name: 'PLUS 금채권혼합', risk: '중위험', desc: '금과 나라 채권을 반씩 담아요. 주식이 아닌 자산도 오르내린다는 걸 배워요.' }
+                ]
+            },
+            neutral: {
+                name: '중립형', img: 'assets/risk-neutral.png',
+                desc: '수익과 안정 사이에서 균형을 잡는 쪽이에요. 중위험 자산을 중심으로 조금씩 경험을 넓혀가요.',
+                products: [
+                    { name: 'KODEX 200미국채혼합50', risk: '중위험', desc: '우리나라 대표 200개 회사 주식과 미국 국채를 섞어 담아요.' },
+                    { name: 'PLUS 은채권혼합', risk: '중위험', desc: '은과 나라 채권을 반씩 담아요.' },
+                    { name: 'KODEX 종합채권(AA-이상)액티브', risk: '저위험', desc: '나라와 튼튼한 회사의 채권을 골고루 담아요.' }
+                ]
+            },
+            aggressive: {
+                name: '공격형', img: 'assets/risk-aggressive.png',
+                desc: '변동을 감수하고 수익을 노리는 쪽이에요. 고위험 자산 비중을 높여 실전 감각을 키워요.',
+                products: [
+                    { name: 'KODEX 삼성전자채권혼합', risk: '중위험', desc: '삼성전자와 나라 채권을 섞었어요. 같은 회사라도 채권과 섞으면 덜 흔들려요.' },
+                    { name: 'TIGER 미국테크TOP10 INDXX', risk: '고위험', desc: '애플·엔비디아 같은 미국 기술 회사 10곳에 집중해요. 환율에 따라서도 움직여요.' },
+                    { name: 'SK하이닉스', risk: '고위험', desc: '반도체 회사 한 곳의 주식이에요. 오르내림이 커요.' }
+                ]
+            }
+        };
+        const RISK_BADGE_CLASS = { '저위험': 'risk-low', '중위험': 'risk-mid', '고위험': 'risk-high' };
+
+        // 총점 0~30점: 0~10 안정형 / 11~20 중립형 / 21~30 공격형
+        function classifyRiskScore(score) {
+            if (score <= 10) return 'stable';
+            if (score <= 20) return 'neutral';
+            return 'aggressive';
+        }
+
+        // 영역(A~E)별로 4문항 중 2문항을 무작위로 뽑아 총 10문항 구성
+        function pickSurveyQuestions() {
+            const picked = [];
+            SURVEY_DOMAINS.forEach(domain => {
+                const pool = SURVEY_BANK.filter(item => item.domain === domain.id);
+                for (let i = pool.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pool[i], pool[j]] = [pool[j], pool[i]];
+                }
+                picked.push(...pool.slice(0, 2));
+            });
+            return picked;
+        }
+
+        let surveyActiveQuestions = [];
+        let surveyIndex = 0;
+        let surveyAnswers = [];
+        const surveyOverlay = document.getElementById('surveyOverlay');
+
+        function openSurvey(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            surveyActiveQuestions = pickSurveyQuestions();
+            surveyIndex = 0;
+            surveyAnswers = new Array(surveyActiveQuestions.length).fill(null);
+            document.getElementById('surveyResultView').hidden = true;
+            document.getElementById('surveyQuestionView').hidden = false;
+            renderSurveyQuestion();
+            surveyOverlay.hidden = false;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSurvey() {
+            surveyOverlay.hidden = true;
+            document.body.style.overflow = '';
+        }
+
+        // ===== 회원가입 모달 — [백엔드 연동] /auth/register 로 계정을 만들고 바로 로그인(쿠키 세션) =====
+        const signupOverlay = document.getElementById('signupOverlay');
+        const EYE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        const EYE_OFF_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+
+        function openSignup(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            closeSurvey();
+            document.getElementById('signupForm').reset();
+            document.getElementById('suIdHint').textContent = '영문·숫자로 4자 이상 입력해주세요.';
+            document.getElementById('suIdHint').className = 'auth-hint';
+            document.getElementById('suPwHint').textContent = '영문, 숫자를 포함해 8자 이상 입력해주세요.';
+            document.getElementById('suPwHint').className = 'auth-hint';
+            document.getElementById('suPw2Hint').textContent = '';
+            document.getElementById('suPw2Hint').className = 'auth-hint';
+            document.getElementById('signupNotice').classList.remove('show');
+            signupOverlay.hidden = false;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSignup() {
+            signupOverlay.hidden = true;
+            document.body.style.overflow = '';
+        }
+
+        function toggleAuthPw(id, btn) {
+            const input = document.getElementById(id);
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.innerHTML = show ? EYE_OFF_ICON : EYE_ICON;
+        }
+
+        function submitSignup() {
+            const id = document.getElementById('suId').value.trim();
+            const pw = document.getElementById('suPw').value;
+            const pw2 = document.getElementById('suPw2').value;
+            const idOk = id.length >= 4;
+            const pwOk = pw.length >= 8 && /[A-Za-z]/.test(pw) && /[0-9]/.test(pw);
+            const matchOk = !!pw2 && pw === pw2;
+
+            const idHint = document.getElementById('suIdHint');
+            idHint.textContent = id ? (idOk ? '사용할 수 있는 아이디예요.' : '아이디는 4자 이상 입력해주세요.') : '영문·숫자로 4자 이상 입력해주세요.';
+            idHint.className = 'auth-hint' + (id ? (idOk ? ' ok' : ' err') : '');
+
+            const pwHint = document.getElementById('suPwHint');
+            pwHint.textContent = pw ? (pwOk ? '사용할 수 있는 비밀번호예요.' : '영문, 숫자를 포함해 8자 이상 입력해주세요.') : '영문, 숫자를 포함해 8자 이상 입력해주세요.';
+            pwHint.className = 'auth-hint' + (pw ? (pwOk ? ' ok' : ' err') : '');
+
+            const pw2Hint = document.getElementById('suPw2Hint');
+            pw2Hint.textContent = pw2 ? (matchOk ? '비밀번호가 일치해요.' : '비밀번호가 서로 달라요.') : '';
+            pw2Hint.className = 'auth-hint' + (pw2 ? (matchOk ? ' ok' : ' err') : '');
+
+            const notice = document.getElementById('signupNotice');
+            const say = (text) => { notice.classList.add('show'); notice.querySelector('span').textContent = text; };
+            if (!(idOk && pwOk && matchOk)) { say('입력값을 다시 확인해주세요.'); return; }
+            if (!OOS.online) { say('서버에 연결된 화면에서만 가입할 수 있어요.'); return; }
+            // 아이디 사용 가능 여부는 서버만 안다(가입을 시도해야 확인 — 아이디 존재 여부를 따로 묻는 창구를 두지 않는다)
+            idHint.textContent = '영문·숫자로 4자 이상 입력해주세요.'; idHint.className = 'auth-hint';
+            pwHint.textContent = '영문, 숫자를 포함해 8자 이상 입력해주세요.'; pwHint.className = 'auth-hint';
+            say('가입하는 중이에요…');
+            OOS.once('signup', async () => {
+                try {
+                    const r = await OOS.register(id, pw);
+                    if (!r) { say('2단계 인증을 마치지 않았어요. 로그인 카드에서 다시 로그인해 주세요.'); return; }
+                    closeSignup();
+                    OOS.notice('가입을 환영해요! 가입 환영 가상머니가 지갑에 들어왔어요');
+                } catch (e) {
+                    const msg = e.message || '가입하지 못했어요';
+                    if (/아이디/.test(msg)) { idHint.textContent = msg; idHint.className = 'auth-hint err'; }
+                    else if (/비밀번호/.test(msg)) { pwHint.textContent = msg; pwHint.className = 'auth-hint err'; }
+                    say(msg);
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            if (!surveyOverlay.hidden) closeSurvey();
+            if (!signupOverlay.hidden) closeSignup();
+        });
+
+        function renderSurveyQuestion() {
+            const total = surveyActiveQuestions.length;
+            const q = surveyActiveQuestions[surveyIndex];
+            const domainName = SURVEY_DOMAINS.find(d => d.id === q.domain).name;
+            const isLast = surveyIndex === total - 1;
+            const answered = surveyAnswers[surveyIndex] !== null;
+            document.getElementById('surveyQuestionView').innerHTML = `
+                <div class="survey-progress-label">${surveyIndex + 1} / ${total}</div>
+                <div class="survey-progress-track"><div class="survey-progress-fill" style="width:${((surveyIndex + 1) / total) * 100}%"></div></div>
+                <div class="survey-domain-tag">영역 ${q.domain} · ${domainName}</div>
+                <div class="survey-question">${esc(q.q)}</div>
+                <div class="survey-options">
+                    ${q.options.map((opt, i) => `<button type="button" class="survey-option${surveyAnswers[surveyIndex] === i ? ' selected' : ''}" data-on="selectSurveyOption(${i})">${esc(opt)}</button>`).join('')}
+                </div>
+                <div class="survey-nav-row">
+                    <button type="button" class="survey-btn" data-on="prevSurveyQuestion()" ${surveyIndex === 0 ? 'style="visibility:hidden"' : ''}>이전</button>
+                    <button type="button" class="survey-btn primary" ${answered ? '' : 'disabled'} data-on="nextSurveyQuestion()">${isLast ? '결과 보기' : '다음'}</button>
+                </div>
+            `;
+        }
+
+        function selectSurveyOption(i) {
+            surveyAnswers[surveyIndex] = i;
+            renderSurveyQuestion();
+        }
+
+        function prevSurveyQuestion() {
+            if (surveyIndex === 0) return;
+            surveyIndex--;
+            renderSurveyQuestion();
+        }
+
+        function nextSurveyQuestion() {
+            if (surveyAnswers[surveyIndex] === null) return;
+            if (surveyIndex < surveyActiveQuestions.length - 1) {
+                surveyIndex++;
+                renderSurveyQuestion();
+            } else {
+                finishSurvey();
+            }
+        }
+
+        // 설문 결과 — [백엔드 연동] 채점은 서버(/survey/submit). 로그인 상태면 서버가 성향 이력에 저장하고 브라우저에는
+        // 남기지 않는다(공용 PC). 로그인 전에는 결과를 이 브라우저에만 둔다(로그아웃하면 지움).
+        // 서버에 닿지 않으면(파일로 연 화면 등) 화면에서 같은 기준으로 채점한 결과를 보여 준다.
+        let myProfile = null;                       // 로그인 사용자의 최신 성향 { type: 'stable'|'neutral'|'aggressive', score } — 서버 값
+        let myAvatar = null;                        // [백엔드 연동] 꾸민 양봉이 { equipped, worth, class } — /avatar/me
+        const TYPE_KEY = { '안정형': 'stable', '중립형': 'neutral', '공격형': 'aggressive' };
+
+        function finishSurvey() {
+            OOS.once('survey', async () => {
+                // 보기 순서(index)가 곧 0~3점이므로 선택한 인덱스를 그대로 합산(서버에 닿지 않을 때만 쓰는 값)
+                let score = surveyAnswers.reduce((sum, ansIdx) => sum + ansIdx, 0);
+                let type = classifyRiskScore(score), products = null;
+                try {
+                    const res = await OOS.api('/survey/submit', { method: 'POST',
+                        body: { answers: surveyActiveQuestions.map((q, i) => ({ id: q.id, answer: surveyAnswers[i] })) } });
+                    if (res && RISK_PROFILES[res.key]) { type = res.key; score = res.score; products = res.products; }
+                } catch (e) { /* 서버에 닿지 않으면 화면에서 채점한 결과 */ }
+                if (OOS.loggedIn()) myProfile = { type, score };
+                else OOS.writeJSON('outofstock_risk_profile', { type, score, date: new Date().toISOString() });
+                renderSurveyResult(type, products);
+                updateProfileGuideCard();
+                renderLoginAvatar();
+                document.getElementById('surveyQuestionView').hidden = true;
+                document.getElementById('surveyResultView').hidden = false;
+            });
+        }
+
+        function renderSurveyResult(type, products) {
+            const p = RISK_PROFILES[type];
+            const list = products && products.length ? products : p.products;   // 서버가 준 추천 상품(같은 문서 기준) 우선
+            document.getElementById('surveyResultView').innerHTML = `
+                <div class="survey-result">
+                    <img class="survey-result-img" src="${p.img}" alt="${p.name} 양봉이">
+                    <div class="survey-result-type ${type}">${p.name}</div>
+                    <div class="survey-result-desc">${p.desc}</div>
+                    <div class="survey-result-subtitle">${p.name}에게 추천하는 상품</div>
+                    <div class="survey-result-products">
+                        ${list.map(pr => `
+                            <div class="reco-product">
+                                <div class="reco-product-head">
+                                    <span class="reco-product-name">${esc(pr.name)}</span>
+                                    <span class="badge ${RISK_BADGE_CLASS[pr.risk] || ''}">${esc(pr.risk)}</span>
+                                </div>
+                                <div class="reco-product-desc">${esc(pr.desc)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="survey-nav-row">
+                        <button type="button" class="survey-btn" data-on="openSurvey()">다시 하기</button>
+                        <button type="button" class="survey-btn primary" data-on="closeSurvey()">닫기</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 지금 보여 줄 성향 — 로그인했으면 서버 값, 아니면 이 브라우저의 설문 결과
+        function currentProfile() {
+            if (OOS.loggedIn()) return myProfile;
+            const saved = OOS.readJSON('outofstock_risk_profile');
+            return saved && RISK_PROFILES[saved.type] ? saved : null;
+        }
+
+        // 홈 화면 우측 "투자 성향" 카드: 진단 결과가 있으면 성향을 보여주고, 없으면 설문 유도 문구를 보여줌
+        function updateProfileGuideCard() {
+            const el = document.getElementById('profileGuideCard');
+            const saved = currentProfile();
+            if (saved && RISK_PROFILES[saved.type]) {
+                const p = RISK_PROFILES[saved.type];
+                el.innerHTML = `
+                    <span class="guide-badge">투자 성향</span>
+                    <div style="font-size: 11.5px; color: var(--text-primary);">
+                        회원님은 <strong style="color: var(--accent-blue);">[${p.name}]</strong> 성향이에요. 다시 진단하기 →
+                    </div>
+                `;
+            } else {
+                el.innerHTML = `
+                    <span class="guide-badge">투자 성향</span>
+                    <div style="font-size: 11.5px; color: var(--text-primary);">
+                        설문 완료 후 <strong>맞춤 실습</strong> 받기!
+                    </div>
+                `;
+            }
+        }
+
+        updateProfileGuideCard();
+
+        // 다른 페이지(실습하기 등)의 사이드바에서 '투자 성향 분석'을 눌러 넘어온 경우 설문을 바로 연다
+        if (location.hash === '#survey') openSurvey();
+
+        // ===== 첫 접속 투자 유의 안내 =====
+        // '확인했습니다' → 이번 방문(탭을 닫기 전)까지 안 뜸 / '30일 동안 안 보기' → 30일 뒤까지 안 뜸
+        const NOTICE_HIDE_UNTIL = 'outofstock_notice_hide_until';
+        const NOTICE_SEEN = 'outofstock_notice_seen';
+        function shouldShowNotice() {
+            try {
+                if (sessionStorage.getItem(NOTICE_SEEN)) return false;
+                const until = parseInt(localStorage.getItem(NOTICE_HIDE_UNTIL), 10);
+                return !(Number.isFinite(until) && Date.now() < until);
+            } catch (e) { return true; }
+        }
+        function closeNotice(hide30) {
+            try {
+                sessionStorage.setItem(NOTICE_SEEN, '1');
+                if (hide30) localStorage.setItem(NOTICE_HIDE_UNTIL, String(Date.now() + 30 * 24 * 60 * 60 * 1000));
+            } catch (e) { /* 저장 실패해도 닫기는 됨 */ }
+            document.getElementById('noticeOverlay').hidden = true;
+        }
+        if (shouldShowNotice()) {
+            document.getElementById('noticeOverlay').hidden = false;
+            document.getElementById('noticeConfirm').focus();
+        }
+
+        // 주요 뉴스: 뉴스 데이터(assets/news-api.js — 서버 /api/news/home)의 최신 기사로 채운다. 불러오지 못하면 위의 기본 문구를 그대로 둔다.
+        // 기사 원문은 새 탭으로(http/https 주소만 — 그 밖은 뉴스 화면으로)
+        (async function renderHomeNews() {
+            try {
+                const { latest } = await loadNewsHome();
+                const top = (latest || []).slice(0, 5);
+                if (!top.length) return;
+                document.getElementById('homeNews').innerHTML = top.map((n) => {
+                    const url = OOS.safeUrl(n.url, '');
+                    const href = url ? `href="${esc(url)}" target="_blank" rel="noopener noreferrer"` : 'href="news.html"';
+                    return `<li class="news-item"><a ${href} title="${esc(n.title)}">${esc(n.title)}</a><div class="news-meta">${esc(n.source)} · ${timeAgo(n.publishedAt)}</div></li>`;
+                }).join('');
+            } catch (e) {     // 서버 화면에서 실패하면 시안의 예시 기사를 진짜처럼 남기지 않는다(파일로 연 화면은 예시 그대로)
+                if (OOS.online) document.getElementById('homeNews').innerHTML = '<li class="news-item"><a href="news.html">뉴스를 불러오지 못했어요 — 뉴스 화면에서 다시 시도해 주세요</a></li>';
+            }
+        })();
+
+        // ===== 홈 로그인 카드 — [백엔드 연동] 로그인(HttpOnly 쿠키 세션) · 지갑 · 출석 · 친구 요청·안 읽은 메시지 =====
+        const formView = document.getElementById('loginFormView');
+        const doneView = document.getElementById('loginDoneView');
+        const setText = (id, v) => { const n = document.getElementById(id); if (n) n.textContent = v; };
+
+        function renderLoginAvatar() {
+            const saved = currentProfile(), imgEl = document.getElementById('loginDoneImg');
+            const eq = OOS.loggedIn() && myAvatar && myAvatar.equipped;
+            if (eq && Object.keys(eq).length && window.AVATAR) {   // 양봉이 꾸미기에서 옷을 입혔으면 그 모습(수저 등급 배경)
+                const c = AVATAR.classOf(AVATAR.worth(eq));
+                imgEl.src = AVATAR.dataUrl(eq, { label: '꾸민 양봉이' }); imgEl.alt = `꾸민 양봉이(${c.name})`;
+                imgEl.className = 'login-done-avatar av k-' + c.level;
+            } else if (saved && RISK_PROFILES[saved.type]) {
+                const p = RISK_PROFILES[saved.type];
+                imgEl.src = p.img; imgEl.alt = p.name + ' 양봉이'; imgEl.className = 'login-done-avatar ' + saved.type;
+            } else {                                     // 아직 설문 전 — 성향 그림 대신 로고
+                imgEl.src = 'assets/logo-mark.png'; imgEl.alt = ''; imgEl.className = 'login-done-avatar';
+            }
+        }
+        function renderAttendance(at) {
+            const btnAtt = document.getElementById('btnAttendance');
+            setText('loginDoneStreak', at.streak || 0);
+            if (at.checked_in_today) { btnAtt.disabled = true; btnAtt.innerHTML = '오늘 출석 완료 ✓'; }
+            else { btnAtt.disabled = false; btnAtt.innerHTML = `출석 체크 <span class="login-done-reward">+${OOS.won(at.daily_reward)}원</span>`; }
+        }
+        function renderBadges(b) {
+            if (!b) return;
+            setText('loginDoneFriendReq', b.friend_requests || 0);
+            setText('loginDoneUnread', b.chat_unread || 0);
+        }
+
+        let cardSeq = 0;
+        async function showLoginCard() {
+            const seq = ++cardSeq;
+            if (!OOS.loggedIn()) {
+                myProfile = null; myAvatar = null; doneView.hidden = true; formView.hidden = false;
+                updateProfileGuideCard();
+                return;
+            }
+            setText('loginDoneId', OOS.user);
+            ['loginDoneStreak', 'loginDoneBalance', 'loginDoneFriendReq', 'loginDoneUnread'].forEach((id) => setText(id, '-'));
+            document.getElementById('btnAttendance').disabled = true;
+            formView.hidden = true; doneView.hidden = false;
+            renderLoginAvatar();
+            const [w, at, bd, sv, av] = await Promise.all([
+                OOS.api('/wallet').catch(() => null), OOS.api('/attendance').catch(() => null),
+                OOS.api('/me/badges').catch(() => null), OOS.api('/me/survey').catch(() => null),
+                OOS.api('/avatar/me').catch(() => null)]);
+            if (seq !== cardSeq || !OOS.loggedIn()) return;          // 그사이 로그아웃·계정 전환이면 버림
+            if (w) { setText('loginDoneBalance', OOS.won(w.balance)); OOS.setBalance(w.balance); }
+            if (at) renderAttendance(at);
+            renderBadges(bd);
+            const s = sv && sv.survey;
+            myProfile = s && TYPE_KEY[s.type] ? { type: TYPE_KEY[s.type], score: s.score } : null;
+            myAvatar = av;
+            renderLoginAvatar();
+            updateProfileGuideCard();
+        }
+
+        function doLogin(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const id = document.getElementById('loginId').value.trim(), pw = document.getElementById('loginPw').value;
+            if (!id || !pw) { alert('아이디와 비밀번호를 입력해 주세요.'); return; }
+            OOS.once('login', async () => {
+                try {
+                    const r = await OOS.login(id, pw, document.getElementById('loginKeep').checked);
+                    if (r) document.getElementById('loginPw').value = '';
+                } catch (err) { alert(err.message); }
+            });
+        }
+        function doAttendanceCheck() {
+            OOS.once('attendance', async () => {
+                try {
+                    const r = await OOS.api('/attendance/check-in', { method: 'POST' });
+                    renderAttendance(r);
+                    if (r.balance != null) { setText('loginDoneBalance', OOS.won(r.balance)); OOS.setBalance(r.balance); }
+                    if (r.reward_given) OOS.notice(`출석 체크 완료! +${OOS.won(r.reward_given)}원`);
+                } catch (err) { alert(err.message); }
+            });
+        }
+        function doLogout(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            OOS.once('logout', () => OOS.logout(false));
+        }
+        function findPassword(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            alert('비밀번호 찾기는 아직 지원하지 않아요.\n본인 확인 수단(이메일·휴대폰)을 받지 않는 서비스라, 잊어버린 비밀번호를 화면에서 다시 정할 수 없어요.');
+        }
+        function focusLogin() {
+            if (OOS.loggedIn()) return;
+            document.querySelector('.login-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => document.getElementById('loginId').focus({ preventScroll: true }), 300);
+        }
+
+        OOS.on('session', showLoginCard);
+        OOS.on('badges', renderBadges);
+        OOS.on('wallet', (b) => { if (!doneView.hidden) setText('loginDoneBalance', OOS.won(b)); });
+        OOS.on('login-request', focusLogin);
+
+        // 화면 동작(data-on) — 여기 등록한 함수만 부를 수 있다(assets/oos/runtime.js)
+        OOS.actions({ openSurvey, closeSurvey, selectSurveyOption, prevSurveyQuestion, nextSurveyQuestion,
+            openSignup, closeSignup, toggleAuthPw, submitSignup, toggleSimResult, switchTab, closeNotice,
+            doLogin, doLogout, doAttendanceCheck, findPassword });
+
+        // ===== 시작 =====
+        // 예전 화면 주소(/app#/learn …)로 들어온 경우 — 같은 내용의 새 화면으로
+        (function legacyHash() {
+            const h = location.hash;
+            const map = [[/^#\/learn/, 'learn.html'], [/^#\/practice/, 'practice.html'], [/^#\/news/, 'news.html'],
+                [/^#\/(my|friends|chat)/, 'mypage.html']];
+            for (const [re, to] of map) if (re.test(h)) { location.replace(to); return; }
+            if (/^#\/login/.test(h)) history.replaceState(null, '', '#login');
+        })();
+        showLoginCard();
+        if (location.hash === '#login') focusLogin();
+        fillIndices(); loadYangbongWeekly(); fillRanking(); fillWordCard();
+        // 지수·순위는 화면을 보고 있을 때만 1분마다(숨긴 탭은 쉰다)
+        setInterval(() => { if (!document.hidden) { fillIndices(); fillRanking(); } }, 60000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) { fillIndices(); fillRanking(); } });
+
+    </script>
+</body>
+</html>

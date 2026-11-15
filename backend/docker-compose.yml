@@ -1,0 +1,40 @@
+# OUTOFSTOCK — PostgreSQL 전용.
+#   docker compose up -d db          # DB만(로컬 venv+uvicorn 으로 앱 실행 시)
+#   docker compose --profile full up # 앱까지 컨테이너로 통째로
+#
+# db 기본값(oos/oos/outofstock)은 app/config.py 의 DATABASE_URL 기본값과 일치 →
+# 로컬에서 그냥 uvicorn 돌리면 별도 설정 없이 이 DB 에 붙는다. 테스트는 outofstock_test 사용.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: oos
+      POSTGRES_PASSWORD: oos
+      POSTGRES_DB: outofstock
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro   # outofstock_test 자동 생성
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-oos} -d $${POSTGRES_DB:-outofstock}"]   # .env 로 바꾼 계정도
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    profiles: ["full"]            # 기본 up 에는 안 뜸. `--profile full` 일 때만.
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://oos:oos@db:5432/outofstock
+    env_file:
+      - path: .env                # KRX_API_KEY / DART_API_KEY / KIS_* (없으면 무시)
+        required: false
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
+volumes:
+  pgdata:

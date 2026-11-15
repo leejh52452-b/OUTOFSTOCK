@@ -1,0 +1,6 @@
+# 백업 암호화 수신자(age 공개키) 예시 — 한 줄에 하나. 공개키만 넣는다(복호화 키는 서버에 두지 않는다).
+#   compose: 이 파일을 deploy/backup/recipients.txt 로 복사해 채운다(저장소·설치본에는 들어가지 않는다 — 업데이트가 덮어쓰지 않게)
+#   VM     : /etc/outofstock/backup.recipients 에 두고 .env 에 BACKUP_AGE_RECIPIENTS=그 경로 (docs/dr/README.md)
+#   age-keygen -o ops.key   → 출력의 'Public key: age1…' 을 아래에
+#   age-keygen -o vault.key → 금고 보관용(두 번째 키 — 한쪽을 잃어도 복구되게)
+# 이 파일에 공개키가 없으면 백업이 '수신자 없음'으로 실패한다(평문 백업을 조용히 만들지 않는다).

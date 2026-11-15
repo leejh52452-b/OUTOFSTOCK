@@ -1,0 +1,649 @@
+{
+  "version": "2026-11-09",
+  "method": "가능성(1~5) × 영향(1~5) — 고유(통제 전)·잔여(통제 후). 위협 시나리오는 docs/security/threat_model.md §3",
+  "likelihood": {
+    "1": "드묾 — 고급 공격자·여러 통제 동시 우회",
+    "2": "낮음 — 조건이 까다롭다",
+    "3": "보통 — 알려진 기법·도구 공개",
+    "4": "높음 — 자동화 공격이 흔하다",
+    "5": "매우 높음 — 상시 발생"
+  },
+  "impact": {
+    "1": "미미 — 불편",
+    "2": "낮음 — 일부 기능·개인 1명 경미",
+    "3": "보통 — 개인 피해·기능 중단",
+    "4": "큼 — 다수 이용자·돈·개인정보 유출",
+    "5": "심각 — 전체 서비스·원장 신뢰 붕괴·대량 유출"
+  },
+  "appetite": 9,
+  "appetite_rule": "잔여 위험 9(보통) 이하는 담당 판단으로 수용, 10 이상은 처리 계획(기한·담당) 또는 책임자 승인 수용이 있어야 한다",
+  "review_days": 180,
+  "owners": {
+    "security_admin": "보안 관리자",
+    "admin": "권한 관리자",
+    "auditor": "감사",
+    "dev": "개발 담당",
+    "ops": "운영 담당"
+  },
+  "risks": {
+    "T-01": {
+      "asset": "계정·인증정보",
+      "inherent": [
+        5,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02",
+      "plan": "봇넷 분산 대입 — 상위 WAF·CAPTCHA 로 이전(클라우드 배포 시)"
+    },
+    "T-02": {
+      "asset": "계정 목록",
+      "inherent": [
+        4,
+        2
+      ],
+      "residual": [
+        2,
+        1
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-03": {
+      "asset": "세션·토큰",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        1,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02"
+    },
+    "T-04": {
+      "asset": "세션·토큰",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-05": {
+      "asset": "지갑(돈)",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-06": {
+      "asset": "지갑(돈)·계정",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02",
+      "plan": "FDS 임계값을 운영 판정 기록(/admin/fds)으로 분기마다 재조정"
+    },
+    "T-07": {
+      "asset": "지갑·원장",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-08": {
+      "asset": "원장",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "auditor",
+      "reviewed": "2026-11-02"
+    },
+    "T-09": {
+      "asset": "개인 데이터(채팅·지갑)",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-10": {
+      "asset": "DB 전체",
+      "inherent": [
+        3,
+        5
+      ],
+      "residual": [
+        1,
+        5
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02",
+      "tests": [
+        "tests/test_platform.py::test_named_queries_only_accept_declared_params_and_run_read_only",
+        "tests/test_rls.py::test_buggy_authorization_code_still_cannot_leak_other_users_rows",
+        "tests/test_deploy_config.py::test_roles_sql_keeps_app_and_backup_accounts_minimal"
+      ]
+    },
+    "T-11": {
+      "asset": "알림 스트림",
+      "inherent": [
+        2,
+        3
+      ],
+      "residual": [
+        1,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-12": {
+      "asset": "내부망",
+      "inherent": [
+        2,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-13": {
+      "asset": "DB 전체(유출)",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02",
+      "tests": [
+        "tests/test_egress.py::test_unlisted_host_is_blocked_before_any_network_io",
+        "tests/test_deploy_config.py::test_squid_denies_internal_destinations_before_any_allow"
+      ]
+    },
+    "T-14": {
+      "asset": "공개 시세 데이터",
+      "inherent": [
+        3,
+        3
+      ],
+      "residual": [
+        2,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-15": {
+      "asset": "개인정보(관리자 열람)",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "auditor",
+      "reviewed": "2026-11-02"
+    },
+    "T-16": {
+      "asset": "관리 권한",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        2,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02",
+      "plan": "운영에서 ADMIN_REQUIRE_CLIENT_CERT=true(관리 기기 인증서) — 켜면 잔여 가능성 1",
+      "tests": [
+        "tests/test_zero_trust.py::test_admin_actions_need_management_device_certificate_when_required",
+        "tests/test_deploy_config.py::test_edge_overwrites_forwarding_headers_and_hides_docs"
+      ]
+    },
+    "T-17": {
+      "asset": "감사·보안 기록",
+      "inherent": [
+        2,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "auditor",
+      "reviewed": "2026-11-02"
+    },
+    "T-18": {
+      "asset": "백업",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-19": {
+      "asset": "백업(가용성)",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        2,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02",
+      "plan": "원격 사본을 불변 저장소(객체 잠금·WORM)로",
+      "tests": [
+        "tests/test_dr.py::test_encrypted_backup_detects_tampering_and_wrong_keys",
+        "tests/test_dr.py::test_full_restore_drill_passes_and_catches_an_empty_backup"
+      ]
+    },
+    "T-20": {
+      "asset": "소프트웨어 공급망",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        2,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02",
+      "plan": "베이스 이미지 다이제스트 고정·서명 검증(cosign)"
+    },
+    "T-21": {
+      "asset": "서버",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        5
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02",
+      "tests": [
+        "tests/test_deploy_config.py::test_vm_units_are_sandboxed_and_egress_locked",
+        "tests/test_deploy_config.py::test_compose_prod_least_privilege_and_segmentation"
+      ]
+    },
+    "T-22": {
+      "asset": "서버(SSH)",
+      "inherent": [
+        4,
+        5
+      ],
+      "residual": [
+        1,
+        5
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02",
+      "manual": "서버 설정 스크립트(vm.sh harden)라 단위 시험 대신 검증 보고서 S-3 실측"
+    },
+    "T-23": {
+      "asset": "서비스 가용성",
+      "inherent": [
+        4,
+        3
+      ],
+      "residual": [
+        3,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02",
+      "plan": "대역폭 공격은 상위망 DDoS 방어로 이전"
+    },
+    "T-24": {
+      "asset": "화면",
+      "inherent": [
+        3,
+        2
+      ],
+      "residual": [
+        1,
+        1
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-25": {
+      "asset": "비밀값",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-26": {
+      "asset": "거래 기록(부인 방지)",
+      "inherent": [
+        3,
+        3
+      ],
+      "residual": [
+        1,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "auditor",
+      "reviewed": "2026-11-02"
+    },
+    "T-27": {
+      "asset": "키(KEK)",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        5
+      ],
+      "treatment": "감소",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02",
+      "plan": "KEK 를 KMS/HSM 또는 비밀 관리자로(클라우드 배포 시)"
+    },
+    "T-28": {
+      "asset": "설정",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-29": {
+      "asset": "계정 가용성",
+      "inherent": [
+        3,
+        2
+      ],
+      "residual": [
+        3,
+        2
+      ],
+      "treatment": "수용",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02",
+      "accepted_by": "보안 관리자 — 규정상 실패 횟수 제한이 필수(위협 모델 §4)"
+    },
+    "T-30": {
+      "asset": "앱 경계",
+      "inherent": [
+        2,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "수용",
+      "owner": "ops",
+      "reviewed": "2026-11-02",
+      "accepted_by": "운영 담당 — VM 의 같은 서버 프로세스는 같은 신뢰 경계(위협 모델 §4)"
+    },
+    "T-31": {
+      "asset": "운영 DB",
+      "inherent": [
+        2,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-32": {
+      "asset": "돈이 오가는 기능",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "security_admin",
+      "reviewed": "2026-11-02"
+    },
+    "T-33": {
+      "asset": "개인정보(자유 입력)",
+      "inherent": [
+        4,
+        3
+      ],
+      "residual": [
+        2,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-34": {
+      "asset": "코드·화면 파일",
+      "inherent": [
+        2,
+        5
+      ],
+      "residual": [
+        1,
+        4
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-35": {
+      "asset": "관리 권한",
+      "inherent": [
+        2,
+        4
+      ],
+      "residual": [
+        1,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "admin",
+      "reviewed": "2026-11-02"
+    },
+    "T-36": {
+      "asset": "서비스 가용성·배포 코드",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-02"
+    },
+    "T-37": {
+      "asset": "사고 인지·보고",
+      "inherent": [
+        3,
+        4
+      ],
+      "residual": [
+        2,
+        3
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-38": {
+      "asset": "운영 경보·관제",
+      "inherent": [
+        3,
+        3
+      ],
+      "residual": [
+        2,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-02"
+    },
+    "T-39": {
+      "asset": "DB 저장 공간·성능",
+      "inherent": [
+        3,
+        3
+      ],
+      "residual": [
+        1,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-03"
+    },
+    "T-40": {
+      "asset": "수명주기 보관 파일",
+      "inherent": [
+        2,
+        3
+      ],
+      "residual": [
+        1,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "ops",
+      "reviewed": "2026-11-03"
+    },
+    "T-41": {
+      "asset": "모의투자 시즌(가상머니)",
+      "inherent": [
+        4,
+        3
+      ],
+      "residual": [
+        1,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-09"
+    },
+    "T-42": {
+      "asset": "양봉이 주간 추천(공개 정보 무결성)",
+      "inherent": [
+        3,
+        3
+      ],
+      "residual": [
+        2,
+        2
+      ],
+      "treatment": "감소",
+      "owner": "dev",
+      "reviewed": "2026-11-09"
+    }
+  }
+}

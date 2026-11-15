@@ -1,0 +1,60 @@
+# 수동 설치용 견본(전용 계정 outofstock · 코드 /opt/outofstock/stock-backend). 보통은 bash deploy/vm.sh install 이
+# 지금 계정·경로에 맞춰 같은 내용(+ 백업 타이머)을 만들어 준다 — 그쪽을 권장.
+[Unit]
+Description=OUTOFSTOCK API (FastAPI / uvicorn)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=outofstock
+Group=outofstock
+WorkingDirectory=/opt/outofstock/stock-backend
+EnvironmentFile=/opt/outofstock/stock-backend/.env
+Environment=TZ=Asia/Seoul PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+# nginx(deploy/nginx.conf) 뒤 — 루프백에만 묶어 nginx 를 건너뛴 직접 접속(관리 기기 인증 우회)을 막는다
+ExecStart=/opt/outofstock/stock-backend/.venv/bin/uvicorn app.api:app --host 127.0.0.1 --port 8000 --timeout-keep-alive 65 --no-server-header
+Restart=on-failure
+RestartSec=3
+LimitNOFILE=65536
+# ── 샌드박스(최소 권한) — bash deploy/vm.sh install 이 만드는 서비스와 같은 기준(systemd-analyze security 1.x OK)
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateIPC=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=-/opt/outofstock/stock-backend/var
+StateDirectory=outofstock
+StateDirectoryMode=0700
+CacheDirectory=outofstock
+CacheDirectoryMode=0700
+Environment=XDG_CACHE_HOME=%C/outofstock
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+SystemCallErrorNumber=EPERM
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+LimitCORE=0
+IPAccounting=yes
+# 나가는 연결을 허용 목록 프록시로만(같은 서버의 squid — python tools/egress.py --squid --vm --listen 127.0.0.1:3128):
+#Environment=HTTP_PROXY=http://127.0.0.1:3128 HTTPS_PROXY=http://127.0.0.1:3128 http_proxy=http://127.0.0.1:3128 https_proxy=http://127.0.0.1:3128 NO_PROXY=localhost,127.0.0.1,::1 no_proxy=localhost,127.0.0.1,::1
+#IPAddressDeny=any
+#IPAddressAllow=localhost
+
+[Install]
+WantedBy=multi-user.target

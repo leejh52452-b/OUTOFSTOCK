@@ -1,0 +1,109 @@
+{
+ "ok": true,
+ "file": "oos-20261020T084147Z.dump.age",
+ "snapshot_at": "2026-10-20T08:41:47+00:00",
+ "started_at": "2026-10-20T08:41:47+00:00",
+ "finished_at": "2026-10-20T08:41:50+00:00",
+ "rto_seconds": 2.69,
+ "rpo_hours": 0.0,
+ "target": {
+  "host": "127.0.0.1",
+  "port": "5432",
+  "database": "oos_drill_20261020084147",
+  "kept": false
+ },
+ "encrypted": true,
+ "dump_bytes": 816804,
+ "tables": 75,
+ "rows": 30784,
+ "steps": [
+  {
+   "step": "암호문 무결성(SHA-256)",
+   "seconds": 0.0,
+   "ok": true,
+   "note": "일치"
+  },
+  {
+   "step": "복원 대상 역할 확인",
+   "seconds": 0.09,
+   "ok": true,
+   "note": "역할 oos, oos_app, oos_ro, pg_database_owner, postgres 있음"
+  },
+  {
+   "step": "복원 DB 생성",
+   "seconds": 0.04,
+   "ok": true,
+   "note": "oos_drill_20261020084147"
+  },
+  {
+   "step": "복호화 + 복원(pg_restore, 단일 트랜잭션)",
+   "seconds": 0.5,
+   "ok": true,
+   "note": "덤프 0.8MB · SHA-256 일치"
+  },
+  {
+   "step": "검증 · 서비스 기동",
+   "seconds": 1.69,
+   "ok": true,
+   "note": "11/11 통과"
+  }
+ ],
+ "checks": [
+  {
+   "name": "표별 행 수 = manifest",
+   "ok": true,
+   "detail": "표 75개 · 30,784행 일치"
+  },
+  {
+   "name": "감사 로그 해시 체인",
+   "ok": true,
+   "detail": "262행 재계산 · 머리 일치"
+  },
+  {
+   "name": "감사 외부 증인 대조",
+   "ok": true,
+   "detail": "0건 · 불일치 0 (AUDIT_WITNESS_FILE 미설정)"
+  },
+  {
+   "name": "원장 마감 사슬 · 시산표",
+   "ok": true,
+   "detail": "마감 0일 재계산 · 깨진 날 없음 · 시산표 합 0 · 머리 일치"
+  },
+  {
+   "name": "데이터 계약(critical) — 복원으로 생긴 새 위반",
+   "ok": true,
+   "detail": "점수 92% · 백업 시점 위반 없음 · 새 위반 없음 (적시성은 시간 의존이라 제외)"
+  },
+  {
+   "name": "암호화 열 복호화(키 링)",
+   "ok": true,
+   "detail": "암호화된 값 없음"
+  },
+  {
+   "name": "보안 통제 복원(RLS·정책·트리거)",
+   "ok": true,
+   "detail": "FORCE RLS 표 15 · 정책 15 · 트리거 3"
+  },
+  {
+   "name": "스키마 버전",
+   "ok": true,
+   "detail": "V012"
+  },
+  {
+   "name": "앱 기동 시 스키마 변경",
+   "ok": true,
+   "detail": "0건(스키마 최신)"
+  },
+  {
+   "name": "공개 API(/health · /indices)",
+   "ok": true,
+   "detail": "/health 200 · /indices 200"
+  },
+  {
+   "name": "개인 흐름(가입 → 로그인 → 지갑)",
+   "ok": true,
+   "detail": "가입 200 · 로그인 200 · 지갑 200 · 잔액 1,000,000"
+  }
+ ],
+ "tool": "oos-backup/1"
+}

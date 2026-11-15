@@ -1,0 +1,200 @@
+{
+ "ok": true,
+ "at": "2026-11-02T08:10:35+00:00",
+ "started_at": "2026-11-02T08:10:31+00:00",
+ "scenarios": 5,
+ "passed": 5,
+ "results": [
+  {
+   "name": "ledger_tamper",
+   "title": "원장 변조",
+   "ok": true,
+   "detect_ms": 50.8,
+   "contain_ms": 51.6,
+   "recover_ms": 163.7,
+   "steps": [
+    {
+     "phase": "detect",
+     "step": "원장 변조 이벤트 기록·규칙 대응",
+     "ok": true,
+     "ms": 50.8,
+     "detail": "pause(transfer+charge+shop+invest),alert"
+    },
+    {
+     "phase": "contain",
+     "step": "돈 기능 4개 자동 중지",
+     "ok": true,
+     "ms": 51.6,
+     "detail": "transfer,charge,shop,invest"
+    },
+    {
+     "phase": "verify",
+     "step": "송금 요청이 503(service_paused)",
+     "ok": true,
+     "ms": 60.6,
+     "detail": "503"
+    },
+    {
+     "phase": "verify",
+     "step": "요청자 본인 승인 거부(2인 통제)",
+     "ok": true,
+     "ms": 119.2,
+     "detail": ""
+    },
+    {
+     "phase": "recover",
+     "step": "다른 관리자 승인 후 재개",
+     "ok": true,
+     "ms": 120.0,
+     "detail": ""
+    },
+    {
+     "phase": "recover",
+     "step": "송금 다시 처리",
+     "ok": true,
+     "ms": 163.7,
+     "detail": "200"
+    }
+   ]
+  },
+  {
+   "name": "fds_surge",
+   "title": "이상 송금 급증",
+   "ok": true,
+   "detect_ms": 48.2,
+   "contain_ms": 49.1,
+   "recover_ms": 63.2,
+   "steps": [
+    {
+     "phase": "detect",
+     "step": "FDS 차단 10건 → 규칙 대응",
+     "ok": true,
+     "ms": 48.2,
+     "detail": "10"
+    },
+    {
+     "phase": "contain",
+     "step": "송금만 자동 중지(다른 기능은 운영)",
+     "ok": true,
+     "ms": 49.1,
+     "detail": ""
+    },
+    {
+     "phase": "verify",
+     "step": "요청자 본인 승인 거부(2인 통제)",
+     "ok": true,
+     "ms": 62.4,
+     "detail": ""
+    },
+    {
+     "phase": "recover",
+     "step": "다른 관리자 승인 후 재개",
+     "ok": true,
+     "ms": 63.2,
+     "detail": ""
+    }
+   ]
+  },
+  {
+   "name": "credential_stuffing",
+   "title": "대입 공격(한 IP)",
+   "ok": true,
+   "detect_ms": 78.7,
+   "contain_ms": 85.2,
+   "recover_ms": 421.6,
+   "steps": [
+    {
+     "phase": "detect",
+     "step": "한 IP 로그인 실패 30건 → 규칙 대응",
+     "ok": true,
+     "ms": 78.7,
+     "detail": ""
+    },
+    {
+     "phase": "contain",
+     "step": "그 IP 의 로그인 차단(429 ip_blocked)",
+     "ok": true,
+     "ms": 85.2,
+     "detail": "429"
+    },
+    {
+     "phase": "recover",
+     "step": "차단 해제 후 정상 로그인",
+     "ok": true,
+     "ms": 421.6,
+     "detail": "200"
+    }
+   ]
+  },
+  {
+   "name": "cookie_theft",
+   "title": "쿠키 탈취(다른 기기)",
+   "ok": true,
+   "detect_ms": 26.0,
+   "contain_ms": 27.4,
+   "recover_ms": 352.6,
+   "steps": [
+    {
+     "phase": "detect",
+     "step": "다른 기기 키 서명 → 401 dpop_mismatch",
+     "ok": true,
+     "ms": 26.0,
+     "detail": "401"
+    },
+    {
+     "phase": "contain",
+     "step": "세션 종료(탈취로 판단)",
+     "ok": true,
+     "ms": 27.4,
+     "detail": "dpop_mismatch"
+    },
+    {
+     "phase": "verify",
+     "step": "돈이 움직이지 않음",
+     "ok": true,
+     "ms": 28.3,
+     "detail": "0"
+    },
+    {
+     "phase": "recover",
+     "step": "원래 기기로 다시 로그인",
+     "ok": true,
+     "ms": 352.6,
+     "detail": "200"
+    }
+   ]
+  },
+  {
+   "name": "file_tamper",
+   "title": "파일 변조·웹셸",
+   "ok": true,
+   "detect_ms": 20.9,
+   "contain_ms": 22.6,
+   "recover_ms": 28.8,
+   "steps": [
+    {
+     "phase": "detect",
+     "step": "새 파일·변경 탐지",
+     "ok": true,
+     "ms": 20.9,
+     "detail": "{'changed': 1, 'missing': 0, 'unexpected': 1}"
+    },
+    {
+     "phase": "contain",
+     "step": "보안 이벤트(심각)·경보",
+     "ok": true,
+     "ms": 22.6,
+     "detail": "alert"
+    },
+    {
+     "phase": "recover",
+     "step": "승인된 파일로 되돌리면 정상",
+     "ok": true,
+     "ms": 28.8,
+     "detail": "ok"
+    }
+   ]
+  }
+ ],
+ "target": "outofstock_drill"
+}

@@ -1,0 +1,23 @@
+{
+ "seconds": 18.7,
+ "low_clients": 60,
+ "critical_clients": 4,
+ "critical": {
+  "ok": 66,
+  "fail": 0,
+  "codes": {},
+  "success_rate": 1.0,
+  "p50_ms": 717.8,
+  "p95_ms": 898.8,
+  "p99_ms": 986.2,
+  "mean_ms": 722.3
+ },
+ "low": {
+  "ok": 1139,
+  "shed_503": 0,
+  "err": 0,
+  "rps_ok": 60.9,
+  "p50_ms": 796.0,
+  "p95_ms": 1107.6
+ }
+}

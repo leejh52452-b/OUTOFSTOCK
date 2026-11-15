@@ -1,0 +1,283 @@
+# OUTOFSTOCK — 운영 오버레이(제로트러스트 배치). 기본 docker-compose.yml 위에 겹쳐 실행한다:
+#   ./deploy/deploy.sh          # 아래 명령 + DB 역할·마이그레이션(소유자 계정)·헬스체크·빈 DB 시드
+#   docker compose --env-file .env --env-file .env.db -f docker-compose.yml -f docker-compose.prod.yml --profile full up -d --build
+#
+# 비밀값 두 파일(둘 다 install -m 600, git 금지)
+#   .env    — 앱 설정·API 키. 앱 컨테이너(app·scheduler·realtime)에 그대로 들어간다.
+#   .env.db — DB 비밀번호(슈퍼유저·소유자·앱·조회·백업). compose 가 '접속 문자열을 만들 때만' 쓴다 →
+#             앱 컨테이너에는 자기 계정(oos_app) 것만, 마이그레이션 작업에는 소유자 것만 들어간다.
+#
+# 네트워크 — 기본 거부, 필요한 길만 잇는다(앱·DB 는 인터넷과 직접 닿지 않는다)
+#   outside (인터넷)  edge(nginx) · egress-proxy 만
+#   web     (내부)    edge → app                        바깥에서 앱으로 오는 유일한 길(앱 포트는 공개하지 않는다)
+#   data    (내부)    app·scheduler·realtime·migrate·backup → db       DB 포트 공개 없음
+#   egress  (내부)    app·scheduler·realtime → egress-proxy → 허용 목록 호스트만(app/security/egress.py 와 같은 목록)
+# 컨테이너 — 루트 아님 · 루트 파일시스템 읽기 전용 · capability 전부 제거 · 권한 상승 금지 · 프로세스·메모리 상한
+# DB 계정 — 앱 oos_app(RLS 적용, DDL 없음) · 마이그레이션 oos_owner · 분석 oos_ro · 백업 oos_backup(읽기 + RLS 우회)
+#   ※ 공식 postgres 이미지의 POSTGRES_USER 는 슈퍼유저다. 앱이 그 계정으로 붙으면 행 수준 보안(RLS)이 통째로 우회된다
+#     (2026-10-21 점검에서 확인 — 그래서 앱 계정 비밀번호가 없으면 기동을 거부한다).
+
+x-hardening: &hardening
+  read_only: true
+  tmpfs: ["/tmp:rw,noexec,nosuid,nodev,size=64m"]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  restart: unless-stopped
+  deploy:
+    resources:
+      limits: {pids: 256, memory: 512m}               # 서비스별로 더 필요한 곳은 아래에서 덮어쓴다
+  logging:
+    driver: json-file
+    options: {max-size: "20m", max-file: "5"}
+
+x-app-common: &app-common
+  <<: *hardening
+  image: outofstock/app:${APP_VERSION:-local}
+  user: "10001:10001"
+  env_file: !override
+    - path: .env
+      required: false
+  depends_on:
+    db:
+      condition: service_healthy
+  volumes:
+    - oos_state:/var/lib/oos
+    - ./deploy/tls/trust:/tls:ro                     # DB_TLS=on 일 때 DB 인증서를 검증할 CA(공개 정보만)
+
+x-app-env: &app-env
+  # 앱 계정(oos_app) — 비밀번호가 없으면 기동 거부(슈퍼유저로 돌아가는 일을 막는다)
+  DATABASE_URL: postgresql+psycopg://oos_app:${OOS_APP_PASSWORD:?.env.db 에 OOS_APP_PASSWORD 를 설정하세요(슈퍼유저로 앱을 돌리면 RLS 가 우회됩니다)}@db:5432/${POSTGRES_DB:-outofstock}${DB_SSL_QUERY:-}
+  ANALYTICS_DATABASE_URL: postgresql+psycopg://oos_ro:${OOS_RO_PASSWORD:?.env.db 에 OOS_RO_PASSWORD 를 설정하세요}@db:5432/${POSTGRES_DB:-outofstock}${DB_SSL_QUERY:-}
+  MIGRATION_DATABASE_URL: ""                        # 장기 실행 컨테이너는 소유자 권한을 갖지 않는다(마이그레이션은 migrate 작업)
+  HTTPS_PROXY: http://egress-proxy:3128
+  HTTP_PROXY: http://egress-proxy:3128
+  NO_PROXY: db,localhost,127.0.0.1
+  https_proxy: http://egress-proxy:3128              # 웹소켓 클라이언트 등 소문자만 읽는 라이브러리용
+  http_proxy: http://egress-proxy:3128
+  no_proxy: db,localhost,127.0.0.1
+  RATE_LIMIT_BACKEND: postgres                       # 워커·컨테이너가 여럿이어도 시도 제한이 하나로
+  LOG_FORMAT: json
+  AUDIT_WITNESS_FILE: /var/lib/oos/witness/audit.jsonl
+  TZ: Asia/Seoul
+
+services:
+  db:
+    restart: unless-stopped
+    ports: !reset []                                 # 개발용 127.0.0.1:5432 공개를 지운다 — DB 는 data 망 안에서만
+    networks: [data]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-oos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env.db 에 POSTGRES_PASSWORD 를 설정하세요}
+      POSTGRES_DB: ${POSTGRES_DB:-outofstock}
+      POSTGRES_INITDB_ARGS: --data-checksums         # 디스크 손상(조용한 비트 오류)을 읽을 때 잡는다
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements  # 느린 쿼리 상위(tools/pg_top_queries.py)
+      - -c
+      - pg_stat_statements.track=top
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - log_connections=on
+      - -c
+      - log_disconnections=on
+      - -c
+      - log_min_duration_statement=1000              # 1초 넘는 쿼리는 로그에(값은 $1 로 가려진 형태가 아니라 원문이므로 운영 로그 보관에 주의)
+      # ── DB 서버 설정(ADR-0027 · app/services/dbtune.py 와 같은 규칙) — 아래 컨테이너 메모리 한도 2GB 기준, .env.db 로 메모리 값만 조정 ──
+      - -c
+      - shared_buffers=${DB_SHARED_BUFFERS:-512MB}
+      - -c
+      - effective_cache_size=${DB_EFFECTIVE_CACHE_SIZE:-1GB}
+      - -c
+      - work_mem=${DB_WORK_MEM:-8MB}
+      - -c
+      - maintenance_work_mem=${DB_MAINTENANCE_WORK_MEM:-128MB}
+      - -c
+      - random_page_cost=1.1                         # SSD — 무작위 읽기가 순차와 비슷
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - wal_compression=lz4                          # 전체 페이지 이미지 압축(PG15+)
+      - -c
+      - default_toast_compression=lz4                # 큰 값 압축·해제가 pglz 보다 빠르다
+      - -c
+      - max_wal_size=2GB
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - track_io_timing=on
+      - -c
+      - log_autovacuum_min_duration=10s
+      - -c
+      - log_lock_waits=on
+      - -c
+      - log_temp_files=10MB
+      - -c
+      - autovacuum_vacuum_scale_factor=0.1
+      - -c
+      - autovacuum_analyze_scale_factor=0.05
+      - -c
+      - idle_in_transaction_session_timeout=10min    # 사람이 열어 둔 트랜잭션도 끊는다(앱 연결은 60초)
+      - -c
+      - jit=off                                      # 작은 OLTP 쿼리에 컴파일 지연만 더한다
+      - -c
+      - ssl=${DB_TLS:-off}                           # DB_TLS=on: 앱↔DB 도 암호화(같은 호스트 안이라도 '망을 믿지 않는다')
+      - -c
+      - ssl_cert_file=/tls/db.crt
+      - -c
+      - ssl_key_file=/tls/db.key
+      - -c
+      - ssl_min_protocol_version=TLSv1.2
+      - -c
+      - hba_file=${DB_HBA_FILE:-/var/lib/postgresql/data/pg_hba.conf}   # TLS 켜면 /etc/oos/pg_hba_tls.conf(평문 TCP 거부)
+    volumes:
+      - ./deploy/sql:/sql:ro
+      - ./deploy/sql/pg_hba_tls.conf:/etc/oos/pg_hba_tls.conf:ro
+      - ./deploy/tls/db:/tls:ro
+    read_only: true
+    tmpfs: ["/tmp:rw,size=64m", "/var/run/postgresql:rw,size=8m"]
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]   # 공식 이미지 진입점이 postgres 사용자로 내려갈 때만 필요
+    security_opt: ["no-new-privileges:true"]
+    shm_size: 256m
+    deploy:
+      resources:
+        limits: {pids: 512, memory: 2g}
+
+  app:
+    <<: *app-common
+    build: {context: ., target: runtime}
+    ports: !reset []                                 # 공개는 edge(nginx)만
+    # 앱은 data(DB)·egress(프록시) 망에도 붙지만 'app-web'(web 망 주소)에서만 듣는다 — 다른 망의 컨테이너(스케줄러·프록시 등)는
+    # 앱에 연결조차 못 하고, 연결할 수 있는 상대는 edge 하나다. 예전엔 0.0.0.0 이라 egress 프록시가 침해되면 edge 를 건너뛰고
+    # X-Forwarded-For·X-Client-Cert-Verified 를 위조할 수 있었다(2026-10-23 독립 점검).
+    networks:
+      web: {aliases: [app-web]}
+      data: {}
+      egress: {}
+    environment:
+      <<: *app-env
+      FORWARDED_ALLOW_IPS: "*"                       # 위처럼 들어올 수 있는 건 edge 뿐 — edge 가 덮어쓴 실제 IP 를 믿는다
+      APP_HEALTH_URL: http://app-web:8000/health     # 이미지 헬스체크도 듣는 주소로
+      DB_STATEMENT_TIMEOUT_MS: ${API_STATEMENT_TIMEOUT_MS:-5000}   # 한 쿼리 시간 제한은 API 에만(배치 적재는 끊지 않는다)
+    command: ["uvicorn", "app.api:app", "--host", "app-web", "--port", "8000", "--workers", "${WORKERS:-2}",
+              "--timeout-keep-alive", "65", "--proxy-headers", "--no-server-header"]
+    deploy:
+      resources:
+        limits: {pids: 512, cpus: "2", memory: 1536m}
+
+  # 매일 23:00 run.py real + 08:40 KRX · 15:45 KIS · 07:30 해외 · 보안·원장·품질 작업
+  scheduler:
+    <<: *app-common
+    profiles: ["full"]
+    build: {context: ., target: runtime}
+    command: ["python", "scheduler.py"]
+    networks: [data, egress]
+    environment:
+      <<: *app-env
+      UPTIME_URL: "off"                              # 스케줄러는 앱 망(web)에 붙지 않는다(격리) — 가용성 감시는 edge 헬스체크·외부 감시로
+    healthcheck: {disable: true}
+    deploy:
+      resources:
+        limits: {pids: 256, cpus: "1", memory: 2g}
+
+  # 실시간 체결가(국내 KIS · 해외 Finnhub) — 키가 하나도 없으면 바로 정상 종료(재시작 안 함)
+  realtime:
+    <<: *app-common
+    profiles: ["full"]
+    build: {context: ., target: runtime}
+    command: ["python", "run.py", "realtime"]
+    restart: on-failure
+    networks: [data, egress]
+    environment:
+      <<: *app-env
+    healthcheck: {disable: true}
+    deploy:
+      resources:
+        limits: {pids: 256, cpus: "1", memory: 768m}
+
+  # 스키마 변경 — 배포 때만 한 번(./deploy/deploy.sh). 소유자 계정은 이 작업에만 들어간다
+  migrate:
+    <<: *app-common
+    profiles: ["ops"]
+    build: {context: ., target: runtime}
+    command: ["python", "run.py", "initdb"]
+    restart: "no"
+    networks: [data]
+    environment:
+      DATABASE_URL: postgresql+psycopg://oos_owner:${OOS_OWNER_PASSWORD:?.env.db 에 OOS_OWNER_PASSWORD 를 설정하세요}@db:5432/${POSTGRES_DB:-outofstock}${DB_SSL_QUERY:-}
+      MIGRATION_DATABASE_URL: postgresql+psycopg://oos_owner:${OOS_OWNER_PASSWORD}@db:5432/${POSTGRES_DB:-outofstock}${DB_SSL_QUERY:-}
+      TZ: Asia/Seoul
+    healthcheck: {disable: true}
+
+  # 백업 — 호스트 타이머가 매일 실행: docker compose … run --rm backup  (tools/dr.py backup)
+  backup:
+    <<: *hardening
+    profiles: ["ops"]
+    build: {context: ., target: backup}
+    image: outofstock/backup:${APP_VERSION:-local}
+    user: "10001:10001"
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [data]
+    environment:
+      BACKUP_DATABASE_URL: postgresql+psycopg://oos_backup:${OOS_BACKUP_PASSWORD:?.env.db 에 OOS_BACKUP_PASSWORD 를 설정하세요}@db:5432/${POSTGRES_DB:-outofstock}${DB_SSL_QUERY:-}
+      DATABASE_URL: postgresql+psycopg://oos_app:${OOS_APP_PASSWORD}@db:5432/${POSTGRES_DB:-outofstock}${DB_SSL_QUERY:-}
+      BACKUP_DIR: /backups
+      BACKUP_AGE_RECIPIENTS: /run/secrets/backup.recipients
+      BACKUP_OFFSITE_CMD: ${BACKUP_OFFSITE_CMD:-}
+      TZ: Asia/Seoul
+    volumes:
+      - ${BACKUP_HOST_DIR:-./var/backups}:/backups
+      - ${BACKUP_RECIPIENTS_FILE:-./deploy/backup/recipients.txt}:/run/secrets/backup.recipients:ro
+      - ./deploy/tls/trust:/tls:ro
+
+  # 나가는 길의 문지기 — 허용 목록 밖으로는 못 나간다(앱 안의 egress 검사와 이중). 목록은 egress.py 에서 생성
+  egress-proxy:
+    <<: *hardening
+    profiles: ["full"]
+    build: {context: ./deploy/egress-proxy}
+    image: outofstock/egress-proxy:${APP_VERSION:-local}
+    networks: [egress, outside]
+    cap_add: [SETUID, SETGID]                        # squid 가 시작 뒤 proxy 사용자로 내려간다
+    tmpfs: ["/tmp:rw,size=16m", "/var/spool/squid:rw,size=16m,uid=13,gid=13", "/var/log/squid:rw,size=64m,uid=13,gid=13",
+            "/run:rw,size=8m"]                       # uid 13 = squid 가 내려가는 proxy 사용자
+    volumes:
+      - ./deploy/egress-proxy/squid.conf:/etc/squid/squid.conf:ro
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/3128"]     # 프록시 포트가 받는가(pid 파일을 쓰지 않아 -k check 대신)
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # 들어오는 길의 문지기 — TLS 종단 · 요청 크기·속도 제한 · /admin 관리 기기 인증서(mTLS) · 요청 ID
+  edge:
+    <<: *hardening
+    profiles: ["full"]
+    image: nginxinc/nginx-unprivileged:1.27-alpine
+    depends_on: [app]
+    networks: [outside, web]
+    ports:
+      - "${HTTP_PORT:-80}:8080"
+      - "${HTTPS_PORT:-443}:8443"
+    tmpfs: ["/tmp:rw,size=64m"]
+    volumes:
+      - ./deploy/nginx/compose-${EDGE_MODE:-http}.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/tls/edge:/etc/nginx/tls:ro
+    healthcheck:                                     # 앞단이 앱까지 실제로 통하는가(이미지의 busybox wget)
+      test: ["CMD-SHELL", "wget -q -O /dev/null --no-check-certificate https://127.0.0.1:8443/health || wget -q -O /dev/null http://127.0.0.1:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  outside: {}
+  web: {internal: true}
+  data: {internal: true}
+  egress: {internal: true}
+
+volumes:
+  oos_state: {}

@@ -1,0 +1,12 @@
+{
+ "users": 10,
+ "seconds": 20,
+ "requests": {
+  "polling": 100,
+  "sse": 10
+ },
+ "per_user_per_min": {
+  "polling": 30.0,
+  "sse": 3.0
+ }
+}

@@ -1,0 +1,58 @@
+# 수동 설치용 견본(전용 계정 outofstock · 코드 /opt/outofstock/stock-backend). 보통은 bash deploy/vm.sh install 이
+# 지금 계정·경로에 맞춰 같은 내용(+ 백업 타이머)을 만들어 준다 — 그쪽을 권장.
+[Unit]
+Description=OUTOFSTOCK 스케줄러 (매일 23:00 run.py real[뉴스 포함] · 08:40 KRX · 15:45 KIS 종가 · 07:30 해외)
+After=network-online.target postgresql.service outofstock-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=outofstock
+Group=outofstock
+WorkingDirectory=/opt/outofstock/stock-backend
+EnvironmentFile=/opt/outofstock/stock-backend/.env
+Environment=TZ=Asia/Seoul PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/outofstock/stock-backend/.venv/bin/python scheduler.py
+Restart=on-failure
+RestartSec=10
+# ── 샌드박스(최소 권한) — bash deploy/vm.sh install 이 만드는 서비스와 같은 기준(systemd-analyze security 1.x OK)
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateIPC=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=-/opt/outofstock/stock-backend/var
+StateDirectory=outofstock
+StateDirectoryMode=0700
+CacheDirectory=outofstock
+CacheDirectoryMode=0700
+Environment=XDG_CACHE_HOME=%C/outofstock
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+SystemCallErrorNumber=EPERM
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+LimitCORE=0
+IPAccounting=yes
+# 나가는 연결을 허용 목록 프록시로만(같은 서버의 squid — python tools/egress.py --squid --vm --listen 127.0.0.1:3128):
+#Environment=HTTP_PROXY=http://127.0.0.1:3128 HTTPS_PROXY=http://127.0.0.1:3128 http_proxy=http://127.0.0.1:3128 https_proxy=http://127.0.0.1:3128 NO_PROXY=localhost,127.0.0.1,::1 no_proxy=localhost,127.0.0.1,::1
+#IPAddressDeny=any
+#IPAddressAllow=localhost
+
+[Install]
+WantedBy=multi-user.target

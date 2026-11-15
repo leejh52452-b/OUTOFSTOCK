@@ -1,0 +1,12 @@
+# ruff — CI(lint 작업)와 같은 규칙. 정확성(문법 오류·정의 안 된 이름·안 쓰는 import·중복 정의)을 막는 데 집중하고,
+# 팀 코드의 '한 줄에 여러 문장' 스타일(E701·E702)과 짧은 변수명(E741)은 허용한다. 근거: README 의 CI 절.
+line-length = 130
+target-version = "py311"
+extend-exclude = ["frontend", "content-algo", "initdb", "snapshots"]
+
+[lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E701", "E702", "E741"]
+
+[lint.per-file-ignores]
+"tests/test_news.py" = ["E402"]          # 환경 변수를 먼저 정한 뒤 import 해야 하는 테스트

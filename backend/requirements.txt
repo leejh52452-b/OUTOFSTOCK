@@ -1,0 +1,20 @@
+# 주 버전 상한을 둔다 — 새 메이저 버전(예: APScheduler 4 는 blocking 스케줄러 제거)이 나와도
+# 설치할 때마다 동작이 바뀌지 않게. (Python 3.11~3.12 에서 테스트)
+numpy>=1.26,<3
+pandas>=2.2,<4
+finance-datareader>=0.9.0
+requests>=2.31,<3
+SQLAlchemy>=2.0,<3
+psycopg[binary]>=3.1,<4      # PostgreSQL 드라이버(전용). libpq 별도 설치 불필요(binary 휠)
+fastapi>=0.110,<1
+uvicorn>=0.29,<1
+python-dotenv>=1.0,<2
+APScheduler>=3.10,<4         # 4.x 는 API 가 달라 scheduler.py 가 안 돈다
+tzdata>=2024.1               # 미국 동부시간(서머타임) 계산용 — 슬림 도커 이미지 대비
+holidays>=0.60,<1            # 국내(KRX)·미국(NYSE) 휴장일 — '휴장일' 표시·실시간 수집기 대기
+websocket-client>=1.6,<2
+cryptography>=50.0.2,<51     # AES-256-GCM 암호화 저장(KIS 토큰·결제 키) — 3번 정보보호. 하한 = pip-audit 이 알려 준 취약점 수정판
+scikit-learn>=1.4,<2         # 신용위험(로지스틱·GBM)·수익률 예측 검증 — 4·5번 모형
+defusedxml>=0.7,<1           # 외부 XML(DART 회사 목록·뉴스 RSS) 안전 파싱 — 3번 정보보호(bandit B314)
+httpx>=0.27,<1               # 복구 훈련의 서비스 기동 점검(TestClient)·부하 시험 도구
+# 개발·시험 도구는 requirements-dev.txt(pytest·ruff·bandit·pip-audit). 운영 이미지는 requirements.lock(해시 고정)으로 설치

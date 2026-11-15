@@ -1,0 +1,421 @@
+### OUTOFSTOCK API — 요청 모음 (2026-10-27 판, 바로 눌러 테스트)
+### VS Code "REST Client" 확장에서 각 요청 위 "Send Request" 클릭. (IntelliJ HTTP Client 는 @token 에 토큰을 직접 붙여넣기)
+### 이 파일은 Bearer 모드(가이드 1.2)로 부른다 — 브라우저 화면은 쿠키 모드(가이드 2.1). 서버 응답 형태는 같다.
+### 로컬 서버: python run.py demo → uvicorn app.api:app --reload → @baseUrl = http://localhost:8000 (데모 계정 demo@oos.io / demo1234)
+
+@baseUrl = http://<VM_IP>
+# 예: http://203.0.113.5 (nginx 경계 뒤) · http://203.0.113.5:8000 (nginx 없이) · http://localhost:8000 (로컬)
+@ticker = 005930
+@user = demo@oos.io
+@password = demo1234
+@peer = friend@oos.io
+
+### ───────── 로그인(Bearer) — 아래 요청들이 이 응답의 토큰을 쓴다 ─────────
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "username": "{{user}}", "password": "{{password}}" }
+
+###
+@token = {{login.response.body.$.token}}
+@refresh = {{login.response.body.$.refresh_token}}
+
+### 접근 토큰은 10분 — 401 token_expired 면 갱신(갱신 토큰은 1회용: 쓰면 새것으로 바뀐다 → 다시 login 하거나 응답의 새 값을 쓸 것)
+# @name refreshed
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{ "refresh_token": "{{refresh}}" }
+
+### 가입(비밀번호 8~128자 · 영문+숫자 · 아이디 포함 금지 · 흔한 비밀번호 금지)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{ "username": "jane", "password": "Jane-stock-2026" }
+
+### 추가 인증(비밀번호 재확인) — 401 step_up_required 를 받은 뒤. 5분 유효(로그인은 추가 인증으로 치지 않는다)
+POST {{baseUrl}}/auth/step-up
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "password": "{{password}}" }
+
+### 내 세션(기기) 목록 · 종료
+GET {{baseUrl}}/auth/sessions
+Authorization: Bearer {{token}}
+
+###
+DELETE {{baseUrl}}/auth/sessions/SESSION_ID_HERE
+Authorization: Bearer {{token}}
+
+### 2단계 인증 상태(등록은 /auth/mfa/setup → 앱 6자리로 /auth/mfa/confirm — 추가 인증 필요)
+GET {{baseUrl}}/auth/mfa
+Authorization: Bearer {{token}}
+
+### ───────── 홈 ─────────
+GET {{baseUrl}}/indices
+
+###
+GET {{baseUrl}}/overseas/indices
+
+###
+GET {{baseUrl}}/market/stocks?sort=value&limit=10
+
+###
+GET {{baseUrl}}/news?limit=8
+
+###
+GET {{baseUrl}}/reco/products?profile=안정형
+
+### 오늘의 추천 종목 Top 5(멀티팩터 모델, 교육용) — profile 주면 적합성 필터
+GET {{baseUrl}}/reco/top5
+
+###
+GET {{baseUrl}}/reco/top5?profile=안정형
+
+### 한 달 전 추천 종목 투자 결과(+ 벤치마크 대비)
+GET {{baseUrl}}/reco/top5/review?days=30
+
+### 추천 모델 설명서(팩터·가중치·필터·한계)
+GET {{baseUrl}}/reco/model
+
+### 추천 모델 검증(워크포워드 백테스트)
+GET {{baseUrl}}/reco/top5/backtest?days=180&horizon=20
+
+### 모형 모니터링 — 입력 안정성(PSI) · IC 추이
+GET {{baseUrl}}/reco/model/monitor?ref_days=60
+
+### 벤치마크 비교(Champion–Challenger)
+GET {{baseUrl}}/reco/model/challengers?days=180&horizon=20
+
+### 오늘의 용어(홈 '1분 용어 학습')
+GET {{baseUrl}}/learn/today
+
+### 진행 중 실습 배너(비로그인은 서버가 게스트 쿠키를 발급 — REST Client 가 쿠키를 기억한다)
+GET {{baseUrl}}/practice/home
+
+### ───────── 투자 성향 분석(영역별 2문항 무작위 10문항 · 0~3점) ─────────
+GET {{baseUrl}}/survey/questions
+
+### 20문항 은행 전체
+GET {{baseUrl}}/survey/questions?all=true
+
+### 권장 형식: 출제된 문항 id + 보기 번호(영역 A~E 각 2개) — 토큰을 붙이면 내 성향 이력에 저장
+POST {{baseUrl}}/survey/submit
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "answers": [ {"id":"Q1","answer":0},{"id":"Q2","answer":1},{"id":"Q5","answer":1},{"id":"Q6","answer":2},
+               {"id":"Q9","answer":0},{"id":"Q10","answer":1},{"id":"Q13","answer":1},{"id":"Q14","answer":0},
+               {"id":"Q17","answer":1},{"id":"Q20","answer":0} ] }
+
+### 호환 형식: 보기 번호 10개(= 점수) → 17점 = 중립형
+POST {{baseUrl}}/survey/submit
+Content-Type: application/json
+
+{ "answers": [2, 1, 2, 2, 1, 2, 2, 2, 1, 2] }
+
+### ───────── 학습 ─────────
+### 용어 사전 전체(팀 learn.html 화면)
+GET {{baseUrl}}/learn/dictionary
+
+### '이해했어요' 계정 저장(로그인 필요)
+GET {{baseUrl}}/learn/progress
+Authorization: Bearer {{token}}
+
+###
+POST {{baseUrl}}/learn/progress
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "term": "골든크로스", "done": true }
+
+### 열람 기록(로그인 시 저장)
+POST {{baseUrl}}/learn/log
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "kind": "term", "item_key": "RSI", "item_name": "RSI" }
+
+### Daily Stock Quiz — 오늘 기록(문제는 화면이 assets/daily-quiz.js 로 만들고, 서버가 같은 공식으로 다시 만들어 채점)
+GET {{baseUrl}}/learn/quiz
+Authorization: Bearer {{token}}
+
+### 답 제출 — 화면에 보인 순서의 보기 번호(0~3) 5개 · 하루 1번(다시 내면 처음 결과 duplicate: true) · 날짜는 오늘(KST) ±1일
+### 정답 보상: 점수 × reward_per_correct(기본 10만 원)를 지갑에 — 한국 날짜 하루 1번(응답 reward · balance)
+POST {{baseUrl}}/learn/quiz
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "date": "{{$localDatetime 'YYYY-MM-DD'}}", "answers": [2, 0, 3, 1, 1] }
+
+### ───────── 실습 ─────────
+### 웹 실습 기록(팀 practice.html — 한 판씩) + 기법별 요약(마이페이지 '실습 이력')
+GET {{baseUrl}}/practice/records?limit=20&offset=0
+Authorization: Bearer {{token}}
+
+### 한 판 저장 — 수익률은 화면 계산값(범위만 확인: −1.0 ~ 10.0) · 가상머니와 무관 · 시간당 120회
+POST {{baseUrl}}/practice/records
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "tech": "golden", "mode": "practice", "traded": true, "ret": 0.052 }
+
+### 아래는 서버 시나리오 실습(차트·체결을 서버가 가진다)
+GET {{baseUrl}}/practice/scenarios
+
+### 시작 → 응답의 session_id 를 아래에서 쓴다(user_id 는 더 이상 받지 않는다 — 로그인 계정 또는 게스트 쿠키)
+# @name startPractice
+POST {{baseUrl}}/practice/start
+Content-Type: application/json
+
+{ "scenario_id": "samsung-golden" }
+
+###
+@sid = {{startPractice.response.body.$.session_id}}
+GET {{baseUrl}}/practice/{{sid}}
+
+###
+POST {{baseUrl}}/practice/{{sid}}/step
+Content-Type: application/json
+
+{ "days": 1 }
+
+### 매매 — 더블클릭 대비 멱등키(같은 키는 1번만 체결)
+POST {{baseUrl}}/practice/{{sid}}/trade
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{ "side": "BUY", "quantity": 30 }
+
+###
+POST {{baseUrl}}/practice/{{sid}}/end
+
+### ───────── 국내 종목 ─────────
+### 자동완성(타이핑 중 — 기록 안 함): 초성·조합 중 글자·별칭·영문 약자 한글 읽기
+GET {{baseUrl}}/search/suggest?q=삼서
+
+###
+GET {{baseUrl}}/search/suggest?q=ㅅㅅㅈㅈ
+
+###
+GET {{baseUrl}}/search/suggest?q=엘지
+
+### 실제로 고른 검색 기록 → 인기 검색 종목
+POST {{baseUrl}}/search/log
+Content-Type: application/json
+
+{ "keyword": "삼성", "ticker": "005930" }
+
+###
+GET {{baseUrl}}/search/popular?limit=8
+
+###
+GET {{baseUrl}}/stocks/{{ticker}}/detail
+
+###
+GET {{baseUrl}}/stocks/{{ticker}}/ohlc?period=6M&indicators=SMA5,SMA20,RSI14
+
+### 종목 관련 뉴스(최신순·호재/악재) + 최근 7일 요약 — '더 보기'는 offset
+GET {{baseUrl}}/stocks/{{ticker}}/news?limit=10&offset=0
+
+### 리스크(VaR·ES·최대낙폭) · VaR 백테스트(바젤 신호등) · 재무 건전성(Altman Z''·Merton) · 비교 기업
+GET {{baseUrl}}/stocks/{{ticker}}/risk
+
+###
+GET {{baseUrl}}/stocks/{{ticker}}/var-backtest?conf=0.99
+
+###
+GET {{baseUrl}}/stocks/{{ticker}}/soundness
+
+###
+GET {{baseUrl}}/stocks/035420/peers
+
+### ───────── 해외 종목 ─────────
+GET {{baseUrl}}/overseas/list?sort=value&limit=20
+
+### 해외 화면 검색창(국내도 함께, 해외 먼저)
+GET {{baseUrl}}/search/suggest?q=아&kind=all&prefer=us
+
+###
+GET {{baseUrl}}/overseas/AAPL/detail
+
+###
+GET {{baseUrl}}/overseas/AAPL/ohlc?period=6M&indicators=SMA20
+
+### ───────── 뉴스 ─────────
+### 뉴스 화면 전체(팀 news.html · news-api.js 계약) — views=null, 순위는 보도량(coverage), aiPicks = AI 뉴스 픽
+GET {{baseUrl}}/api/news/home
+
+###
+GET {{baseUrl}}/news?limit=20
+
+### ───────── 마이페이지 · 관심종목(로그인) ─────────
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### '더보기' 전용 페이지(20건씩) — kind: wallet|practice|learning|access|survey|watchlist · 지갑 filter: all|reward|charge|transfer|invest
+GET {{baseUrl}}/me/logs/wallet?limit=20&offset=0&filter=all
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/me/badges
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/watchlist
+Authorization: Bearer {{token}}
+
+###
+POST {{baseUrl}}/watchlist/{{ticker}}
+Authorization: Bearer {{token}}
+
+###
+DELETE {{baseUrl}}/watchlist/{{ticker}}
+Authorization: Bearer {{token}}
+
+### ───────── 가상머니 지갑(로그인) ─────────
+GET {{baseUrl}}/wallet
+Authorization: Bearer {{token}}
+
+###
+POST {{baseUrl}}/attendance/check-in
+Authorization: Bearer {{token}}
+
+### 송금 — 멱등키 필수 권장. 100만 원 이상이면 401 step_up_required → /auth/step-up 후 같은 키로 다시
+POST {{baseUrl}}/transfer
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Idempotency-Key: {{$guid}}
+
+{ "to": "{{peer}}", "amount": 10000, "memo": "점심값" }
+
+### 장기 모의투자
+GET {{baseUrl}}/invest
+Authorization: Bearer {{token}}
+
+###
+POST {{baseUrl}}/invest/buy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "ticker": "{{ticker}}", "quantity": 1 }
+
+### 내 포트폴리오 리스크 · 스트레스 테스트
+GET {{baseUrl}}/invest/risk
+Authorization: Bearer {{token}}
+
+### 충전 상품(공개) · 토스 설정(공개)
+GET {{baseUrl}}/iap/products
+
+###
+GET {{baseUrl}}/pay/toss/config
+
+### ───────── 양봉이 꾸미기(아이템 30개 = 부위 6 × 등급 5, id 는 부위-등급) ─────────
+GET {{baseUrl}}/avatar/catalog
+
+###
+GET {{baseUrl}}/avatar/me
+Authorization: Bearer {{token}}
+
+### 사기 — price 는 화면이 보여 준 가격(서버 가격과 다르면 409). 이미 가짐·잔액 부족은 400
+POST {{baseUrl}}/avatar/buy
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "item_id": "hat-2", "price": 100000, "equip": true }
+
+### 갈아입기·벗기 — 바꿀 부위만(null = 벗기), 하나라도 틀리면 전부 그대로
+POST {{baseUrl}}/avatar/equip
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "items": { "hat": "hat-2", "pet": null } }
+
+### ───────── 친구(요청 → 상대 수락) · 채팅 ─────────
+GET {{baseUrl}}/users?q=
+Authorization: Bearer {{token}}
+
+###
+POST {{baseUrl}}/friends/{{peer}}
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/friends/requests
+Authorization: Bearer {{token}}
+
+### (받은 쪽 토큰으로) 수락 / 거절
+POST {{baseUrl}}/friends/{{peer}}/accept
+Authorization: Bearer {{token}}
+
+###
+DELETE {{baseUrl}}/friends/{{peer}}/request
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/friends
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/friends/{{peer}}/profile
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/chat/rooms
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/chat/{{peer}}/messages?after_id=0&limit=50
+Authorization: Bearer {{token}}
+
+### 서로 친구일 때만(1~1000자)
+POST {{baseUrl}}/chat/{{peer}}/messages
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "body": "안녕! 오늘 실습 해 봤어?" }
+
+### ───────── 관리자(운영자 전용) — 역할 자격(ADMIN_USERS + run.py admin-bootstrap) · OTP 세션 · 30분 JIT 활성 ─────────
+### 1) 2단계 인증 등록 시작 — 위 /auth/step-up 직후 5분 안에. 응답의 otpauth_uri 를 OTP 앱(QR)에 등록
+POST {{baseUrl}}/auth/mfa/setup
+Authorization: Bearer {{token}}
+
+### 2) OTP 앱 6자리로 확인 → 켜짐 + 복구 코드 10개(지금 한 번만). 이 세션은 바로 'OTP 확인된 세션'(AAL2)
+POST {{baseUrl}}/auth/mfa/confirm
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "code": "123456" }
+
+### 3) 역할 활성 — 사유 필수, 최대 30분(JIT). role: auditor | security_admin | admin. 다음 로그인부터는 login 본문에 "otp" 를 넣는다
+POST {{baseUrl}}/admin/elevate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "role": "auditor", "reason": "월간 개인정보 처리 기록 점검" }
+
+### 4) 예: 감사 로그 해시 체인 + 외부 증인 검증 · 보안 이벤트 · 개인정보 열람 기록(제8조 점검)
+GET {{baseUrl}}/admin/audit/verify
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/admin/security/events
+Authorization: Bearer {{token}}
+
+###
+GET {{baseUrl}}/admin/pii-access
+Authorization: Bearer {{token}}
+
+### 5) 끝나면 바로 내리기(30분이 지나면 자동)
+POST {{baseUrl}}/admin/elevate/end
+Authorization: Bearer {{token}}
+
+### ───────── 로그아웃 ─────────
+### 이 세션(접근·갱신 토큰)을 서버에서 즉시 폐기
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+### 모든 기기에서 로그아웃(바로 위 logout 을 보냈다면 그 토큰은 이미 무효 — login 을 다시 누른 뒤)
+POST {{baseUrl}}/auth/logout-all
+Authorization: Bearer {{token}}

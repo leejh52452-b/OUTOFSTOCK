@@ -1,0 +1,275 @@
+{
+ "users": 20,
+ "seconds": 26.0,
+ "etag": false,
+ "total": 2863,
+ "rps": 110.3,
+ "rows": [
+  {
+   "endpoint": "<private>",
+   "count": 1007,
+   "rps": 38.8,
+   "p50_ms": 147.1,
+   "p95_ms": 455.3,
+   "p99_ms": 533.5,
+   "mean_ms": 187.5,
+   "errors": 0,
+   "status": {
+    "200": 1007
+   },
+   "kb": 227.5
+  },
+  {
+   "endpoint": "<public>",
+   "count": 1713,
+   "rps": 66.0,
+   "p50_ms": 168.8,
+   "p95_ms": 319.7,
+   "p99_ms": 404.6,
+   "mean_ms": 176.7,
+   "errors": 0,
+   "status": {
+    "200": 1713
+   },
+   "kb": 28321.8
+  },
+  {
+   "endpoint": "<write>",
+   "count": 143,
+   "rps": 5.5,
+   "p50_ms": 49.7,
+   "p95_ms": 103.9,
+   "p99_ms": 185.5,
+   "mean_ms": 56.8,
+   "errors": 0,
+   "status": {
+    "200": 143
+   },
+   "kb": 3.9
+  },
+  {
+   "endpoint": "/api/news/home",
+   "count": 217,
+   "rps": 8.4,
+   "p50_ms": 75.6,
+   "p95_ms": 162.5,
+   "p99_ms": 194.7,
+   "mean_ms": 82.9,
+   "errors": 0,
+   "status": {
+    "200": 217
+   },
+   "kb": 5184.7
+  },
+  {
+   "endpoint": "/chat/rooms",
+   "count": 108,
+   "rps": 4.2,
+   "p50_ms": 159.5,
+   "p95_ms": 303.4,
+   "p99_ms": 364.7,
+   "mean_ms": 168.0,
+   "errors": 0,
+   "status": {
+    "200": 108
+   },
+   "kb": 3.1
+  },
+  {
+   "endpoint": "/indices",
+   "count": 353,
+   "rps": 13.6,
+   "p50_ms": 167.8,
+   "p95_ms": 302.0,
+   "p99_ms": 380.2,
+   "mean_ms": 178.7,
+   "errors": 0,
+   "status": {
+    "200": 353
+   },
+   "kb": 446.8
+  },
+  {
+   "endpoint": "/invest",
+   "count": 104,
+   "rps": 4.0,
+   "p50_ms": 109.9,
+   "p95_ms": 199.5,
+   "p99_ms": 234.8,
+   "mean_ms": 113.3,
+   "errors": 0,
+   "status": {
+    "200": 104
+   },
+   "kb": 12.7
+  },
+  {
+   "endpoint": "/learn/dictionary",
+   "count": 130,
+   "rps": 5.0,
+   "p50_ms": 102.0,
+   "p95_ms": 159.6,
+   "p99_ms": 233.0,
+   "mean_ms": 105.3,
+   "errors": 0,
+   "status": {
+    "200": 130
+   },
+   "kb": 16734.5
+  },
+  {
+   "endpoint": "/market/stocks",
+   "count": 200,
+   "rps": 7.7,
+   "p50_ms": 200.0,
+   "p95_ms": 317.2,
+   "p99_ms": 410.1,
+   "mean_ms": 203.3,
+   "errors": 0,
+   "status": {
+    "200": 200
+   },
+   "kb": 898.2
+  },
+  {
+   "endpoint": "/me",
+   "count": 175,
+   "rps": 6.7,
+   "p50_ms": 397.3,
+   "p95_ms": 544.1,
+   "p99_ms": 633.0,
+   "mean_ms": 399.4,
+   "errors": 0,
+   "status": {
+    "200": 175
+   },
+   "kb": 151.8
+  },
+  {
+   "endpoint": "/me/badges",
+   "count": 310,
+   "rps": 11.9,
+   "p50_ms": 133.4,
+   "p95_ms": 253.4,
+   "p99_ms": 338.0,
+   "mean_ms": 143.5,
+   "errors": 0,
+   "status": {
+    "200": 310
+   },
+   "kb": 11.2
+  },
+  {
+   "endpoint": "/overseas/list",
+   "count": 124,
+   "rps": 4.8,
+   "p50_ms": 239.9,
+   "p95_ms": 396.6,
+   "p99_ms": 420.8,
+   "mean_ms": 251.5,
+   "errors": 0,
+   "status": {
+    "200": 124
+   },
+   "kb": 1503.9
+  },
+  {
+   "endpoint": "/reco/top5",
+   "count": 235,
+   "rps": 9.1,
+   "p50_ms": 190.6,
+   "p95_ms": 330.8,
+   "p99_ms": 436.6,
+   "mean_ms": 202.5,
+   "errors": 0,
+   "status": {
+    "200": 235
+   },
+   "kb": 1775.6
+  },
+  {
+   "endpoint": "/search/log",
+   "count": 143,
+   "rps": 5.5,
+   "p50_ms": 49.7,
+   "p95_ms": 103.9,
+   "p99_ms": 185.5,
+   "mean_ms": 56.8,
+   "errors": 0,
+   "status": {
+    "200": 143
+   },
+   "kb": 3.9
+  },
+  {
+   "endpoint": "/search/suggest",
+   "count": 103,
+   "rps": 4.0,
+   "p50_ms": 120.3,
+   "p95_ms": 187.7,
+   "p99_ms": 276.4,
+   "mean_ms": 126.2,
+   "errors": 0,
+   "status": {
+    "200": 103
+   },
+   "kb": 52.9
+  },
+  {
+   "endpoint": "/stocks/005930/detail",
+   "count": 226,
+   "rps": 8.7,
+   "p50_ms": 225.9,
+   "p95_ms": 347.0,
+   "p99_ms": 443.6,
+   "mean_ms": 233.5,
+   "errors": 0,
+   "status": {
+    "200": 226
+   },
+   "kb": 105.5
+  },
+  {
+   "endpoint": "/stocks/005930/ohlc",
+   "count": 125,
+   "rps": 4.8,
+   "p50_ms": 170.8,
+   "p95_ms": 308.4,
+   "p99_ms": 394.1,
+   "mean_ms": 181.7,
+   "errors": 0,
+   "status": {
+    "200": 125
+   },
+   "kb": 1619.8
+  },
+  {
+   "endpoint": "/wallet",
+   "count": 196,
+   "rps": 7.6,
+   "p50_ms": 138.9,
+   "p95_ms": 305.1,
+   "p99_ms": 356.1,
+   "mean_ms": 153.9,
+   "errors": 0,
+   "status": {
+    "200": 196
+   },
+   "kb": 46.3
+  },
+  {
+   "endpoint": "/watchlist",
+   "count": 114,
+   "rps": 4.4,
+   "p50_ms": 117.3,
+   "p95_ms": 232.7,
+   "p99_ms": 328.2,
+   "mean_ms": 125.7,
+   "errors": 0,
+   "status": {
+    "200": 114
+   },
+   "kb": 2.4
+  }
+ ]
+}

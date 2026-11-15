@@ -1,0 +1,42 @@
+# 비밀 값 — 저장소에 넣지 않는다(값이 빈 예시 파일만 올린다: .env.example · env.prod.example · env.db.example)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+# 캐시·로컬 상태
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+*.sqlite3
+*.log
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+node_modules/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Claude outputs/
+deploy/.seeded
+*.bak
+snapshots/
+reco_check_result.txt
+theme_labels_*.csv
+# 로컬 백업·복구 훈련 보고서(백업 파일은 저장소에 두지 않는다 — docs/dr/drills 에 증적만)
+var/
+*.age
+# 운영 값·생성물 — 저장소·설치본에 넣지 않는다
+deploy/backup/recipients.txt
+deploy/generated/
+dist/

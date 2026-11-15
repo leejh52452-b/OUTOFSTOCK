@@ -1,0 +1,175 @@
+{
+ "tickers": 2700,
+ "years": 10,
+ "start": "2016-10-01",
+ "end": "2026-09-30",
+ "configs": {
+  "A heap(파티션 없음)": {
+   "queries": {
+    "Q1 최신 거래일": {
+     "ms": 504.5,
+     "buffers": 80019,
+     "relations": 1,
+     "plan": "Aggregate → Gather → Seq Scan"
+    },
+    "Q2 그날 거래대금 상위 50": {
+     "ms": 208.19,
+     "buffers": 80091,
+     "relations": 1,
+     "plan": "Limit → Gather Merge → Sort → Seq Scan"
+    },
+    "Q3 한 종목 1년": {
+     "ms": 0.32,
+     "buffers": 265,
+     "relations": 1,
+     "plan": "Sort → Bitmap Heap Scan → Bitmap Index Scan(ph_heap_pkey)"
+    },
+    "Q4 거래량 급증": {
+     "ms": 330.79,
+     "buffers": 80109,
+     "relations": 1,
+     "plan": "Limit → Sort → Subquery Scan → WindowAgg → Gather Merge → Seq Scan"
+    },
+    "Q5 52주 신고가": {
+     "ms": 274.96,
+     "buffers": 80035,
+     "relations": 1,
+     "plan": "Aggregate → Gather Merge → Sort → Seq Scan"
+    },
+    "Q6 월별 거래대금 3년": {
+     "ms": 500.7,
+     "buffers": 80035,
+     "relations": 1,
+     "plan": "Aggregate → Gather Merge → Sort → Seq Scan"
+    }
+   },
+   "table_size": "902 MB"
+  },
+  "B 연도 파티션": {
+   "queries": {
+    "Q1 최신 거래일": {
+     "ms": 818.58,
+     "buffers": 80022,
+     "relations": 11,
+     "plan": "Aggregate → Gather → Append → Seq Scan"
+    },
+    "Q2 그날 거래대금 상위 50": {
+     "ms": 33.35,
+     "buffers": 6055,
+     "relations": 1,
+     "plan": "Limit → Gather Merge → Sort → Seq Scan"
+    },
+    "Q3 한 종목 1년": {
+     "ms": 0.38,
+     "buffers": 267,
+     "relations": 2,
+     "plan": "Sort → Append → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2025_pkey) → Bitmap Index Scan(ph_part_2026_pkey)"
+    },
+    "Q4 거래량 급증": {
+     "ms": 156.47,
+     "buffers": 5983,
+     "relations": 1,
+     "plan": "Limit → Sort → Subquery Scan → WindowAgg → Seq Scan"
+    },
+    "Q5 52주 신고가": {
+     "ms": 154.84,
+     "buffers": 14007,
+     "relations": 2,
+     "plan": "Aggregate → Gather Merge → Sort → Append → Seq Scan"
+    },
+    "Q6 월별 거래대금 3년": {
+     "ms": 477.77,
+     "buffers": 30024,
+     "relations": 4,
+     "plan": "Aggregate → Gather Merge → Sort → Append → Seq Scan"
+    }
+   }
+  },
+  "C 파티션+B-tree(trade_date)": {
+   "queries": {
+    "Q1 최신 거래일": {
+     "ms": 0.03,
+     "buffers": 4,
+     "relations": 11,
+     "plan": "Result → Limit → Append → Index Only Scan(ph_part_2026_trade_date_idx) → Index Only Scan(ph_part_2025_trade_date_idx) → Index Only Scan(ph_part_2024_trade_date_idx)"
+    },
+    "Q2 그날 거래대금 상위 50": {
+     "ms": 0.71,
+     "buffers": 36,
+     "relations": 1,
+     "plan": "Limit → Sort → Index Scan(ph_part_2026_trade_date_idx)"
+    },
+    "Q3 한 종목 1년": {
+     "ms": 0.4,
+     "buffers": 267,
+     "relations": 2,
+     "plan": "Sort → Append → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2025_pkey) → Bitmap Index Scan(ph_part_2026_pkey)"
+    },
+    "Q4 거래량 급증": {
+     "ms": 105.91,
+     "buffers": 928,
+     "relations": 1,
+     "plan": "Limit → Sort → Subquery Scan → WindowAgg → Index Scan(ph_part_2026_trade_date_idx)"
+    },
+    "Q5 52주 신고가": {
+     "ms": 148.88,
+     "buffers": 8167,
+     "relations": 2,
+     "plan": "Aggregate → Gather → Append → Index Scan(ph_part_2025_trade_date_idx) → Seq Scan"
+    },
+    "Q6 월별 거래대금 3년": {
+     "ms": 465.81,
+     "buffers": 24198,
+     "relations": 4,
+     "plan": "Aggregate → Gather Merge → Sort → Append → Index Scan(ph_part_2023_trade_date_idx) → Seq Scan"
+    }
+   },
+   "index_size": "48 MB"
+  },
+  "D 파티션+BRIN(trade_date)": {
+   "queries": {
+    "Q1 최신 거래일": {
+     "ms": 776.88,
+     "buffers": 80022,
+     "relations": 11,
+     "plan": "Aggregate → Gather → Append → Seq Scan"
+    },
+    "Q2 그날 거래대금 상위 50": {
+     "ms": 0.72,
+     "buffers": 33,
+     "relations": 1,
+     "plan": "Limit → Sort → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2026_trade_date_idx)"
+    },
+    "Q3 한 종목 1년": {
+     "ms": 0.36,
+     "buffers": 267,
+     "relations": 2,
+     "plan": "Sort → Append → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2025_pkey) → Bitmap Index Scan(ph_part_2026_pkey)"
+    },
+    "Q4 거래량 급증": {
+     "ms": 109.45,
+     "buffers": 865,
+     "relations": 1,
+     "plan": "Limit → Sort → Subquery Scan → WindowAgg → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2026_trade_date_idx)"
+    },
+    "Q5 52주 신고가": {
+     "ms": 148.4,
+     "buffers": 8068,
+     "relations": 2,
+     "plan": "Aggregate → Gather → Append → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2025_trade_date_idx) → Seq Scan"
+    },
+    "Q6 월별 거래대금 3년": {
+     "ms": 459.9,
+     "buffers": 24101,
+     "relations": 4,
+     "plan": "Aggregate → Gather Merge → Sort → Append → Bitmap Heap Scan → Bitmap Index Scan(ph_part_2023_trade_date_idx)"
+    }
+   },
+   "index_size": "264 kB"
+  }
+ },
+ "rows": 7041600,
+ "gen_seconds": 79.6,
+ "pg_version": "16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)",
+ "total_seconds": 103.0
+}
