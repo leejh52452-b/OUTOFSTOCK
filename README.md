@@ -21,6 +21,7 @@
 | 시연 영상 | [OUTOFSTOCK 시연 영상](https://www.youtube.com/watch?v=KgwQZfjFGgk) |
 | 포스터 | [OUTOFSTOCK 포스터](docs/OUTOFSTOCK_poster.pdf) |
 | 프로젝트 결과 보고서 | [OUTOFSTOCK 결과보고서]() |
+| 실행 파 | [OUTOFSTOCK 결과보고서]()](http://10.0.10.26:8000/index.html) |    
 
 ---
 
