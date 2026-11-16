@@ -144,7 +144,7 @@ python tools/fetch_real_prices.py
 | 해외 시세 · 공시 | Finnhub, SEC EDGAR |
 | 뉴스 | 언론사 RSS (기사 제목 · 링크만 표시, 본문은 원문 링크로 연결) |
 
-### 만든 데이터
+### 생성한 데이터
 
 - **모의투자 가상 주가** (`frontend/data/`, `backend/app/data/vmarket/`): 통계를 바탕으로 생성한 가상 데이터이며 실제 시세가 아닙니다.
 - **주간 추천 과거 결과** (`recommend/history_baskets_2022_2026.csv`): 추천 알고리즘을 과거 구간에 적용해 계산한 수익률입니다.
